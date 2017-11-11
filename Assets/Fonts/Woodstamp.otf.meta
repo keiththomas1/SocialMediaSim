@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: dd97b6ac50dfdd64fb39b0545ec56c23
+timeCreated: 1510120363
+licenseType: Pro
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Wood Stamp
+  fontNames:
+  - Wood Stamp
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

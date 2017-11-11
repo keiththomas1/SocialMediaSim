@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 0c5b9119ba3475840803dee7dd22c818
+timeCreated: 1502060458
+licenseType: Pro
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Milkshake
+  fontNames:
+  - Milkshake
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
