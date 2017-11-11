@@ -139,6 +139,7 @@ public class ProfileScreenController : MonoBehaviour {
     public void EnterScreen()
     {
         page = GameObject.Instantiate(Resources.Load("Profile/DGProfilePage") as GameObject);
+        page.transform.position = new Vector3(0.2f, 1.3f, 0.0f);
 
         scrollArea = page.transform.Find("ScrollArea").gameObject;
         scrollController = scrollArea.AddComponent<ScrollController>();
