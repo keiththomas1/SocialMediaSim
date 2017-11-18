@@ -28,33 +28,19 @@ public class ExploreScreenController : MonoBehaviour
         this._postHelper = new PostHelper();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonUp(0))
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
-            {
-                if (hit.collider.name == "ExplorePost")
-                {
-                    this._currentDragObject = hit.collider.gameObject;
-                    this._dragStartMouseDifference =
-                        Camera.main.ScreenToWorldPoint(Input.mousePosition) - this._currentDragObject.transform.position;
-                    this._dragObjectDepth = this._currentDragObject.transform.position.z;
-                }
-            }
-        } else if (Input.GetMouseButtonUp(0)) {
             if (this._currentDragObject)
             {
                 if (this._currentDragObject.transform.position.x <= -1.0f)
                 { // Dislike
-                    DislikePicture();
+                    this.DislikePicture();
                 }
                 else if (this._currentDragObject.transform.position.x >= 1.0f)
                 { // Like
-                    LikePicture();
+                    this.LikePicture();
                 }
 
                 this._currentDragObject = null;
@@ -71,10 +57,13 @@ public class ExploreScreenController : MonoBehaviour
             if (newObjectPosition.x <= -1.0f)
             { // Dislike
                 this._dislikeBorder.SetActive(true);
-            } else if (newObjectPosition.x >= 1.0f)
+            }
+            else if (newObjectPosition.x >= 1.0f)
             { // Like
                 this._likeBorder.SetActive(true);
-            } else {
+            }
+            else
+            {
                 if (this._likeBorder.activeSelf == true)
                 {
                     this._likeBorder.SetActive(false);
@@ -87,9 +76,24 @@ public class ExploreScreenController : MonoBehaviour
         }
     }
 
+    // Update is called once per frame
+    public void CheckClick(Collider collider)
+    {
+        switch (collider.name)
+        {
+            case "ExplorePost":
+                this._currentDragObject = collider.gameObject;
+                this._dragStartMouseDifference =
+                    Camera.main.ScreenToWorldPoint(Input.mousePosition) - this._currentDragObject.transform.position;
+                this._dragObjectDepth = this._currentDragObject.transform.position.z;
+                break;
+        }
+    }
+
     public void EnterScreen()
     {
         this._explorePage = GameObject.Instantiate(Resources.Load("Explore/ExplorePage") as GameObject);
+        this._explorePage.transform.position = new Vector3(0.0f, 0.5f, 0.0f);
         this._dislikeBorder = this._explorePage.transform.Find("DislikeBorder").gameObject;
         this._dislikeBorder.SetActive(false);
         this._likeBorder = this._explorePage.transform.Find("LikeBorder").gameObject;

@@ -3,31 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CroppingController : MonoBehaviour {
-    private CharacterSerializer _characterSerializer;
     private ScrollController _scrollController;
 
-    private GameObject _avatar;
-    private float _avatarDepth;
-    private bool _avatarBeingDragged = false;
+    private List<GameObject> _movableObjects;
+    private GameObject _currentObject = null;
+    private float _currentObjectDepth;
+    private bool _currentlyDragging = false;
     private Vector3 _dragStartMouseDifference;
 
-	// Use this for initialization
-	void Start () {
-        this._characterSerializer = CharacterSerializer.Instance;
-        switch (this._characterSerializer.Gender)
-        {
-            case Gender.Male:
-                this._avatar = this.transform.Find("MaleAvatar").gameObject;
-                this.transform.Find("FemaleAvatar").gameObject.SetActive(false);
-                break;
-            case Gender.Female:
-            default:
-                this._avatar = this.transform.Find("FemaleAvatar").gameObject;
-                this.transform.Find("MaleAvatar").gameObject.SetActive(false);
-                break;
-        }
+    private GameObject _leftArrow;
+    private GameObject _rightArrow;
+    private GameObject _upArrow;
+    private GameObject _downArrow;
 
-        this._avatarDepth = this._avatar.transform.position.z;
+    // Use this for initialization
+    void Start () {
     }
 
     // Update is called once per frame
@@ -44,6 +34,7 @@ public class CroppingController : MonoBehaviour {
         }
         if (currentTouchCount == 2)
         {
+            this._currentObject.transform.Rotate(0, 0, 20);
             // Store both touches.
             Touch touchOne = Input.GetTouch(0);
             Touch touchTwo = Input.GetTouch(1);
@@ -59,10 +50,10 @@ public class CroppingController : MonoBehaviour {
             // Find the difference in the distances between each frame.
             float deltaMagnitudeDiff = prevTouchDeltaMag - touchDeltaMag;
 
-            this._avatar.transform.localScale = new Vector3(
-                this._avatar.transform.localScale.x + (deltaMagnitudeDiff * 0.1f),
-                this._avatar.transform.localScale.y + (deltaMagnitudeDiff * 0.1f),
-                this._avatar.transform.localScale.z);
+            this._currentObject.transform.localScale = new Vector3(
+                this._currentObject.transform.localScale.x + (deltaMagnitudeDiff * 0.1f),
+                this._currentObject.transform.localScale.y + (deltaMagnitudeDiff * 0.1f),
+                this._currentObject.transform.localScale.z);
         }
         if (Input.GetMouseButtonDown(0))
         {
@@ -70,34 +61,75 @@ public class CroppingController : MonoBehaviour {
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
             {
-                if (hit.collider.gameObject == this._avatar)
+                foreach(GameObject movable in this._movableObjects)
                 {
-                    this._avatarBeingDragged = true;
-                    this._dragStartMouseDifference =
-                        Camera.main.ScreenToWorldPoint(Input.mousePosition) - this._avatar.transform.position;
-                    if (this._scrollController)
+                    if (hit.collider.gameObject == movable)
                     {
-                        this._scrollController.CanScroll = false;
+                        this._currentObject = hit.collider.gameObject;
+                        this._currentObjectDepth = this._currentObject.transform.position.z;
+
+                        this._leftArrow = this._currentObject.transform.Find("LeftArrow").gameObject;
+                        this._rightArrow = this._currentObject.transform.Find("RightArrow").gameObject;
+                        this._upArrow = this._currentObject.transform.Find("TopArrow").gameObject;
+                        this._downArrow = this._currentObject.transform.Find("BottomArrow").gameObject;
+
+                        this._currentlyDragging = true;
+                        this._dragStartMouseDifference =
+                            Camera.main.ScreenToWorldPoint(Input.mousePosition) - this._currentObject.transform.position;
+                        if (this._scrollController)
+                        {
+                            this._scrollController.CanScroll = false;
+                        }
+
+                        break;
                     }
                 }
             }
         }
         if (Input.GetMouseButtonUp(0))
         {
-            this._avatarBeingDragged = false;
+            this._currentlyDragging = false;
             if (this._scrollController)
             {
                 this._scrollController.CanScroll = true;
             }
         }
 
-        if (this._avatarBeingDragged)
+        if (this._currentlyDragging)
         {
             var newAvatarPosition =
                 Camera.main.ScreenToWorldPoint(Input.mousePosition) - this._dragStartMouseDifference;
-            newAvatarPosition.z = this._avatarDepth;
-            this._avatar.transform.position = newAvatarPosition;
+            newAvatarPosition.z = this._currentObjectDepth;
+            this._currentObject.transform.position = newAvatarPosition;
+
+            var currentColor = this._leftArrow.GetComponent<SpriteRenderer>().color;
+            if (currentColor.a > 0.0f)
+            {
+                currentColor.a -= 0.03f;
+                this._leftArrow.GetComponent<SpriteRenderer>().color = currentColor;
+                this._rightArrow.GetComponent<SpriteRenderer>().color = currentColor;
+                this._upArrow.GetComponent<SpriteRenderer>().color = currentColor;
+                this._downArrow.GetComponent<SpriteRenderer>().color = currentColor;
+            }
+        } else {
+            if (this._currentObject)
+            {
+                var currentColor = this._leftArrow.GetComponent<SpriteRenderer>().color;
+                if (currentColor.a < 1.0f)
+                {
+                    currentColor.a += 0.03f;
+                    this._leftArrow.GetComponent<SpriteRenderer>().color = currentColor;
+                    this._rightArrow.GetComponent<SpriteRenderer>().color = currentColor;
+                    this._upArrow.GetComponent<SpriteRenderer>().color = currentColor;
+                    this._downArrow.GetComponent<SpriteRenderer>().color = currentColor;
+                }
+            }
         }
+    }
+
+    public void SetMovableItems(List<GameObject> items)
+    {
+        this._movableObjects = items;
     }
 
     public void SetScrollController(ScrollController scrollController)

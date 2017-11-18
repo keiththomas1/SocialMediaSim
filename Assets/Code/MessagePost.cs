@@ -12,6 +12,10 @@ public class MessagePost
     private static MessagePost _instance;
     private UserSerializer _userSerializer;
     private MessagesSerializer _messageSerializer;
+    private CharacterRandomization _characterRandomization;
+    private MessageCollection _messageCollection;
+
+    private bool _seenLostDogConvo = false;
 
     public static MessagePost Instance
     {
@@ -29,67 +33,61 @@ public class MessagePost
     {
         this._userSerializer = UserSerializer.Instance;
         this._messageSerializer = MessagesSerializer.Instance;
+        this._messageCollection = new MessageCollection();
+
+        foreach (Conversation convo in this._messageSerializer.ActiveConversations)
+        {
+            if (convo.npcName == MessageCollection.LOST_DOG_NPC_NAME)
+            {
+                this._seenLostDogConvo = true;
+            }
+        }
     }
 
-    public void TriggerActivated(MessageTriggerType trigger)
+    public bool TriggerActivated(MessageTriggerType trigger)
     {
         switch(trigger)
         {
             case MessageTriggerType.NewPost:
-                CreateNextMessage();
-                break;
+                return CreateNextMessage();
             default:
-                break;
+                return false;
         }
     }
 
-    private void CreateNextMessage()
+    public void ChoiceMade(Conversation conversation, int choice)
     {
-        CreateLostDogConversation();
+        conversation.choicesMade.Add(choice);
+        Conversation newConversation = conversation;
+
+        switch (conversation.npcName)
+        {
+            case MessageCollection.LOST_DOG_NPC_NAME:
+                if (conversation.choicesMade.Count == 1)
+                {
+                    if (choice == 1)
+                    {
+                        Debug.Log("set bulldog true");
+                        this._userSerializer.HasBulldog = true;
+                    }
+                }
+                newConversation = this._messageCollection.CreateLostDogConversation(conversation.choicesMade);
+                break;
+        }
+
+        this._messageSerializer.UpdateConversation(newConversation);
     }
 
-    private void CreateLostDogConversation()
+    private bool CreateNextMessage()
     {
-        this._userSerializer.HasBulldog = true;
+        if (!this._seenLostDogConvo)
+        {
+            var conversation = this._messageCollection.CreateLostDogConversation(new List<int>());
+            this._messageSerializer.AddConversation(conversation);
+            this._seenLostDogConvo = true;
+            return true;
+        }
 
-        var newConversation = new Conversation();
-        newConversation.messages = new List<Message>();
-
-        var newMessage = new Message();
-        newMessage.text = "Hey (player name), I’m a friend of Mike. You live near 8th and Madison, right?" +
-            "Blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah";
-        newMessage.type = MessageType.NPC;
-        newMessage.timeSent = DateTime.Now;
-        newConversation.messages.Add(newMessage);
-
-        var newMessage2 = new Message();
-        newMessage2.text = "Blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah";
-        newMessage2.type = MessageType.NPC;
-        newMessage2.timeSent = DateTime.Now;
-        newConversation.messages.Add(newMessage2);
-
-        var newMessage3 = new Message();
-        newMessage3.text = "Test2";
-        newMessage3.type = MessageType.NPC;
-        newMessage3.timeSent = DateTime.Now;
-        newConversation.messages.Add(newMessage3);
-
-        var newMessage4 = new Message();
-        newMessage4.text = "Okay, yeah that sounds great.";
-        newMessage4.type = MessageType.Player;
-        newMessage4.timeSent = DateTime.Now;
-        newConversation.messages.Add(newMessage4);
-
-        var newMessage5 = new Message();
-        newMessage5.type = MessageType.Choice;
-       newMessage5.choices = new List<string>();
-       newMessage5.choices.Add("Choice1");
-       newMessage5.choices.Add("Choice2");
-       newMessage5.timeSent = DateTime.Now;
-        newConversation.messages.Add(newMessage5);
-
-        newConversation.npcName = "Karen";
-        newConversation.viewed = false;
-        this._messageSerializer.AddConversation(newConversation);
+        return false;
     }
 }

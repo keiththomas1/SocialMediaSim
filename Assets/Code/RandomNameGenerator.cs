@@ -4,53 +4,89 @@ using UnityEngine;
 
 public class RandomNameGenerator
 {
-    private List<string> _randomFirstNames;
-    private List<string> _randomLastNames;
+    private List<string> _beginnings;
+    private List<string> _middles;
+    private List<string> _endings;
+    private List<string> _words;
 
     // Use this for initialization
     public RandomNameGenerator()
     {
-        this._randomFirstNames = new List<string>();
-        this._randomLastNames = new List<string>();
-        this.LoadRandomNames();
+        this._beginnings = new List<string>();
+        this._middles = new List<string>();
+        this._endings = new List<string>();
+        this._words = new List<string>();
+        this.LoadWords();
     }
 
     public string GenerateRandomName()
     {
-        var firstNameSelection = UnityEngine.Random.Range(0, this._randomFirstNames.Count);
-        var name = this._randomFirstNames[firstNameSelection];
-        var lastNameSelection = UnityEngine.Random.Range(0, this._randomLastNames.Count);
-        name += this._randomLastNames[lastNameSelection];
+        var beginningSelection = UnityEngine.Random.Range(0, this._beginnings.Count);
+        var firstWordSelection = UnityEngine.Random.Range(0, this._words.Count);
+        var middleSelection = UnityEngine.Random.Range(0, this._middles.Count);
+        var secondWordSelection = UnityEngine.Random.Range(0, this._words.Count);
+        var randomNumbers = UnityEngine.Random.Range(0, 2) == 1 ? this.GenerateRandomNumbers() : "";
+        var endingSelection = UnityEngine.Random.Range(0, this._endings.Count);
+        var name = this._beginnings[beginningSelection] +
+            this._words[firstWordSelection] +
+            this._middles[middleSelection] +
+            this._words[secondWordSelection] +
+            randomNumbers +
+            this._endings[endingSelection];
 
         return name;
     }
 
-    private void LoadRandomNames()
+    private string GenerateRandomNumbers()
     {
-        this._randomFirstNames.Add("Dixie");
-        this._randomFirstNames.Add("Bubbles");
-        this._randomFirstNames.Add("Mercedes");
-        this._randomFirstNames.Add("Shavonda");
-        this._randomFirstNames.Add("Dixie");
-        this._randomFirstNames.Add("Pixie");
-        this._randomFirstNames.Add("Crystal");
-        this._randomFirstNames.Add("Amber");
-        this._randomFirstNames.Add("Angel");
-        this._randomFirstNames.Add("Dixie");
-        this._randomFirstNames.Add("Dixie");
+        return UnityEngine.Random.Range(0, 999).ToString();
+    }
 
-        this._randomLastNames.Add("Mellow");
-        this._randomLastNames.Add("Fancy");
-        this._randomLastNames.Add("Lovely");
-        this._randomLastNames.Add("Rose");
-        this._randomLastNames.Add("Splendid");
-        this._randomLastNames.Add("Goode");
-        this._randomLastNames.Add("Muffintrucks");
-        this._randomLastNames.Add("Normous");
-        this._randomLastNames.Add("Thotterella");
-        this._randomLastNames.Add("Hobag");
-        this._randomLastNames.Add("Enigma");
-        this._randomLastNames.Add("Beauty");
+    private void LoadWords()
+    {
+        this._beginnings.Add("");
+        this._beginnings.Add("xX");
+        this._beginnings.Add("~");
+
+        this._middles.Add("");
+        this._middles.Add(".");
+        this._middles.Add("X");
+
+        this._endings.Add("");
+        this._endings.Add("Xx");
+        this._beginnings.Add("~");
+
+        // Neutral
+        this._words.Add("love");
+        this._words.Add("trucker");
+        this._words.Add("shocker");
+        this._words.Add("diva");
+        this._words.Add("badass");
+        this._words.Add("rich");
+        this._words.Add("dick");
+        this._words.Add("nasty");
+        this._words.Add("af");
+        this._words.Add("dope");
+        this._words.Add("shady");
+        this._words.Add("gay");
+        this._words.Add("hard");
+        this._words.Add("huge");
+        this._words.Add("massive");
+        this._words.Add("tiny");
+        this._words.Add("champagne");
+        this._words.Add("weeb");
+        this._words.Add("amor");
+
+        // Female
+        this._words.Add("princess");
+        this._words.Add("baby");
+        this._words.Add("mami");
+        this._words.Add("queen");
+
+        // Male
+        this._words.Add("king");
+        this._words.Add("meathead");
+        this._words.Add("papi");
     }
 
 }

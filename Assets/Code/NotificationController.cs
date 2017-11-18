@@ -7,8 +7,8 @@ public class NotificationController : MonoBehaviour
 {
     [SerializeField]
     private GameObject _messagesNotificationBubble;
-    [SerializeField]
-    private GameObject _followersNotificationBubble;
+    // [SerializeField]
+    // private GameObject _followersNotificationBubble;
 
     private UIController _uiController;
 
@@ -32,7 +32,7 @@ public class NotificationController : MonoBehaviour
         this._oldFollowerAmount = _userSerializer.Followers;
 
         this._messagesNotificationBubble.GetComponent<CanvasGroup>().alpha = 0.0f;
-        this._followersNotificationBubble.GetComponent<CanvasGroup>().alpha = 0.0f;
+        // this._followersNotificationBubble.GetComponent<CanvasGroup>().alpha = 0.0f;
     }
 
     // Update is called once per frame
@@ -52,7 +52,7 @@ public class NotificationController : MonoBehaviour
                 this._messagesNotificationBubble.GetComponent<CanvasGroup>().alpha = 0.0f;
                 break;
             case Page.Profile:
-                this._followersNotificationBubble.GetComponent<CanvasGroup>().alpha = 0.0f;
+                //this._followersNotificationBubble.GetComponent<CanvasGroup>().alpha = 0.0f;
                 this._currentFollowerCount = 0;
                 break;
         }
@@ -100,9 +100,9 @@ public class NotificationController : MonoBehaviour
                 messageCountText.GetComponent<TextMeshProUGUI>().text = count.ToString();
                 break;
             case NotificationType.Follower:
-                this._followersNotificationBubble.GetComponent<CanvasGroup>().alpha = 1.0f;
-                var followerCountText = this._followersNotificationBubble.transform.Find("Count");
-                followerCountText.GetComponent<TextMeshProUGUI>().text = count.ToString();
+                //this._followersNotificationBubble.GetComponent<CanvasGroup>().alpha = 1.0f;
+                //var followerCountText = this._followersNotificationBubble.transform.Find("Count");
+                //followerCountText.GetComponent<TextMeshProUGUI>().text = count.ToString();
                 break;
         }
     }

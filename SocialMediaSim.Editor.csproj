@@ -125,11 +125,11 @@
     <Reference Include="NestedPrefabs_Editor">
       <HintPath>Assets\Nested Prefabs\NestedPrefabs_Editor.dll</HintPath>
     </Reference>
-    <Reference Include="TextMeshPro-1.0.55.56.0b11">
-      <HintPath>Assets\TextMesh Pro\Plugins\TextMeshPro-1.0.55.56.0b11.dll</HintPath>
+    <Reference Include="TextMeshPro-1.0.55.2017.1.0b12">
+      <HintPath>Assets\TextMesh Pro\Plugins\TextMeshPro-1.0.55.2017.1.0b12.dll</HintPath>
     </Reference>
-    <Reference Include="TextMeshPro-1.0.55.56.0b11-Editor">
-      <HintPath>Assets\TextMesh Pro\Plugins\Editor\TextMeshPro-1.0.55.56.0b11-Editor.dll</HintPath>
+    <Reference Include="TextMeshPro-1.0.55.2017.1.0b12-Editor">
+      <HintPath>Assets\TextMesh Pro\Plugins\Editor\TextMeshPro-1.0.55.2017.1.0b12-Editor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

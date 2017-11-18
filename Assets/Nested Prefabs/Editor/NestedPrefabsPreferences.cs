@@ -1,5 +1,5 @@
 ﻿using UnityEditor;
-using NestedPrefabs;
+using VisualDesignCafe.NestedPrefabs;
 
 public class NestedPrefabsPreferences
 {

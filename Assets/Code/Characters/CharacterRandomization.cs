@@ -26,6 +26,17 @@ public class CharacterRandomization {
         this.LoadSkinColors();
     }
 
+    public CharacterProperties GetFullRandomCharacter()
+    {
+        var newProperties = new CharacterProperties();
+        newProperties.faceSprite = this.GetRandomFemaleFaceSprite();
+        newProperties.gender = Gender.Female;
+        newProperties.hairColor = new SerializableColor(this.GetRandomColor());
+        newProperties.shirtColor = new SerializableColor(this.GetRandomColor());
+        newProperties.skinColor = new SerializableColor(this.GetRandomSkinColor());
+        return newProperties;
+    }
+
     // private string GetRandomBodySprite()
     // {
     //     var bodySprites = this._characterCustomization.BodySprites;

@@ -12,6 +12,13 @@ using UnityEngine.Networking;
 [Serializable]
 public class PictureItem
 {
+    public PictureItem() {}
+    public PictureItem(string _name, SerializableVector3 _location)
+    {
+        name = _name;
+        location = _location;
+    }
+
     public string name;
     public SerializableVector3 location;
 }
@@ -62,10 +69,34 @@ public class RESTRequester
     public RESTRequester() {
     }
 
+    public IEnumerator PostPicture(DelayGramPost post)
+    {
+        // Create a picture with information from picture
+        var newPicture = new PictureModelJsonSend();
+        newPicture.avatarPosition = post.avatarPosition;
+        newPicture.playerName = post.playerName;
+        newPicture.bodySprite = post.characterProperties.bodySprite;
+        newPicture.skinColor = post.characterProperties.skinColor;
+        newPicture.hairColor = post.characterProperties.hairColor;
+        newPicture.shirtColor = post.characterProperties.shirtColor;
+        newPicture.gender = post.characterProperties.gender.ToString();
+        newPicture.backgroundName = post.backgroundName;
+        newPicture.items = post.items;
+
+        var jsonifiedPicture = JsonUtility.ToJson(newPicture);
+        byte[] pictureData = Encoding.ASCII.GetBytes(jsonifiedPicture.ToCharArray());
+
+        var headers = new Dictionary<string, string>();
+        headers.Add("Content-Type", "application/json");
+        var www = new WWW(@"http://13.59.159.27/pictures", pictureData, headers);
+        //var www = new WWW(@"http://localhost:3000/pictures", pictureData, headers);
+        yield return www;
+    }
+
     public async void RequestLastTenPosts(GetLastTenCallback finishCallback)
     {
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(@"http://13.59.159.27/lastTenPictures");
-        // HttpWebRequest request = (HttpWebRequest)WebRequest.Create(@"localhost:3000/lastTenPictures");
+        // HttpWebRequest request = (HttpWebRequest)WebRequest.Create(@"http://localhost:3000/lastTenPictures");
         if (this._lastTenPostsRequest == null || (DateTime.Now - this._lastTenPostsRequest) > TimeSpan.FromMinutes(1))
         {
             HttpWebResponse response = null;
@@ -94,30 +125,6 @@ public class RESTRequester
         } else {
             finishCallback(this._lastTenPosts, true);
         }
-    }
-
-    public IEnumerator PostPicture(DelayGramPost post)
-    {
-        // Create a picture with information from picture
-        var newPicture = new PictureModelJsonSend();
-        newPicture.avatarPosition = post.avatarPosition;
-        newPicture.playerName = post.playerName;
-        newPicture.bodySprite = post.characterProperties.bodySprite;
-        newPicture.skinColor = post.characterProperties.skinColor;
-        newPicture.hairColor = post.characterProperties.hairColor;
-        newPicture.shirtColor = post.characterProperties.shirtColor;
-        newPicture.gender = post.characterProperties.gender.ToString();
-        newPicture.backgroundName = post.backgroundName;
-        newPicture.items = post.items;
-
-        var jsonifiedPicture = JsonUtility.ToJson(newPicture);
-        byte[] pictureData = Encoding.ASCII.GetBytes(jsonifiedPicture.ToCharArray());
-
-        var headers = new Dictionary<string, string>();
-        headers.Add("Content-Type", "application/json");
-        //var www = new WWW("http://13.59.159.27//pictures", pictureData, headers);
-        var www = new WWW("localhost:3000//pictures", pictureData, headers);
-        yield return www;
     }
 
     public IEnumerator AddLikeToPicture(string pictureID)

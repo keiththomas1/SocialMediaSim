@@ -1,12 +1,13 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class PostHelper {
+    private float LENGTH_BETWEEN_POSTS = 3.7f;
 
-	// Use this for initialization
-	public PostHelper() {
+    // Use this for initialization
+    public PostHelper() {
 	}
 
     public void PopulatePostFromData(GameObject post, DelayGramPost data) {
@@ -101,7 +102,7 @@ public class PostHelper {
     public List<GameObject> PopulatePostWithItems(GameObject pictureObject, List<PictureItem> items)
     {
         var itemObjects = new List<GameObject>();
-        foreach(var item in items)
+        foreach(PictureItem item in items)
         {
             GameObject itemObject = null;
             switch(item.name)
@@ -112,6 +113,7 @@ public class PostHelper {
             }
             if (itemObject != null)
             {
+                itemObject.name = item.name;
                 itemObject.transform.parent = pictureObject.transform;
                 itemObject.transform.localPosition = new Vector3(
                     item.location.x, item.location.y, item.location.z);
@@ -119,5 +121,73 @@ public class PostHelper {
             }
         }
         return itemObjects;
+    }
+
+    public void GeneratePostFeed(
+        GameObject scrollArea,
+        List<DelayGramPost> posts,
+        List<GameObject> postObjects,
+        ScrollController scrollController,
+        float postXOffset,
+        float postYOffset)
+    {
+        var currentY = scrollArea.transform.localPosition.y + postYOffset;
+        foreach (DelayGramPost post in posts)
+        {
+            var newPost = SetupPostPrefab(post, postXOffset, currentY, scrollArea);
+
+            currentY -= LENGTH_BETWEEN_POSTS;
+            postObjects.Add(newPost);
+        }
+
+        scrollController = scrollArea.AddComponent<ScrollController>();
+        scrollController.UpdateScrollArea(scrollArea, scrollArea.transform.localPosition.y, -currentY);
+    }
+
+    private GameObject SetupPostPrefab(DelayGramPost post, float xPosition, float yPosition, GameObject scrollArea)
+    {
+        var postPrefab = Resources.Load("Posts/NewPost") as GameObject;
+        if (postPrefab)
+        {
+            var postPrefabInstance = GameObject.Instantiate(postPrefab);
+            postPrefabInstance.name = post.imageID;
+            postPrefabInstance.transform.parent = scrollArea.transform;
+            postPrefabInstance.transform.localPosition = new Vector3(xPosition, yPosition, 0.0f);
+
+            var nameText = postPrefabInstance.transform.Find("NameText").GetComponent<TextMeshPro>();
+            nameText.text = post.playerName;
+
+            var timeText = postPrefabInstance.transform.Find("TimeText").GetComponent<TextMeshPro>();
+            var timeTextXPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.86f, 0.0f, 0.0f)).x;
+            timeText.transform.position = new Vector3(
+                timeTextXPosition,
+                timeText.transform.position.y,
+                timeText.transform.position.z);
+            var timeSincePost = DateTime.Now - post.dateTime;
+            // timeText.text = this._restRequester.GetPostTimeFromDateTime(timeSincePost);
+
+            var profilePicBubble = postPrefabInstance.transform.Find("ProfilePicBubble");
+            var profileBubbleXPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.07f, 0.0f, 0.0f)).x;
+            profilePicBubble.transform.position = new Vector3(
+                profileBubbleXPosition,
+                profilePicBubble.transform.position.y,
+                profilePicBubble.transform.position.z);
+            this.SetupProfilePicBubble(profilePicBubble.gameObject, post.characterProperties);
+
+            var likeDislikeArea = postPrefabInstance.transform.Find("LikeDislikeArea");
+            var likeDislikeAreaXPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.67f, 0.0f, 0.0f)).x;
+            likeDislikeArea.transform.position = new Vector3(
+                likeDislikeAreaXPosition,
+                likeDislikeArea.transform.position.y,
+                likeDislikeArea.transform.position.z);
+
+            this.PopulatePostFromData(postPrefabInstance, post);
+
+            return postPrefabInstance;
+        }
+        else
+        {
+            return null;
+        }
     }
 }

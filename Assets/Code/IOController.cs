@@ -8,7 +8,8 @@ public class IOController : MonoBehaviour
 
     private HomeScreenController _homeController;
     private ProfileScreenController _profileController;
-    private PostScreenController _postController;
+    private NewPostController _newPostController;
+    private ExploreScreenController _exploreController;
     private MessagesScreenController _messagesController;
     private RandomEventController _eventController;
 
@@ -18,7 +19,8 @@ public class IOController : MonoBehaviour
         this._uiController = GetComponent<UIController>();
         this._homeController = GetComponent<HomeScreenController>();
         this._profileController = GetComponent<ProfileScreenController>();
-        this._postController = GetComponent<PostScreenController>();
+        this._newPostController = GetComponent<NewPostController>();
+        this._exploreController = GetComponent<ExploreScreenController>();
         this._messagesController = GetComponent<MessagesScreenController>();
         this._eventController = GetComponent<RandomEventController>();
     }
@@ -38,27 +40,30 @@ public class IOController : MonoBehaviour
                 }
                 else
                 {
-                    CheckPageInput(hit.collider.name);
+                    CheckPageClick(hit.collider);
                 }
             }
         }
     }
 
-    private void CheckPageInput(string colliderName)
+    private void CheckPageClick(Collider collider)
     {
         switch (this._uiController.GetCurrentPage())
         {
             case Page.Home:
-                this._homeController.CheckClick(colliderName);
+                this._homeController.CheckClick(collider.name);
                 break;
             case Page.Profile:
-                this._profileController.CheckClick(colliderName);
+                this._profileController.CheckClick(collider.name);
                 break;
             case Page.Post:
-                this._postController.CheckClick(colliderName);
+                this._newPostController.CheckClick(collider.name);
+                break;
+            case Page.Explore:
+                this._exploreController.CheckClick(collider);
                 break;
             case Page.Messages:
-                this._messagesController.CheckClick(colliderName);
+                this._messagesController.CheckClick(collider.name);
                 break;
             default:
                 break;

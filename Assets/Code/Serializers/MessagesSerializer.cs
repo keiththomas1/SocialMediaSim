@@ -9,7 +9,8 @@ public enum MessageType
 {
     NPC,
     Player,
-    Choice
+    Choice,
+    Result
 }
 
 public class MessagesSerializer
@@ -33,35 +34,56 @@ public class MessagesSerializer
 
     private MessagesSerializer()
     {
-        savePath = Application.persistentDataPath + "/MessageInfo.dat";
+        this.savePath = Application.persistentDataPath + "/MessageInfo.dat";
     }
 
     public List<Conversation> ActiveConversations
     {
-        get { return currentSave.activeConversations; }
+        get { return this.currentSave.activeConversations; }
+    }
+    public Conversation? GetConversationByNPCName(string npcName)
+    {
+        foreach(Conversation convo in this.currentSave.activeConversations)
+        {
+            if (convo.npcName == npcName)
+            {
+                return convo;
+            }
+        }
+
+        return null;
     }
 
     public void AddConversation(Conversation conversation)
     {
-        currentSave.activeConversations.Insert(0, conversation);
-        SaveFile();
+        this.currentSave.activeConversations.Add(conversation);
+        this.SaveFile();
+    }
+    public void UpdateConversation(Conversation conversation)
+    {
+        var index = this.currentSave.activeConversations.FindIndex(c => c.npcName == conversation.npcName);
+        if (index != -1)
+        {
+            this.currentSave.activeConversations[index] = conversation;
+            this.SaveFile();
+        }
     }
 
     public void SaveFile()
     {
-        Thread oThread = new Thread(new ThreadStart(SaveGameThread));
+        Thread oThread = new Thread(new ThreadStart(this.SaveGameThread));
         oThread.Start();
     }
 
     public void SaveGameThread()
     {
-        FileStream file = File.Open(savePath, FileMode.OpenOrCreate);
+        FileStream file = File.Open(this.savePath, FileMode.OpenOrCreate);
 
         if (file.CanWrite)
         {
             BinaryFormatter bf = new BinaryFormatter();
             currentSave.lastUpdate = DateTime.Now;
-            bf.Serialize(file, currentSave);
+            bf.Serialize(file, this.currentSave);
             Debug.Log("Saved messages file");
         }
         else
@@ -74,21 +96,21 @@ public class MessagesSerializer
 
     public bool LoadGame()
     {
-        if (hasBeenLoaded)
+        if (this.hasBeenLoaded)
         {
             return true;
         }
 
         bool fileLoaded = false;
-        if (File.Exists(savePath))
+        if (File.Exists(this.savePath))
         {
-            FileStream file = File.Open(savePath, FileMode.Open);
+            FileStream file = File.Open(this.savePath, FileMode.Open);
 
             if (file.CanRead)
             {
                 BinaryFormatter bf = new BinaryFormatter();
                 currentSave = (MessageSaveVariables)bf.Deserialize(file);
-                Debug.Log("Save game loaded from " + savePath);
+                Debug.Log("Save game loaded from " + this.savePath);
                 fileLoaded = true;
             }
 
@@ -97,13 +119,13 @@ public class MessagesSerializer
 
         if (!fileLoaded)
         {
-            currentSave = new MessageSaveVariables();
-            currentSave.lastUpdate = DateTime.Now;
-            currentSave.activeConversations = new List<Conversation>();
-            SaveFile();
+            this.currentSave = new MessageSaveVariables();
+            this.currentSave.lastUpdate = DateTime.Now;
+            this.currentSave.activeConversations = new List<Conversation>();
+            this.SaveFile();
         }
 
-        hasBeenLoaded = true;
+        this.hasBeenLoaded = true;
         return fileLoaded;
     }
 }
@@ -121,9 +143,8 @@ public struct Conversation
     public bool viewed;
     public string npcName;
     public CharacterProperties npcProperties;
-    public int number;
     public List<Message> messages;
-    public int currentPosition;
+    public List<int> choicesMade;
 }
 
 [Serializable]

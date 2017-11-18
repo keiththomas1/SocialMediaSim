@@ -1,424 +1,135 @@
 using UnityEngine;
-using TMPro;
-using System.Collections;
+using System;
 using System.Collections.Generic;
+using TMPro;
 
 public class HomeScreenController : MonoBehaviour {
-    public Sprite[] photos;
-    public Sprite[] faces;
-    public Sprite anonymousMalePortrait;
-    public Sprite anonymousFemalePortrait;
-    private UserSerializer serializer;
-    private RandomEventController eventController;
-    private GameObject post;
-    private GameObject tapLabel;
-    private ArrayList hashTags;
-    private float currentClickCount;
-    private float currentRandomEventCount;
+    [SerializeField]
+    private Sprite _leftSideNav;
+    [SerializeField]
+    private Sprite _rightSideNav;
 
-    private GameObject annoyMeter;
-    private GameObject annoyFace;
-    private GameObject annoyInfo;
-    private Vector3 originalAnnoyFacePosition;
-    private Vector3 finalAnnoyFacePosition;
-    private int currentAnnoyance;
-    private float defaultAnnoyTimer;
-    private float currentAnnoyTimer;
-    private int clickMultiplier;
+    private const float POST_X_OFFSET = -0.05f;
+    private const float POST_Y_OFFSET = 1.34f;
+    private UserSerializer _userSerializer;
+    private GameObject _postPage;
+    private GameObject _errorText;
 
+    // World objects
+    private GameObject _worldScrollArea;
+    private ScrollController _worldScrollController;
+    private List<GameObject> _worldPostObjects;
+    private RESTRequester _restRequester;
+    private PostHelper _postHelper;
+    private GameObject _loadingIcon;
+
+    // Use this for initialization
     void Awake()
     {
-        serializer = UserSerializer.Instance;
-        eventController = GetComponent<RandomEventController>();
-        FillHashTags();
-        currentClickCount = 0.0f;
-        currentRandomEventCount = 1.0f;
-        currentAnnoyance = 0;
-        defaultAnnoyTimer = 0.3f;
-        currentAnnoyTimer = defaultAnnoyTimer;
+        this._userSerializer = UserSerializer.Instance;
+        this._worldPostObjects = new List<GameObject>();
+        this._restRequester = new RESTRequester();
+        this._postHelper = new PostHelper();
 	}
 	
+	// Update is called once per frame
 	void Update () {
-        currentAnnoyTimer -= Time.deltaTime;
-        if (currentAnnoyTimer <= 0.0f)
-        {
-            UpdateAnnoyance(-1);
-            UpdateAnnoyanceMeter();
-            currentAnnoyTimer = defaultAnnoyTimer;
-        }
+	}
 
-        if (Input.GetMouseButtonUp(0))
-        {
-            if (annoyInfo)
-            {
-                annoyInfo.GetComponent<SpriteRenderer>().enabled = false;
-            }
-        } else if (Input.GetMouseButton(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
-            {
-                switch (hit.collider.name)
-                {
-                    case "Scale":
-                        if (annoyInfo)
-                        {
-                            annoyInfo.GetComponent<SpriteRenderer>().enabled = true;
-                        }
-                        break;
-                    default:
-                        if (annoyInfo)
-                        {
-                            annoyInfo.GetComponent<SpriteRenderer>().enabled = false;
-                        }
-                        break;
-                }
-            } else {
-                if (annoyInfo)
-                {
-                    annoyInfo.GetComponent<SpriteRenderer>().enabled = false;
-                }
-            }
-        }
+    public void EnterScreen()
+    {
+        this._userSerializer = UserSerializer.Instance;
+
+        this._postPage = GameObject.Instantiate(Resources.Load("Home/HomePage") as GameObject);
+        this._postPage.transform.position = new Vector3(0.0f, 0.25f, 0.0f);
+
+        this._worldScrollArea = this._postPage.transform.Find("WorldScrollArea").gameObject;
+        this._errorText = this._worldScrollArea.transform.Find("ErrorText").gameObject;
+
+        this.EnterWorldSection();
+    }
+
+    void OnDestroy()
+    {
+        this.DestroyPage();
     }
 
     public void CheckClick(string colliderName)
     {
         switch (colliderName)
         {
-            case "RandomPicture":
-                PostClicked();
+            default:
                 break;
         }
     }
-
-    public void EnterScreen()
-    {
-        CreateNewRandomPost();
-        CreateAnnoyanceMeter();
-
-        tapLabel = GameObject.Instantiate(Resources.Load("Home/TapLabel") as GameObject);
-
-        currentAnnoyTimer = 0.05f;
-        clickMultiplier = 1; // serializer.IsDoubleClickEnabled() ? 2 : 1;
-    }
-
-    private void PostClicked()
-    {
-        if (this.post)
-        {
-            RemovePost(this.post);
-        }
-        if (this.tapLabel)
-        {
-            GameObject.Destroy(this.tapLabel);
-        }
-        this.CreateNewRandomPost();
-        this.UpdateClickCount(this.clickMultiplier);
-        this.CheckClickOutcome();
-        this.UpdateAnnoyance(3);
-
-        GameObject.Instantiate(Resources.Load("Home/FollowedText") as GameObject);
-    }
-
-    private void CreateAnnoyanceMeter()
-    {
-        annoyMeter = GameObject.Instantiate(Resources.Load("Home/AnnoyanceMeter") as GameObject);
-        var annoyMeterPosition = annoyMeter.transform.position;
-        annoyMeterPosition.x = 0.1f;
-        annoyMeterPosition.y = -1.2f;
-        annoyMeter.transform.position = annoyMeterPosition;
-
-        annoyFace = annoyMeter.transform.Find("Face").gameObject;
-        originalAnnoyFacePosition = annoyFace.transform.localPosition;
-
-        var annoyFaceEnd = annoyMeter.transform.Find("FaceEnd").gameObject;
-        finalAnnoyFacePosition = annoyFaceEnd.transform.localPosition;
-
-        annoyInfo = annoyMeter.transform.Find("Info").gameObject;
-    }
-
-    public void CreateNewRandomPost()
-    {
-        post = GameObject.Instantiate(Resources.Load("Home/DGHomePage") as GameObject);
-        // var postPosition= post.transform.position;
-        // postPosition.y = 1.3f;
-        // post.transform.position = postPosition;
-
-        var likesText = post.transform.Find("LikesText");
-        if (likesText)
-        {
-            likesText.GetComponent<TextMeshPro>().text = GetRandomLikes();
-        }
-        var randomPicture = post.transform.Find("RandomPicture");
-        if (randomPicture)
-        {
-            randomPicture.GetComponent<SpriteRenderer>().sprite = GetRandomPicture();
-        }
-        var hashTagText = post.transform.Find("HashTagText");
-        if (hashTagText)
-        {
-            hashTagText.GetComponent<TextMesh>().text = GetRandomHashtags();
-        }
-        var personPortrait = post.transform.Find("AnonymousPerson");
-        if (personPortrait)
-        {
-            personPortrait.GetComponent<SpriteRenderer>().sprite = GetRandomPortrait();
-        }
-    }
-
-    private void UpdateClickCount(int clickCount)
-    {
-        if (currentAnnoyance < 32)
-        {
-            currentClickCount += .2f * clickCount;
-        }
-        else if (currentAnnoyance < 64)
-        {
-            currentClickCount += .15f * clickCount;
-        }
-        else if (currentAnnoyance < 90)
-        {
-            currentClickCount += .1f * clickCount;
-        }
-        else
-        {
-            currentClickCount += .05f * clickCount;
-        }
-    }
-
-    private void CheckClickOutcome()
-    {
-        if (currentClickCount >= 1.0f)
-        {
-            currentClickCount -= 1.0f;
-            int newFollowers = 1; // Can eventually do random, or increased based on items
-            serializer.AddFollowers(newFollowers);
-        }
-
-        currentRandomEventCount = currentRandomEventCount * 1.2f;
-        var randomEventRoll = Random.Range(0, 500);
-        if (randomEventRoll < currentRandomEventCount)
-        {
-            eventController.CreateNewEvent();
-            currentRandomEventCount = 1;
-        }
-    }
-
-    private void RemovePost(GameObject post)
-    {
-        RemoveComponentNames(post);
-        var deathByTimer = post.AddComponent<DeathByTimer>();
-        deathByTimer.deathTimeInSeconds = 3.0f;
-        post.GetComponent<PictureRotateAway>().StartAnimation(PictureRotateAway.RotateDirection.Random);
-    }
-
-    private void RemoveComponentNames(GameObject post)
-    {
-        var likesText = GameObject.Find("LikesText");
-        if (likesText)
-        {
-            likesText.name = "LikesTextTemp";
-        }
-        var randomPicture = GameObject.Find("RandomPicture");
-        if (randomPicture)
-        {
-            randomPicture.name = "RandomPictureTemp";
-        }
-        var hashTagText = GameObject.Find("HashTagText");
-        if (hashTagText)
-        {
-            hashTagText.name = "HashTagTextTemp";
-        }
-        var personPortrait = GameObject.Find("AnonymousPerson");
-        if (personPortrait)
-        {
-            personPortrait.name = "PersonPortraitTemp";
-        }
-    }
-
+    
     public void DestroyPage()
     {
-        DestroyPost();
-
-        GameObject.Destroy(tapLabel);
-        GameObject.Destroy(annoyMeter);
+        DestroyPosts(this._worldPostObjects);
+        this._worldPostObjects.Clear();
+        GameObject.Destroy(this._postPage);
     }
 
-    public void DestroyPost()
+    private void EnterWorldSection()
     {
-        if (post)
-        {
-#if UNITY_EDITOR
-        GameObject.DestroyImmediate(post);
-#else
-        GameObject.Destroy(post);
-#endif
-        }
+        this._worldScrollArea.SetActive(true);
+        DestroyPosts(this._worldPostObjects);
+        this._worldPostObjects.Clear();
+
+        this._loadingIcon = GameObject.Instantiate(Resources.Load("LoadingIcon") as GameObject);
+
+        this._restRequester.RequestLastTenPosts(this.UpdateWorldPosts);
     }
 
-    private void UpdateAnnoyance(int change)
+    private void UpdateWorldPosts(PictureArrayJson pictures, bool success)
     {
-        if (currentAnnoyance + change < 0)
+        if (this._loadingIcon)
         {
-            currentAnnoyance = 0;
+            GameObject.Destroy(this._loadingIcon);
         }
-        else if (currentAnnoyance + change > 100)
+
+        if (!success)
         {
-            currentAnnoyance = 100;
+            if (this._errorText)
+            {
+                this._errorText.SetActive(true);
+                this._errorText.GetComponent<TextMeshPro>().text = "Sorry, we were unable to talk to the server.";
+            }
         }
         else
         {
-            currentAnnoyance += change;
-        }
-        UpdateAnnoyanceMeter();
-    }
-
-    private void UpdateAnnoyanceMeter()
-    {
-        if (annoyFace)
-        {
-            if (faces.Length < 3)
+            if (pictures.pictureModels.Length == 0)
             {
-                return;
+                this._errorText.SetActive(true);
+                this._errorText.GetComponent<TextMeshPro>().text = "No new posts.";
             }
-            if (currentAnnoyance < 32)
-            {
-                annoyFace.GetComponent<SpriteRenderer>().sprite = faces[0];
-            }
-            else if (currentAnnoyance < 64)
-            {
-                annoyFace.GetComponent<SpriteRenderer>().sprite = faces[1];
-            }
-            else if (currentAnnoyance < 90)
-            {
-                annoyFace.GetComponent<SpriteRenderer>().sprite = faces[2];
-            }
-            else
-            {
-                annoyFace.GetComponent<SpriteRenderer>().sprite = faces[3];
-            }
-            // switch (annoyance) if below 30, face = 1 else if below 60, face = 2, etc
-
-            var totalXDistance = finalAnnoyFacePosition.x - originalAnnoyFacePosition.x;
-            var totalYDistance = finalAnnoyFacePosition.y - originalAnnoyFacePosition.y;
-            var newAnnoyFacePosition = originalAnnoyFacePosition;
-
-            var annoyancePercentage = currentAnnoyance / 100.0f;
-            newAnnoyFacePosition.x = originalAnnoyFacePosition.x + (totalXDistance * annoyancePercentage);
-            newAnnoyFacePosition.y = originalAnnoyFacePosition.y + (totalYDistance * annoyancePercentage);
-
-            annoyFace.transform.localPosition = newAnnoyFacePosition;
+            this.GenerateWorldPostObjects(pictures);
         }
     }
 
-    private string GetRandomHashtags()
+    private void DestroyPosts(List<GameObject> postObjects)
     {
-        var numberOfHashTags = Random.Range(1, 7);
-        List<int> usedIndexes = new List<int>();
-        string hashTagString = "";
-        int currentLineLength = 0;
-        for (int i = 0; i < numberOfHashTags; i++)
+        foreach (GameObject postObject in postObjects)
         {
-            int hashTagIndex;
-            do
+            if (postObject)
             {
-                hashTagIndex = Random.Range(0, hashTags.Count);
-            } while (usedIndexes.Contains(hashTagIndex));
-
-            var newHashTag = (string)hashTags[hashTagIndex];
-            var newLineLength = currentLineLength + newHashTag.Length;
-            if (newLineLength < 30)
-            {
-                hashTagString += hashTags[hashTagIndex];
-                hashTagString += " ";
-                currentLineLength = newLineLength;
-            } else {
-                if (usedIndexes.Count > 0)
-                {
-                    hashTagString += System.Environment.NewLine;
-                }
-                hashTagString += hashTags[hashTagIndex];
-                hashTagString += " ";
-                currentLineLength = newHashTag.Length;
+                postObject.SetActive(false);
+                GameObject.Destroy(postObject);
             }
-
-            usedIndexes.Add(hashTagIndex);
-        }
-
-        return hashTagString;
-    }
-
-    // Eventually make this favor the lower end of likes
-    private string GetRandomLikes()
-    {
-        string likeCountText;
-        var likeCount = Random.Range(0, 5000);
-        if (likeCount > 1000)
-        {
-            likeCount = likeCount / 100;
-            var likeCountFloat = likeCount / 10.0f;
-            likeCountText = likeCountFloat.ToString() + "k people love this";
-        }
-        else
-        {
-            likeCountText = likeCount.ToString() + " people love this";
-        }
-        return likeCountText;
-    }
-
-    private Sprite GetRandomPicture()
-    {
-        var randomPhotoIndex = Random.Range(0, photos.Length);
-        return photos[randomPhotoIndex];
-    }
-
-    private Sprite GetRandomPortrait()
-    {
-        var randomPortrait = Random.Range(0.0f, 1.0f);
-        if (randomPortrait > 0.5f)
-        {
-            return anonymousFemalePortrait;
-        }
-        else
-        {
-            return anonymousMalePortrait;
         }
     }
 
-    // Might be nice to have this draw from external text file
-    private void FillHashTags() 
+    private void GenerateWorldPostObjects(PictureArrayJson pictureArray)
     {
-        hashTags = new ArrayList();
-        hashTags.Add("#Sick");
-        hashTags.Add("#FitFam");
-        hashTags.Add("#FitLife");
-        hashTags.Add("#SuperSick");
-        hashTags.Add("#KillingIt");
-        hashTags.Add("#DopeAF");
-        hashTags.Add("#OnFleek");
-        hashTags.Add("#CoolShit");
-        hashTags.Add("#MountainLife");
-        hashTags.Add("#BeachLife");
-        hashTags.Add("#BeachBum");
-        hashTags.Add("#GirlsWithTattoos");
-        hashTags.Add("#InkedModel");
-        hashTags.Add("#InkNation");
-        hashTags.Add("#instahot");
-        hashTags.Add("#Like4Like");
-        hashTags.Add("#FollowBack");
-        hashTags.Add("#DoubleTap");
-        hashTags.Add("#Model");
-        hashTags.Add("#GoodTimes");
-        hashTags.Add("#Yolo");
-        hashTags.Add("#MyLifeIsAmazing");
-        hashTags.Add("#WhatsItLikeBeingPoor");
-        hashTags.Add("#PoorPeopleAreGross");
-        hashTags.Add("#ItsHardBeingSoRich");
-        hashTags.Add("#ThankGodMyDaddysRich");
-        hashTags.Add("#MyLifeIsBetterThanYours");
-        hashTags.Add("#USayVainISayGorgeous");
-        hashTags.Add("#ICouldPartyLikeAllDay");
+        var posts = new List<DelayGramPost>();
+        foreach (PictureModelJsonReceive picture in pictureArray.pictureModels)
+        {
+            // Create a picture with information from picture
+            var newPost = this._restRequester.ConvertJsonPictureIntoDelayGramPost(picture);
+
+            posts.Add(newPost);
+        }
+        this._postHelper.GeneratePostFeed(
+            this._worldScrollArea, posts, this._worldPostObjects, this._worldScrollController, POST_X_OFFSET, POST_Y_OFFSET);
     }
 }

@@ -80,8 +80,8 @@
     <Reference Include="NestedPrefabs_Editor">
       <HintPath>Assets\Nested Prefabs\NestedPrefabs_Editor.dll</HintPath>
     </Reference>
-    <Reference Include="TextMeshPro-1.0.55.56.0b11">
-      <HintPath>Assets\TextMesh Pro\Plugins\TextMeshPro-1.0.55.56.0b11.dll</HintPath>
+    <Reference Include="TextMeshPro-1.0.55.2017.1.0b12">
+      <HintPath>Assets\TextMesh Pro\Plugins\TextMeshPro-1.0.55.2017.1.0b12.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -95,8 +95,8 @@
     <Compile Include="Assets\Code\DeathByTimer.cs" />
     <Compile Include="Assets\Code\IOController.cs" />
     <Compile Include="Assets\Code\LoadController.cs" />
+    <Compile Include="Assets\Code\MessageCollection.cs" />
     <Compile Include="Assets\Code\MessagePost.cs" />
-    <Compile Include="Assets\Code\NewPostController.cs" />
     <Compile Include="Assets\Code\NotificationController.cs" />
     <Compile Include="Assets\Code\PostHelper.cs" />
     <Compile Include="Assets\Code\RandomEventController.cs" />
@@ -105,7 +105,7 @@
     <Compile Include="Assets\Code\Screens\ExploreScreenController.cs" />
     <Compile Include="Assets\Code\Screens\HomeScreenController.cs" />
     <Compile Include="Assets\Code\Screens\MessagesScreenController.cs" />
-    <Compile Include="Assets\Code\Screens\PostScreenController.cs" />
+    <Compile Include="Assets\Code\Screens\NewPostController.cs" />
     <Compile Include="Assets\Code\Screens\ProfileScreenController.cs" />
     <Compile Include="Assets\Code\ScrollController.cs" />
     <Compile Include="Assets\Code\Serializers\CharacterSerializer.cs" />

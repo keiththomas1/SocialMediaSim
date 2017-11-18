@@ -1,24 +1,32 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class ProfileScreenController : MonoBehaviour {
+public class ProfileScreenController : MonoBehaviour
+{
+    private const float POST_X_OFFSET = -0.2f;
+    private const float POST_Y_OFFSET = -2.0f;
+
     private GlobalVars globalVars;
     private CharacterSerializer characterSerializer;
     private UserSerializer _userSerializer;
     private ScrollController scrollController;
     private RandomNameGenerator randomNameGenerator;
+    private PostHelper _postHelper;
+
     private GameObject page;
     private GameObject scrollArea;
-
-    private GameObject postsInfo;
-    private GameObject followersInfo;
-    private GameObject moneyInfo;
+    private ScrollController _youScrollController;
+    private List<GameObject> _youPostObjects;
 
     void Awake () {
         this.globalVars = GlobalVars.Instance;
         this.characterSerializer = CharacterSerializer.Instance;
         this._userSerializer = UserSerializer.Instance;
         this.randomNameGenerator = new RandomNameGenerator();
+        this._postHelper = new PostHelper();
+
+        this._youPostObjects = new List<GameObject>();
     }
 
     void Start()
@@ -42,11 +50,7 @@ public class ProfileScreenController : MonoBehaviour {
 
     private void CheckHover()
     {
-        if (Input.GetMouseButtonUp(0))
-        {
-            DisableInfoSprites();
-        }
-        else if (Input.GetMouseButton(0))
+        if (Input.GetMouseButton(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -54,50 +58,10 @@ public class ProfileScreenController : MonoBehaviour {
             {
                 switch (hit.collider.name)
                 {
-                    case "PostsIcon":
-                        DisableInfoSprites();
-                        if (postsInfo)
-                        {
-                            postsInfo.GetComponent<SpriteRenderer>().enabled = true;
-                        }
-                        break;
-                    case "FollowersIcon":
-                        DisableInfoSprites();
-                        if (followersInfo)
-                        {
-                            followersInfo.GetComponent<SpriteRenderer>().enabled = true;
-                        }
-                        break;
-                    case "MoneyIcon":
-                        DisableInfoSprites();
-                        if (moneyInfo)
-                        {
-                            moneyInfo.GetComponent<SpriteRenderer>().enabled = true;
-                        }
-                        break;
                     default:
-                        DisableInfoSprites();
                         break;
                 }
-            } else {
-                DisableInfoSprites();
             }
-        }
-    }
-
-    private void DisableInfoSprites()
-    {
-        if (postsInfo)
-        {
-            postsInfo.GetComponent<SpriteRenderer>().enabled = false;
-        }
-        if (followersInfo)
-        {
-            followersInfo.GetComponent<SpriteRenderer>().enabled = false;
-        }
-        if (moneyInfo)
-        {
-            moneyInfo.GetComponent<SpriteRenderer>().enabled = false;
         }
     }
 
@@ -148,60 +112,45 @@ public class ProfileScreenController : MonoBehaviour {
         var currentGender = this.characterSerializer.Gender;
         this.SetAvatar(currentGender);
 
-        var stats = scrollArea.transform.Find("Stats");
-        postsInfo = stats.transform.Find("PostsInfo").gameObject;
-        followersInfo = stats.transform.Find("FollowersInfo").gameObject;
-        moneyInfo = stats.transform.Find("MoneyInfo").gameObject;
-
         UpdateText();
 
         globalVars.RegisterCashListener(this);
         this._userSerializer.RegisterFollowersListener(this);
+
+        this.GenerateProfilePosts();
     }
 
     private void UpdateText()
     {
-        if (!scrollArea)
-        {
-            return;
-        }
-
         var nameText = scrollArea.transform.Find("NameText");
         if (nameText)
         {
             nameText.gameObject.GetComponent<TextMeshPro>().text = globalVars.PlayerName;
         }
-
-        var stats = scrollArea.transform.Find("Stats");
-        var postsText = stats.transform.Find("PostsText");
-        if (postsText)
-        {
-            var postCount = this._userSerializer.GetReverseChronologicalPosts().Count;
-            postsText.gameObject.GetComponent<TextMesh>().text = postCount.ToString();
-        }
-        var followersText = stats.transform.Find("FollowersText");
-        if (followersText)
-        {
-            var followers = this._userSerializer.Followers;
-            followersText.gameObject.GetComponent<TextMesh>().text = followers.ToString();
-        }
-        var moneyText = stats.transform.Find("MoneyText");
-        if (moneyText)
-        {
-            var cash = globalVars.TotalCash;
-            if (cash > 0.0f) {
-                var formattedCash = cash.ToString("C2");
-                moneyText.gameObject.GetComponent<TextMesh>().text = formattedCash;
-            } else {
-                moneyText.gameObject.GetComponent<TextMesh>().text = "$0.00";
-            }
-        }
     }
 
     public void DestroyPage()
     {
+        foreach (GameObject postObject in this._youPostObjects)
+        {
+            if (postObject)
+            {
+                postObject.SetActive(false);
+                GameObject.Destroy(postObject);
+            }
+        }
+        this._youPostObjects.Clear();
+
         globalVars.UnregisterCashListener(this);
         this._userSerializer.UnregisterFollowersListener(this);
         GameObject.Destroy(page);
+    }
+
+    private void GenerateProfilePosts()
+    {
+        var posts = this._userSerializer.GetReverseChronologicalPosts();
+        posts.Sort((a, b) => b.dateTime.CompareTo(a.dateTime));
+        this._postHelper.GeneratePostFeed(
+            this.scrollArea, posts, this._youPostObjects, this._youScrollController, POST_X_OFFSET, POST_Y_OFFSET);
     }
 }

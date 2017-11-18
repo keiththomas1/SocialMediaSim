@@ -10,8 +10,6 @@ public class UserSerializer
     private List<MonoBehaviour> followerListeners = new List<MonoBehaviour>();
     private static UserSerializer instance;
     private UserSaveVariables currentSave;
-    private float[] likeTimePoints;
-    private int likesThisSession = 0;
 
     // For saving/loading
     private string savePath;
@@ -30,32 +28,25 @@ public class UserSerializer
 
     private UserSerializer()
     {
-        Initialize();
-    }
-
-    // Use this for initialization
-    void Initialize()
-    {
-        FillTimePoints();
-        savePath = Application.persistentDataPath + "/DelayGram.dat";
+        this.savePath = Application.persistentDataPath + "/DelayGram.dat";
     }
 
     public void RegisterFollowersListener(MonoBehaviour listener)
     {
-        followerListeners.Add(listener);
+        this.followerListeners.Add(listener);
     }
 
     public void UnregisterFollowersListener(MonoBehaviour listener)
     {
-        followerListeners.Remove(listener);
+        this.followerListeners.Remove(listener);
     }
 
     public List<DelayGramPost> GetReverseChronologicalPosts()
     {
         List<DelayGramPost> returnList = new List<DelayGramPost>();
-        if (currentSave.posts != null)
+        if (this.currentSave.posts != null)
         {
-            returnList = currentSave.posts;
+            returnList = this.currentSave.posts;
             returnList.Reverse();
         }
         return returnList;
@@ -64,59 +55,45 @@ public class UserSerializer
     public List<DelayGramNotification> GetNotifications()
     {
         List<DelayGramNotification> returnList = new List<DelayGramNotification>();
-        if (currentSave.notifications != null)
+        if (this.currentSave.notifications != null)
         {
-            returnList = currentSave.notifications;
+            returnList = this.currentSave.notifications;
             returnList.Reverse();
         }
         return returnList;
     }
 
-    public void FillTimePoints()
-    {
-        likeTimePoints = new float[10];
-        likeTimePoints[0] = 0.1f;
-        likeTimePoints[1] = 0.1f;
-        likeTimePoints[2] = 0.1f;
-        likeTimePoints[3] = 0.1f;
-        likeTimePoints[4] = 0.1f;
-        likeTimePoints[5] = 0.1f;
-        likeTimePoints[6] = 0.1f;
-        likeTimePoints[7] = 0.1f;
-        likeTimePoints[8] = 0.1f;
-    }
-
     public void AddFollowers(int followers)
     {
-        currentSave.followers += followers;
+        this.currentSave.followers += followers;
 
-        foreach (MonoBehaviour listener in followerListeners)
+        foreach (MonoBehaviour listener in this.followerListeners)
         {
             if (listener)
             {
-                listener.BroadcastMessage("OnFollowersUpdated", currentSave.followers);
+                listener.BroadcastMessage("OnFollowersUpdated", this.currentSave.followers);
             } else {
-                followerListeners.Remove(listener);
+                this.followerListeners.Remove(listener);
             }
         }
 
-        SaveFile();
+        this.SaveFile();
     }
 
     public int Followers
     {
-        get { return currentSave.followers; }
+        get { return this.currentSave.followers; }
     }
 
     public void AddEndorsement(string endorsement)
     {
-        currentSave.endorsements.Add(endorsement);
-        SaveFile();
+        this.currentSave.endorsements.Add(endorsement);
+        this.SaveFile();
     }
 
     public List<string> Endorsements
     {
-        get { return currentSave.endorsements; }
+        get { return this.currentSave.endorsements; }
     }
 
     public bool HasBulldog
@@ -125,99 +102,61 @@ public class UserSerializer
         set
         {
             this.currentSave.storyProperties.hasBulldog = value;
-            SaveFile();
+            this.SaveFile();
         }
-    }
-
-    public int GetLikes()
-    {
-        return likesThisSession;
-    }
-
-    public void ClearInfo()
-    {
-        likesThisSession = 0;
-    }
-
-    private void UpdateInformation()
-    {
-        var currentTime = DateTime.Now;
-        var minsSinceLastUpdate = (currentTime - currentSave.lastUpdate).Minutes;
-        if (minsSinceLastUpdate < 5) { return; }
-
-        var totalLikes = 0;
-        foreach (DelayGramPost post in currentSave.posts)
-        {
-            if (post.dateTime > DateTime.Now.Subtract(TimeSpan.FromDays(1.0f)))
-            {
-                // 1 like per 10 minutes, starting at 5 mins, 15 mins, etc.
-                int newLikes = (minsSinceLastUpdate  + 5) / 10;
-                if (currentSave.followers >= 10)
-                {
-                    newLikes *= (currentSave.followers + 10) / 10; // 1 extra like per 10 followers
-                }
-                post.likes += newLikes;
-                totalLikes += newLikes;
-            }
-        }
-
-        currentSave.lastUpdate = currentTime;
-        SaveFile();
-
-        likesThisSession = totalLikes;
     }
 
     public void SerializePost(DelayGramPost newPost)
     {
-        if (currentSave.posts == null)
+        if (this.currentSave.posts == null)
         {
-            currentSave.posts = new List<DelayGramPost>();
+            this.currentSave.posts = new List<DelayGramPost>();
         }
-        currentSave.posts.Add(newPost);
+        this.currentSave.posts.Add(newPost);
         SaveFile();
     }
 
     public void SerializeNotification(DelayGramNotification newNotification)
     {
-        if (currentSave.notifications == null)
+        if (this.currentSave.notifications == null)
         {
-            currentSave.notifications = new List<DelayGramNotification>();
+            this.currentSave.notifications = new List<DelayGramNotification>();
         }
-        currentSave.notifications.Add(newNotification);
-        SaveFile();
+        this.currentSave.notifications.Add(newNotification);
+        this.SaveFile();
     }
 
     public DateTime NextPostTime
     {
-        get { return currentSave.nextPostTime; }
+        get { return this.currentSave.nextPostTime; }
         set
         {
-            currentSave.nextPostTime = value;
-            SaveFile();
+            this.currentSave.nextPostTime = value;
+            this.SaveFile();
         }
     }
 
     public void SerializePostCooldown(DateTime nextPostTime)
     {
-        currentSave.nextPostTime = nextPostTime;
-        SaveFile();
+        this.currentSave.nextPostTime = nextPostTime;
+        this.SaveFile();
     }
 
     public void SaveFile()
     {
-        Thread oThread = new Thread(new ThreadStart(SaveGameThread));
+        Thread oThread = new Thread(new ThreadStart(this.SaveGameThread));
         oThread.Start();
     }
 
     public void SaveGameThread()
     {
-        FileStream file = File.Open(savePath, FileMode.OpenOrCreate);
+        FileStream file = File.Open(this.savePath, FileMode.OpenOrCreate);
 
         if (file.CanWrite)
         {
             BinaryFormatter bf = new BinaryFormatter();
-            currentSave.lastUpdate = DateTime.Now;
-            bf.Serialize(file, currentSave);
+            this.currentSave.lastUpdate = DateTime.Now;
+            bf.Serialize(file, this.currentSave);
             Debug.Log("Saved delay gram file");
         }
         else
@@ -231,15 +170,15 @@ public class UserSerializer
     public bool LoadGame()
     {
         bool fileLoaded = false;
-        if (File.Exists(savePath))
+        if (File.Exists(this.savePath))
         {
-            FileStream file = File.Open(savePath, FileMode.Open);
+            FileStream file = File.Open(this.savePath, FileMode.Open);
 
             if (file.CanRead)
             {
                 BinaryFormatter bf = new BinaryFormatter();
-                currentSave = (UserSaveVariables)bf.Deserialize(file);
-                Debug.Log("Save game loaded from " + savePath);
+                this.currentSave = (UserSaveVariables)bf.Deserialize(file);
+                Debug.Log("Save game loaded from " + this.savePath);
                 fileLoaded = true;
             }
 
@@ -248,19 +187,18 @@ public class UserSerializer
 
         if (!fileLoaded)
         {
-            currentSave = new UserSaveVariables();
-            currentSave.lastUpdate = DateTime.Now;
-            currentSave.followers = 0;
-            currentSave.storyProperties = new StoryProperties();
-            currentSave.storyProperties.hasBulldog = false;
-            currentSave.posts = new List<DelayGramPost>();
-            currentSave.notifications = new List<DelayGramNotification>();
-            currentSave.endorsements = new List<string>();
-            currentSave.nextPostTime = DateTime.Now;
-            SaveFile();
+            this.currentSave = new UserSaveVariables();
+            this.currentSave.lastUpdate = DateTime.Now;
+            this.currentSave.followers = 0;
+            this.currentSave.storyProperties = new StoryProperties();
+            this.currentSave.storyProperties.hasBulldog = false;
+            this.currentSave.posts = new List<DelayGramPost>();
+            this.currentSave.notifications = new List<DelayGramNotification>();
+            this.currentSave.endorsements = new List<string>();
+            this.currentSave.nextPostTime = DateTime.Now;
+            this.SaveFile();
         }
 
-        UpdateInformation();
         return fileLoaded;
     }
 }

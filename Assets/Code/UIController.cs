@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,6 +23,8 @@ public class UIController : MonoBehaviour {
     private GameObject _profileButton;
     [SerializeField]
     private GameObject _postButton;
+    [SerializeField]
+    private GameObject _postTime;
     [SerializeField]
     private GameObject _exploreButton;
     [SerializeField]
@@ -49,13 +53,16 @@ public class UIController : MonoBehaviour {
 
     private HomeScreenController _homeController;
     private ProfileScreenController _profileController;
-    private PostScreenController _postController;
+    private NewPostController _newPostController;
     private ExploreScreenController _exploreController;
     private MessagesScreenController _messagesController;
     private NotificationController _notificationController;
     private SoundController _soundController;
+    private UserSerializer _userSerializer;
 
     private Page _currentPage;
+
+    private float _postTimeTimer = 0.0f;
 
     // Use this for initialization
     void Start () {
@@ -63,22 +70,38 @@ public class UIController : MonoBehaviour {
         this._homeButton.GetComponent<Button>().onClick.AddListener(this.OnHomeClick);
         this._profileButton.GetComponent<Button>().onClick.AddListener(this.OnProfileClick);
         this._postButton.GetComponent<Button>().onClick.AddListener(this.OnPostClick);
+        this._postTime.GetComponent<TextMeshProUGUI>().text = "";
         this._exploreButton.GetComponent<Button>().onClick.AddListener(this.OnExploreClick);
         this._messagesButton.GetComponent<Button>().onClick.AddListener(this.OnMessagesClick);
 
         this._homeController = GetComponent<HomeScreenController>();
         this._profileController = GetComponent<ProfileScreenController>();
-        this._postController = GetComponent<PostScreenController>();
+        this._newPostController = GetComponent<NewPostController>();
         this._exploreController = GetComponent<ExploreScreenController>();
         this._messagesController = GetComponent<MessagesScreenController>();
         this._notificationController = GetComponent<NotificationController>();
         this._soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
+        this._userSerializer = UserSerializer.Instance;
 
         this.OnProfileClick();
+
+        if (this._userSerializer.NextPostTime > DateTime.Now)
+        {
+            this._postTimeTimer = 0.3f;
+        }
     }
 	
 	// Update is called once per frame
 	void Update () {
+        if (this._postTimeTimer > 0.0f)
+        {
+            this._postTimeTimer -= Time.deltaTime;
+            if (this._postTimeTimer <= 0.0f)
+            {
+                this.UpdateTimeRemaining();
+                this._postTimeTimer = 1;
+            }
+        }
     }
 
     public bool BackOut()
@@ -152,7 +175,7 @@ public class UIController : MonoBehaviour {
         if (this._currentPage != Page.Post)
         {
             DestroyPage(this._currentPage);
-            this._postController.EnterScreen();
+            this._newPostController.CreatePopup(this.ShowPostTimeRemaining);
             this._currentPage = Page.Post;
         }
     }
@@ -186,7 +209,7 @@ public class UIController : MonoBehaviour {
                 this._profileController.DestroyPage();
                 break;
             case Page.Post:
-                this._postController.DestroyPage();
+                this._newPostController.DestroyPage();
                 break;
             case Page.Explore:
                 this._exploreController.DestroyPage();
@@ -195,6 +218,17 @@ public class UIController : MonoBehaviour {
                 this._messagesController.DestroyPage();
                 break; 
         }
+    }
+
+    private void ShowPostTimeRemaining(DelayGramPost post)
+    {
+        this._postTimeTimer = 0.3f;
+    }
+    private void UpdateTimeRemaining()
+    {
+        var timeTillCanPost = _userSerializer.NextPostTime - DateTime.Now;
+        var formattedTime = timeTillCanPost.ToString(@"mm\:ss");
+        this._postTime.GetComponent<TextMeshProUGUI>().text = formattedTime;
     }
 
     private void UpdateButtonState()
