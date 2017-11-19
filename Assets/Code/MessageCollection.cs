@@ -8,13 +8,11 @@ public class MessageCollection
     public const string LOST_DOG_NPC_NAME = "Karen L";
 
     private GlobalVars _globalVars;
-    private MessagesSerializer _messageSerializer;
     private CharacterRandomization _characterRandomization;
 
     public MessageCollection()
     {
         this._globalVars = GlobalVars.Instance;
-        this._messageSerializer = MessagesSerializer.Instance;
         this._characterRandomization = CharacterRandomization.Instance;
     }
 

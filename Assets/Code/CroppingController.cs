@@ -34,7 +34,6 @@ public class CroppingController : MonoBehaviour {
         }
         if (currentTouchCount == 2)
         {
-            this._currentObject.transform.Rotate(0, 0, 20);
             // Store both touches.
             Touch touchOne = Input.GetTouch(0);
             Touch touchTwo = Input.GetTouch(1);
@@ -43,17 +42,35 @@ public class CroppingController : MonoBehaviour {
             Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
             Vector2 touchTwoPrevPos = touchTwo.position - touchTwo.deltaPosition;
 
+            // Find angle and see if angle has changed
+            float previousAngle = Mathf.Atan2(
+                touchOnePrevPos.y - touchTwoPrevPos.y,
+                touchOnePrevPos.x - touchTwoPrevPos.x);
+            float newAngle = Mathf.Atan2(
+                touchOne.position.y - touchTwo.position.y,
+                touchOne.position.x - touchTwo.position.x);
+            var rotation = Mathf.Rad2Deg * (newAngle - previousAngle);
+            this._currentObject.transform.Rotate(0, 0, rotation);
+            Debug.Log(this._currentObject.transform.localRotation.eulerAngles.z);
+            Debug.Log(this._currentObject.transform.rotation.eulerAngles.z);
+
             // Find the magnitude of the vector (the distance) between the touches in each frame.
             float prevTouchDeltaMag = (touchOnePrevPos - touchTwoPrevPos).magnitude;
             float touchDeltaMag = (touchOne.position - touchTwo.position).magnitude;
 
             // Find the difference in the distances between each frame.
-            float deltaMagnitudeDiff = prevTouchDeltaMag - touchDeltaMag;
+            float deltaMagnitudeDiff = touchDeltaMag - prevTouchDeltaMag;
 
-            this._currentObject.transform.localScale = new Vector3(
-                this._currentObject.transform.localScale.x + (deltaMagnitudeDiff * 0.1f),
-                this._currentObject.transform.localScale.y + (deltaMagnitudeDiff * 0.1f),
+            var scaleAmount = deltaMagnitudeDiff / 400;
+            if (this._currentObject.transform.localScale.x <= 0.2 && scaleAmount < 0)
+            {
+                // Don't do anything
+            } else {
+                this._currentObject.transform.localScale = new Vector3(
+                this._currentObject.transform.localScale.x + scaleAmount,
+                this._currentObject.transform.localScale.y + scaleAmount,
                 this._currentObject.transform.localScale.z);
+            }   
         }
         if (Input.GetMouseButtonDown(0))
         {

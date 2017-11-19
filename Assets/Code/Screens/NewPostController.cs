@@ -79,6 +79,7 @@ public class NewPostController : MonoBehaviour
                     this._avatar = picture.transform.Find("FemaleAvatar").gameObject;
                     break;
             }
+            this._avatar.SetActive(true);
 
             this._itemObjects = this.SetupItemsInPost(picture.gameObject);
             var movableObjects = this._itemObjects;
@@ -103,6 +104,8 @@ public class NewPostController : MonoBehaviour
             var bulldog = new PictureItem();
             bulldog.name = "Bulldog";
             bulldog.location = new SerializableVector3(new Vector3(1.2f, -0.5f, 0.0f));
+            bulldog.rotation = 0;
+            bulldog.scale = 0.45f;
             this._items.Add(bulldog);
         }
         var itemObjects = this._postHelper.PopulatePostWithItems(pictureObject, this._items);
@@ -118,6 +121,7 @@ public class NewPostController : MonoBehaviour
 
     public void CheckClick(string colliderName)
     {
+        
         switch (colliderName)
         {
             case "NewPostDoneButton":
@@ -133,6 +137,10 @@ public class NewPostController : MonoBehaviour
                 this._currentBackground = "City";
                 this.GotoNewState(NewPostState.Cropping);
                 break;
+            case "Louvre":
+                this._currentBackground = "Louvre";
+                this.GotoNewState(NewPostState.Cropping);
+                break;
             case "BackButton":
                 switch(this._currentPostState)
                 {
@@ -140,6 +148,8 @@ public class NewPostController : MonoBehaviour
                         this.DestroyPage();
                         break;
                     case NewPostState.Cropping:
+                        this.DestroyPage();
+                        this.CreatePopup(this._postCallBack);
                         this.GotoNewState(NewPostState.BackgroundSelection);
                         break;
                 }
@@ -172,8 +182,9 @@ public class NewPostController : MonoBehaviour
             case NewPostState.BackgroundSelection:
                 break;
             case NewPostState.Cropping:
-                this._postPopupWindow.transform.Find("BeachBackground").gameObject.SetActive(false);
-                this._postPopupWindow.transform.Find("CityBackground").gameObject.SetActive(false);
+                this._postPopupWindow.transform.Find("Beach").gameObject.SetActive(false);
+                this._postPopupWindow.transform.Find("City").gameObject.SetActive(false);
+                this._postPopupWindow.transform.Find("Louvre").gameObject.SetActive(false);
                 this._postPopupWindow.transform.Find("ChooseText").GetComponent<TextMeshPro>().text
                     = "Edit your photo:";
                 this._postPopupWindow.transform.Find("NewPostDoneButton").gameObject.SetActive(true);
@@ -188,6 +199,9 @@ public class NewPostController : MonoBehaviour
                         break;
                     case "City":
                         picture.transform.Find("CityBackground").gameObject.SetActive(true);
+                        break;
+                    case "Louvre":
+                        picture.transform.Find("LouvreBackground").gameObject.SetActive(true);
                         break;
                 }
 
@@ -221,6 +235,8 @@ public class NewPostController : MonoBehaviour
         newPost.imageID = GetRandomImageID();
         newPost.backgroundName = this._currentBackground;
         newPost.avatarPosition = new SerializableVector3(this._avatar.transform.localPosition);
+        newPost.avatarRotation = this._avatar.transform.localRotation.eulerAngles.z;
+        newPost.avatarScale = this._avatar.transform.localScale.x;
         newPost.characterProperties = this.characterSerializer.CurrentCharacterProperties;
         newPost.likes = 0;
         newPost.dislikes = 0;
@@ -229,7 +245,12 @@ public class NewPostController : MonoBehaviour
         var newItems = new List<PictureItem>();
         foreach(GameObject item in this._itemObjects)
         {
-            newItems.Add(new PictureItem(item.name, new SerializableVector3(item.transform.localPosition)));
+            newItems.Add(
+                new PictureItem(
+                    item.name,
+                    new SerializableVector3(item.transform.localPosition),
+                    item.transform.localRotation.eulerAngles.z,
+                    item.transform.localScale.x));
         }
         newPost.items = newItems;
 

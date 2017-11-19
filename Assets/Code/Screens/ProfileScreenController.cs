@@ -16,7 +16,6 @@ public class ProfileScreenController : MonoBehaviour
 
     private GameObject page;
     private GameObject scrollArea;
-    private ScrollController _youScrollController;
     private List<GameObject> _youPostObjects;
 
     void Awake () {
@@ -151,6 +150,6 @@ public class ProfileScreenController : MonoBehaviour
         var posts = this._userSerializer.GetReverseChronologicalPosts();
         posts.Sort((a, b) => b.dateTime.CompareTo(a.dateTime));
         this._postHelper.GeneratePostFeed(
-            this.scrollArea, posts, this._youPostObjects, this._youScrollController, POST_X_OFFSET, POST_Y_OFFSET);
+            this.scrollArea, posts, this._youPostObjects, POST_X_OFFSET, POST_Y_OFFSET);
     }
 }

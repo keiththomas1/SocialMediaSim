@@ -13,14 +13,18 @@ using UnityEngine.Networking;
 public class PictureItem
 {
     public PictureItem() {}
-    public PictureItem(string _name, SerializableVector3 _location)
+    public PictureItem(string _name, SerializableVector3 _location, float _rotation, float _scale)
     {
         name = _name;
         location = _location;
+        rotation = _rotation;
+        scale = _scale;
     }
 
     public string name;
     public SerializableVector3 location;
+    public float rotation;
+    public float scale;
 }
 
 [Serializable]
@@ -33,6 +37,8 @@ public class PictureModelJsonSend
 {
     public string playerName;
     public SerializableVector3 avatarPosition;
+    public float avatarRotation;
+    public float avatarScale;
     public SerializableColor skinColor;
     public SerializableColor hairColor;
     public SerializableColor shirtColor;
@@ -50,6 +56,8 @@ public class PictureModelJsonReceive
     public int dislikes;
     public string playerName;
     public SerializableVector3 avatarPosition;
+    public float avatarRotation;
+    public float avatarScale;
     public SerializableColor skinColor;
     public SerializableColor hairColor;
     public SerializableColor shirtColor;
@@ -74,6 +82,8 @@ public class RESTRequester
         // Create a picture with information from picture
         var newPicture = new PictureModelJsonSend();
         newPicture.avatarPosition = post.avatarPosition;
+        newPicture.avatarRotation = post.avatarRotation;
+        newPicture.avatarScale = post.avatarScale;
         newPicture.playerName = post.playerName;
         newPicture.bodySprite = post.characterProperties.bodySprite;
         newPicture.skinColor = post.characterProperties.skinColor;
@@ -156,6 +166,8 @@ public class RESTRequester
     {
         var newPost = new DelayGramPost();
         newPost.avatarPosition = picture.avatarPosition;
+        newPost.avatarRotation = picture.avatarRotation;
+        newPost.avatarScale = picture.avatarScale;
         newPost.playerName = picture.playerName;
         newPost.backgroundName = picture.backgroundName;
         newPost.characterProperties = new CharacterProperties();

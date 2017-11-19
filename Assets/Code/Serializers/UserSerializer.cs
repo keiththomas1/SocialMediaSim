@@ -225,6 +225,8 @@ public class DelayGramPost
     public string playerName;
     public string backgroundName;
     public SerializableVector3 avatarPosition;
+    public float avatarRotation;
+    public float avatarScale;
     public CharacterProperties characterProperties;
     public int likes;
     public int dislikes;

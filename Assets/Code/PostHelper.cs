@@ -32,16 +32,22 @@ public class PostHelper {
                 data.avatarPosition.x,
                 data.avatarPosition.y,
                 data.avatarPosition.z);
+            avatar.transform.Rotate(0, 0, data.avatarRotation);
+            // avatar.transform.localRotation = Quaternion.Euler(0, 0, data.avatarRotation);
+            avatar.transform.localScale = new Vector3(data.avatarScale, data.avatarScale, 1);
             var avatarCustomization = avatar.GetComponent<CharacterCustomization>();
             avatarCustomization.SetCharacterLook(data.characterProperties);
         }
 
-        var itemObjects = this.PopulatePostWithItems(postPicture.gameObject, data.items);
+        this.PopulatePostWithItems(postPicture.gameObject, data.items);
 
         switch (data.backgroundName)
         {
             case "City":
                 postPicture.transform.Find("CityBackground").gameObject.SetActive(true);
+                break;
+            case "Louvre":
+                postPicture.transform.Find("LouvreBackground").gameObject.SetActive(true);
                 break;
             case "Beach":
             default:
@@ -117,6 +123,8 @@ public class PostHelper {
                 itemObject.transform.parent = pictureObject.transform;
                 itemObject.transform.localPosition = new Vector3(
                     item.location.x, item.location.y, item.location.z);
+                itemObject.transform.Rotate(0, 0, item.rotation); //  = Quaternion.Euler(0, 0, item.rotation);
+                itemObject.transform.localScale = new Vector3(item.scale, item.scale, 1);
                 itemObjects.Add(itemObject);
             }
         }
@@ -127,7 +135,6 @@ public class PostHelper {
         GameObject scrollArea,
         List<DelayGramPost> posts,
         List<GameObject> postObjects,
-        ScrollController scrollController,
         float postXOffset,
         float postYOffset)
     {
@@ -140,7 +147,7 @@ public class PostHelper {
             postObjects.Add(newPost);
         }
 
-        scrollController = scrollArea.AddComponent<ScrollController>();
+        var scrollController = scrollArea.AddComponent<ScrollController>();
         scrollController.UpdateScrollArea(scrollArea, scrollArea.transform.localPosition.y, -currentY);
     }
 
@@ -163,7 +170,7 @@ public class PostHelper {
                 timeTextXPosition,
                 timeText.transform.position.y,
                 timeText.transform.position.z);
-            var timeSincePost = DateTime.Now - post.dateTime;
+            // var timeSincePost = DateTime.Now - post.dateTime;
             // timeText.text = this._restRequester.GetPostTimeFromDateTime(timeSincePost);
 
             var profilePicBubble = postPrefabInstance.transform.Find("ProfilePicBubble");

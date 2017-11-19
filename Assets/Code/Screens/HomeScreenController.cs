@@ -11,13 +11,11 @@ public class HomeScreenController : MonoBehaviour {
 
     private const float POST_X_OFFSET = -0.05f;
     private const float POST_Y_OFFSET = 1.34f;
-    private UserSerializer _userSerializer;
     private GameObject _postPage;
     private GameObject _errorText;
 
     // World objects
     private GameObject _worldScrollArea;
-    private ScrollController _worldScrollController;
     private List<GameObject> _worldPostObjects;
     private RESTRequester _restRequester;
     private PostHelper _postHelper;
@@ -26,7 +24,6 @@ public class HomeScreenController : MonoBehaviour {
     // Use this for initialization
     void Awake()
     {
-        this._userSerializer = UserSerializer.Instance;
         this._worldPostObjects = new List<GameObject>();
         this._restRequester = new RESTRequester();
         this._postHelper = new PostHelper();
@@ -38,8 +35,6 @@ public class HomeScreenController : MonoBehaviour {
 
     public void EnterScreen()
     {
-        this._userSerializer = UserSerializer.Instance;
-
         this._postPage = GameObject.Instantiate(Resources.Load("Home/HomePage") as GameObject);
         this._postPage.transform.position = new Vector3(0.0f, 0.25f, 0.0f);
 
@@ -130,6 +125,6 @@ public class HomeScreenController : MonoBehaviour {
             posts.Add(newPost);
         }
         this._postHelper.GeneratePostFeed(
-            this._worldScrollArea, posts, this._worldPostObjects, this._worldScrollController, POST_X_OFFSET, POST_Y_OFFSET);
+            this._worldScrollArea, posts, this._worldPostObjects, POST_X_OFFSET, POST_Y_OFFSET);
     }
 }

@@ -14,7 +14,9 @@ let Color3 = new Schema({
 });
 let PictureItem = new Schema({
 	name: String,
-	location: Vector3
+	location: Vector3,
+	rotation: Number,
+	scale: Number
 });
 
 let PictureSchema = new Schema({
@@ -32,6 +34,8 @@ let PictureSchema = new Schema({
 		type: Vector3
 		//required: 'Missing the avatar position'
 	},
+	avatarRotation: Number,
+	avatarScale: Number,
 	skinColor: Color3,
 	hairColor: Color3,
 	shirtColor: Color3,
