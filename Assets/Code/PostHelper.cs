@@ -116,6 +116,9 @@ public class PostHelper {
                 case "Bulldog":
                     itemObject = GameObject.Instantiate(Resources.Load("Characters/Bulldog") as GameObject);
                     break;
+                case "D-Rone":
+                    itemObject = GameObject.Instantiate(Resources.Load("Characters/D-Rone") as GameObject);
+                    break;
             }
             if (itemObject != null)
             {
@@ -149,6 +152,23 @@ public class PostHelper {
 
         var scrollController = scrollArea.AddComponent<ScrollController>();
         scrollController.UpdateScrollArea(scrollArea, scrollArea.transform.localPosition.y, -currentY);
+    }
+
+    public string GetMessageTimeFromDateTime(DateTime postTime)
+    {
+        var timeSincePost = DateTime.Now - postTime;
+        if (timeSincePost.Days > 0)
+        {
+            return timeSincePost.Days.ToString() + "d";
+        }
+        else if (timeSincePost.Hours > 0)
+        {
+            return timeSincePost.Hours.ToString() + "h";
+        }
+        else
+        {
+            return timeSincePost.Minutes.ToString() + "m";
+        }
     }
 
     private GameObject SetupPostPrefab(DelayGramPost post, float xPosition, float yPosition, GameObject scrollArea)

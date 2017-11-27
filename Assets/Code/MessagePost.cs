@@ -16,6 +16,7 @@ public class MessagePost
     private MessageCollection _messageCollection;
 
     private bool _seenLostDogConvo = false;
+    private bool _seenNewShirt1Convo = false;
 
     public static MessagePost Instance
     {
@@ -37,9 +38,14 @@ public class MessagePost
 
         foreach (Conversation convo in this._messageSerializer.ActiveConversations)
         {
-            if (convo.npcName == MessageCollection.LOST_DOG_NPC_NAME)
+            switch(convo.npcName)
             {
-                this._seenLostDogConvo = true;
+                case MessageCollection.LOST_DOG_NPC_NAME:
+                    this._seenLostDogConvo = true;
+                    break;
+                case MessageCollection.SHIRT1_NPC_NAME:
+                    this._seenNewShirt1Convo = true;
+                    break;
             }
         }
     }
@@ -57,7 +63,8 @@ public class MessagePost
 
     public void ChoiceMade(Conversation conversation, int choice)
     {
-        conversation.choicesMade.Add(choice);
+        var choices = conversation.choicesMade;
+        choices.Add(choice);
         Conversation newConversation = conversation;
 
         switch (conversation.npcName)
@@ -67,14 +74,12 @@ public class MessagePost
                 {
                     if (choice == 1)
                     {
-                        Debug.Log("set bulldog true");
                         this._userSerializer.HasBulldog = true;
                     }
                 }
-                newConversation = this._messageCollection.CreateLostDogConversation(conversation.choicesMade);
+                newConversation = this._messageCollection.CreateLostDogConversation(choices);
                 break;
         }
-
         this._messageSerializer.UpdateConversation(newConversation);
     }
 
@@ -85,6 +90,11 @@ public class MessagePost
             var conversation = this._messageCollection.CreateLostDogConversation(new List<int>());
             this._messageSerializer.AddConversation(conversation);
             this._seenLostDogConvo = true;
+            return true;
+        } else if (!this._seenNewShirt1Convo) {
+            var conversation = this._messageCollection.CreateShirtConversation(new List<int>());
+            this._messageSerializer.AddConversation(conversation);
+            this._seenNewShirt1Convo = true;
             return true;
         }
 

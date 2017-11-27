@@ -79,6 +79,10 @@ public class ExploreScreenController : MonoBehaviour
     // Update is called once per frame
     public void CheckClick(Collider collider)
     {
+        if (collider == null)
+        {
+            return;
+        }
         switch (collider.name)
         {
             case "ExplorePost":

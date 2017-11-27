@@ -175,7 +175,7 @@ public class UIController : MonoBehaviour {
         if (this._currentPage != Page.Post)
         {
             DestroyPage(this._currentPage);
-            this._newPostController.CreatePopup(this.ShowPostTimeRemaining);
+            this._newPostController.CreatePopup(this.FinishedCreatingPicture);
             this._currentPage = Page.Post;
         }
     }
@@ -220,9 +220,14 @@ public class UIController : MonoBehaviour {
         }
     }
 
+    private void FinishedCreatingPicture(DelayGramPost post)
+    {
+        this._postTimeTimer = 0.1f;
+        this.OnProfileClick();
+    }
+
     private void ShowPostTimeRemaining(DelayGramPost post)
     {
-        this._postTimeTimer = 0.3f;
     }
     private void UpdateTimeRemaining()
     {

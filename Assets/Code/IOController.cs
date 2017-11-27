@@ -11,7 +11,6 @@ public class IOController : MonoBehaviour
     private NewPostController _newPostController;
     private ExploreScreenController _exploreController;
     private MessagesScreenController _messagesController;
-    private RandomEventController _eventController;
 
     // Use this for initialization
     void Start ()
@@ -22,7 +21,6 @@ public class IOController : MonoBehaviour
         this._newPostController = GetComponent<NewPostController>();
         this._exploreController = GetComponent<ExploreScreenController>();
         this._messagesController = GetComponent<MessagesScreenController>();
-        this._eventController = GetComponent<RandomEventController>();
     }
 
     // Update is called once per frame
@@ -32,38 +30,30 @@ public class IOController : MonoBehaviour
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
-            {
-                if (this._eventController && this._eventController.EventInPlay())
-                {
-                    this._eventController.CheckClick(hit.collider.name);
-                }
-                else
-                {
-                    CheckPageClick(hit.collider);
-                }
-            }
+            Physics.Raycast(ray, out hit);
+            this.CheckPageClick(hit.collider);
         }
     }
 
     private void CheckPageClick(Collider collider)
     {
+        var colliderName = (collider == null) ? "" : collider.name;
         switch (this._uiController.GetCurrentPage())
         {
             case Page.Home:
-                this._homeController.CheckClick(collider.name);
+                this._homeController.CheckClick(colliderName);
                 break;
             case Page.Profile:
-                this._profileController.CheckClick(collider.name);
+                this._profileController.CheckClick(colliderName);
                 break;
             case Page.Post:
-                this._newPostController.CheckClick(collider.name);
+                this._newPostController.CheckClick(colliderName);
                 break;
             case Page.Explore:
                 this._exploreController.CheckClick(collider);
                 break;
             case Page.Messages:
-                this._messagesController.CheckClick(collider.name);
+                this._messagesController.CheckClick(colliderName);
                 break;
             default:
                 break;

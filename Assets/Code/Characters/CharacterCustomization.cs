@@ -40,12 +40,13 @@ public class CharacterCustomization : MonoBehaviour
     {
         if (properties.gender == Gender.Female)
         {
-            SetBodySprite(properties.bodySprite);
+            // SetBodySprite(properties.bodySprite);
         }
-        SetFaceSprite(properties.faceSprite);
-        SetSkinColor(properties.skinColor.GetColor());
-        SetHairColor(properties.hairColor.GetColor());
-        SetShirtColor(properties.shirtColor.GetColor());
+        this.SetFaceSprite(properties.faceSprite);
+        this.SetHairSprite(properties.hairSprite);
+        this.SetSkinColor(properties.skinColor.GetColor());
+        this.SetHairColor(properties.hairColor.GetColor());
+        this.SetShirtColor(properties.shirtColor.GetColor());
     }
 
     public void SetBodySprite(string spriteName)
@@ -88,6 +89,31 @@ public class CharacterCustomization : MonoBehaviour
             }
         }
     }
+    public void SetHairSprite(string spriteName)
+    {
+        if (this._spriteController)
+        {
+            List<Sprite> hairSprites = new List<Sprite>();
+            switch (this._characterSerializer.Gender)
+            {
+                case Gender.Female:
+                    hairSprites = this._spriteController.FemaleHairSprites;
+                    break;
+                case Gender.Male:
+                    hairSprites = this._spriteController.MaleHairSprites;
+                    break;
+            }
+            foreach (Sprite sprite in hairSprites)
+            {
+                if (sprite.name == spriteName)
+                {
+                    var head = this.transform.Find("Head");
+                    head.Find("Hair").GetComponent<SpriteRenderer>().sprite = sprite;
+                    return;
+                }
+            }
+        }
+    }
     public void SetSkinColor(Color color)
     {
         this.transform.Find("Head").GetComponent<SpriteRenderer>().color = color;
@@ -96,10 +122,10 @@ public class CharacterCustomization : MonoBehaviour
     }
     public void SetHairColor(Color color)
     {
-        this.transform.Find("Body").GetComponent<SpriteRenderer>().color = color;
+        this.transform.Find("Head").transform.Find("Hair").GetComponent<SpriteRenderer>().color = color;
     }
     public void SetShirtColor(Color color)
     {
-        this.transform.Find("Head").transform.Find("Hair").GetComponent<SpriteRenderer>().color = color;
+        this.transform.Find("Body").GetComponent<SpriteRenderer>().color = color;
     }
 }

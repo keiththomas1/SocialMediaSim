@@ -105,6 +105,15 @@ public class UserSerializer
             this.SaveFile();
         }
     }
+    public bool HasDrone
+    {
+        get { return this.currentSave.storyProperties.hasDrone; }
+        set
+        {
+            this.currentSave.storyProperties.hasDrone = value;
+            this.SaveFile();
+        }
+    }
 
     public void SerializePost(DelayGramPost newPost)
     {
@@ -192,6 +201,7 @@ public class UserSerializer
             this.currentSave.followers = 0;
             this.currentSave.storyProperties = new StoryProperties();
             this.currentSave.storyProperties.hasBulldog = false;
+            this.currentSave.storyProperties.hasDrone = true;
             this.currentSave.posts = new List<DelayGramPost>();
             this.currentSave.notifications = new List<DelayGramNotification>();
             this.currentSave.endorsements = new List<string>();
@@ -244,6 +254,7 @@ public class DelayGramNotification
 public class StoryProperties
 {
     public bool hasBulldog;
+    public bool hasDrone;
 }
 
 // Can speed up in the future by turning bought items into a bool array.

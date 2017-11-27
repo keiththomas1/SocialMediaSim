@@ -140,11 +140,11 @@ public struct MessageSaveVariables
 [Serializable]
 public struct Conversation
 {
-    public bool viewed;
     public string npcName;
     public CharacterProperties npcProperties;
     public List<Message> messages;
     public List<int> choicesMade;
+    public bool viewed;
 }
 
 [Serializable]

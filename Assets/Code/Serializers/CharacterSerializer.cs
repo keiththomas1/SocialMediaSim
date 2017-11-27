@@ -47,6 +47,7 @@ public class CharacterSerializer
         set
         {
             this._currentSave.properties.gender = value;
+            this.SaveFile();
         }
     }
     public string BodySprite
@@ -54,6 +55,7 @@ public class CharacterSerializer
         set
         {
             this._currentSave.properties.bodySprite = value;
+            this.SaveFile();
         }
     }
     public string FaceSprite
@@ -61,6 +63,15 @@ public class CharacterSerializer
         set
         {
             this._currentSave.properties.faceSprite = value;
+            this.SaveFile();
+        }
+    }
+    public string HairSprite
+    {
+        set
+        {
+            this._currentSave.properties.hairSprite = value;
+            this.SaveFile();
         }
     }
     public Color SkinColor
@@ -68,6 +79,7 @@ public class CharacterSerializer
         set
         {
             this._currentSave.properties.skinColor = new SerializableColor(value);
+            this.SaveFile();
         }
     }
     public Color HairColor
@@ -75,6 +87,7 @@ public class CharacterSerializer
         set
         {
             this._currentSave.properties.hairColor = new SerializableColor(value);
+            this.SaveFile();
         }
     }
     public Color ShirtColor
@@ -82,6 +95,7 @@ public class CharacterSerializer
         set
         {
             this._currentSave.properties.shirtColor = new SerializableColor(value);
+            this.SaveFile();
         }
     }
     public CharacterProperties CurrentCharacterProperties
@@ -89,6 +103,11 @@ public class CharacterSerializer
         get
         {
             return this._currentSave.properties;
+        }
+        set
+        {
+            this._currentSave.properties = value;
+            this.SaveFile();
         }
     }
 
@@ -207,6 +226,7 @@ public class CharacterProperties
     public Gender gender;
     public string bodySprite;
     public string faceSprite;
+    public string hairSprite;
     public SerializableColor skinColor;
     public SerializableColor hairColor;
     public SerializableColor shirtColor;
@@ -218,6 +238,16 @@ public class CharacterProperties
         skinColor = new SerializableColor(255, 255, 255);
         hairColor = new SerializableColor(255, 255, 255);
         shirtColor = new SerializableColor(255, 255, 255);
+    }
+    public CharacterProperties(CharacterProperties other)
+    {
+        gender = other.gender;
+        bodySprite = other.bodySprite;
+        faceSprite = other.faceSprite;
+        hairSprite = other.hairSprite;
+        skinColor = other.skinColor;
+        hairColor = other.hairColor;
+        shirtColor = other.shirtColor;
     }
 }
 

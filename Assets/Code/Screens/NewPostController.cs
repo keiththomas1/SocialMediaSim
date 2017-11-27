@@ -108,6 +108,15 @@ public class NewPostController : MonoBehaviour
             bulldog.scale = 0.45f;
             this._items.Add(bulldog);
         }
+        if (this._userSerializer.HasDrone)
+        {
+            var drone = new PictureItem();
+            drone.name = "D-Rone";
+            drone.location = new SerializableVector3(new Vector3(-0.64f, 0.8f, 0.0f));
+            drone.rotation = 0;
+            drone.scale = 0.34f;
+            this._items.Add(drone);
+        }
         var itemObjects = this._postHelper.PopulatePostWithItems(pictureObject, this._items);
         foreach(var item in itemObjects)
         {

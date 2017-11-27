@@ -20,6 +20,12 @@ public class MessagesScreenController : MonoBehaviour {
     private const float STUB_STARTING_X = 0.0f;
     private float stubStartingY;
 
+    private Queue<GameObject> _messageQueue;
+    private List<GameObject> _messageObjects;
+    private bool _messageDotsVisible = false;
+    private float _messageWritingTimer = 0.0f;
+    private GameObject _currentTypingBubble;
+
 	// Use this for initialization
 	void Start () {
         this._messagesSerializer = MessagesSerializer.Instance;
@@ -29,17 +35,65 @@ public class MessagesScreenController : MonoBehaviour {
         this._postHelper = new PostHelper();
         this.activeConversations = new List<Conversation>();
 
-        createdStubs = new List<GameObject>();
-        stubStartingY = 0.0f;
+        this.createdStubs = new List<GameObject>();
+        this.stubStartingY = 0.0f;
+        this._messageObjects = new List<GameObject>();
     }
 	
 	// Update is called once per frame
 	void Update () {
-	
+	    if (this._messageWritingTimer > 0.0f)
+        {
+            this._messageWritingTimer -= Time.deltaTime;
+            if (this._messageWritingTimer <= 0.0f)
+            {
+                if (this._messageDotsVisible)
+                {
+                    this._messageDotsVisible = false;
+                    var nextMessage = this._messageQueue.Dequeue();
+                    nextMessage.SetActive(true);
+
+                    if (this._messageQueue.Count != 0)
+                    {
+                        this._messageWritingTimer = 0.3f;
+                    } else { // Finished displaying messages
+                        if (!this._currentConversation.viewed)
+                        {
+                            this._currentConversation.viewed = true;
+                            this._messagesSerializer.UpdateConversation(this._currentConversation);
+                        }
+                    }
+                } else {
+                    this._messageDotsVisible = true;
+
+                    GameObject nextMessage = this._messageQueue.Peek();
+                    if (nextMessage)
+                    {
+                        this._currentTypingBubble = GameObject.Instantiate(Resources.Load("Messages/TypingBubble") as GameObject);
+                        this._currentTypingBubble.transform.parent = this.pageScrollArea;
+                        Vector3 position = nextMessage.transform.position;
+                        this._currentTypingBubble.transform.position = position;
+                        var deathTimer = this._currentTypingBubble.AddComponent<DeathByTimer>();
+                        deathTimer.deathTimeInSeconds = 1.5f;
+                    }
+
+                    this._messageWritingTimer = 2.0f;
+                }
+            }
+        }
 	}
 
     public void CheckClick(string colliderName)
     {
+        if (this._messageWritingTimer > 0.0f)
+        {
+            this._messageWritingTimer = 0.01f;
+            if (this._currentTypingBubble)
+            {
+                GameObject.Destroy(this._currentTypingBubble);
+            }
+        }
+
         switch (colliderName)
         {
             default:
@@ -47,31 +101,15 @@ public class MessagesScreenController : MonoBehaviour {
                 {
                     if (colliderName == conversation.npcName)
                     {
-                        GenerateConversation(conversation);
+                        GenerateConversation(conversation, conversation.messages, 0.0f);
                     }
                 }
                 break;
             case "Choice1":
-                this._messagePost.ChoiceMade(this._currentConversation, 1);
-
-                this.DestroyPage();
-                this.EnterScreen();
-                var newConvo = this._messagesSerializer.GetConversationByNPCName(this._currentConversation.npcName);
-                if (newConvo != null)
-                {
-                    this.GenerateConversation(newConvo.Value);
-                }
+                this.MakeChoice(1);
                 break;
             case "Choice2":
-                this._messagePost.ChoiceMade(this._currentConversation, 2);
-
-                this.DestroyPage();
-                this.EnterScreen();
-                newConvo = this._messagesSerializer.GetConversationByNPCName(this._currentConversation.npcName);
-                if (newConvo != null)
-                {
-                    this.GenerateConversation(newConvo.Value);
-                }
+                this.MakeChoice(2);
                 break;
         }
     }
@@ -99,6 +137,44 @@ public class MessagesScreenController : MonoBehaviour {
     }
 
     /* Private methods */
+
+    private void MakeChoice(int choice)
+    {
+        var oldConversation = this._messagesSerializer.GetConversationByNPCName(this._currentConversation.npcName);
+        if (oldConversation != null)
+        {
+            var oldMessages = oldConversation.Value.messages;
+            this._messagePost.ChoiceMade(this._currentConversation, choice);
+
+            var messageCount = this._messageObjects.Count;
+            var yLocation = this._messageObjects[messageCount - 1].transform.localPosition.y;
+
+            // Hard-coded to destroy the last two messages (choices)
+            GameObject.Destroy(this._messageObjects[messageCount - 1]);
+            GameObject.Destroy(this._messageObjects[messageCount - 2]);
+            this._messageObjects.RemoveAt(messageCount - 1);
+            this._messageObjects.RemoveAt(messageCount - 2);
+
+            var newConvo = this._messagesSerializer.GetConversationByNPCName(this._currentConversation.npcName);
+            if (newConvo != null)
+            {
+                var newMessages = new List<Message>(newConvo.Value.messages);
+                var messagesToDelete = new List<Message>();
+                for (int i = 0; i < oldMessages.Count; i++)
+                {
+                    if (oldMessages[i].text == newMessages[i].text)
+                    {
+                        messagesToDelete.Add(newMessages[i]);
+                    }
+                }
+                foreach (Message message in messagesToDelete)
+                {
+                    newMessages.Remove(message);
+                }
+                this.GenerateConversation(newConvo.Value, newMessages, yLocation);
+            }
+        }
+    }
 
     private void GenerateMessageStubs()
     {
@@ -139,27 +215,10 @@ public class MessagesScreenController : MonoBehaviour {
         var timeText = messageStub.transform.Find("TimeText");
         if (timeText)
         {
-            timeText.GetComponent<TextMeshPro>().text = this.GetMessageTimeFromDateTime(message.timeSent);
+            timeText.GetComponent<TextMeshPro>().text = this._postHelper.GetMessageTimeFromDateTime(message.timeSent);
         }
 
         createdStubs.Add(messageStub);
-    }
-
-    private string GetMessageTimeFromDateTime(DateTime postTime)
-    {
-        var timeSincePost = DateTime.Now - postTime;
-        if (timeSincePost.Days > 0)
-        {
-            return timeSincePost.Days.ToString() + "d";
-        }
-        else if (timeSincePost.Hours > 0)
-        {
-            return timeSincePost.Hours.ToString() + "h";
-        }
-        else
-        {
-            return timeSincePost.Minutes.ToString() + "m";
-        }
     }
 
     private void DestroyMessageStubs()
@@ -171,12 +230,12 @@ public class MessagesScreenController : MonoBehaviour {
         this.createdStubs.Clear();
     }
 
-    private void GenerateConversation(Conversation conversation)
+    private void GenerateConversation(Conversation conversation, List<Message> messages, float yPosition)
     {
         DestroyMessageStubs();
 
-        float yPosition = 0.0f;
-        foreach (Message message in conversation.messages)
+        this._messageQueue = new Queue<GameObject>();
+        foreach (Message message in messages)
         {
             switch (message.type)
             {
@@ -187,7 +246,7 @@ public class MessagesScreenController : MonoBehaviour {
                     int choiceCount = 1;
                     foreach(string choice in message.choices)
                     {
-                        yPosition -= this.AddPlayerChoiceObject(choice, "Choice" + choiceCount.ToString(), yPosition);
+                        yPosition -= this.AddPlayerChoiceObject(conversation, choice, "Choice" + choiceCount.ToString(), yPosition);
                         choiceCount++;
                     }
                     break;
@@ -196,23 +255,19 @@ public class MessagesScreenController : MonoBehaviour {
                     break;
                 case MessageType.Result:
                     var prefabName = this._messageCollection.GetResultPrefabName(conversation);
-                    yPosition -= this.AddResultMessageObject(prefabName, yPosition);
+                    yPosition -= this.AddResultMessageObject(conversation, prefabName, yPosition);
                     break;
             }
         }
 
+        if (!conversation.viewed)
+        {
+            this._messageWritingTimer = 0.1f;
+            this._messageDotsVisible = false;
+        }
+
         this._currentConversation = conversation;
-    }
-
-    private float AddPlayerChoiceObject(string choiceText, string nameText, float yPosition)
-    {
-        var popupMessage = GameObject.Instantiate(Resources.Load("Messages/PlayerChoice") as GameObject);
-        popupMessage.name = nameText;
-        popupMessage.transform.parent = this.pageScrollArea;
-        popupMessage.transform.localPosition = new Vector3(0.0f, yPosition, 0.0f);
-
-        var textHeight = this.SetupText(popupMessage, choiceText);
-        return 0.35f + textHeight;
+        conversation.viewed = true;
     }
 
     private float AddPlayerMessageObject(Conversation conversation, Message message, float yPosition)
@@ -224,17 +279,22 @@ public class MessagesScreenController : MonoBehaviour {
         var profileBubble = popupMessage.transform.Find("ProfilePicBubble");
         this._postHelper.SetupProfilePicBubble(profileBubble.gameObject, this._characterSerializer.CurrentCharacterProperties);
 
+
         var textHeight = this.SetupText(popupMessage, message.text);
+        this.StoreMessageObject(conversation, popupMessage);
         return 0.75f + textHeight;
     }
 
-    private float AddResultMessageObject(string prefabName, float yPosition)
+    private float AddPlayerChoiceObject(Conversation conversation, string choiceText, string nameText, float yPosition)
     {
-        var popupMessage = GameObject.Instantiate(Resources.Load(prefabName) as GameObject);
+        var popupMessage = GameObject.Instantiate(Resources.Load("Messages/PlayerChoice") as GameObject);
+        popupMessage.name = nameText;
         popupMessage.transform.parent = this.pageScrollArea;
         popupMessage.transform.localPosition = new Vector3(0.0f, yPosition, 0.0f);
 
-        return 0.75f;
+        var textHeight = this.SetupText(popupMessage, choiceText);
+        this.StoreMessageObject(conversation, popupMessage);
+        return 0.35f + textHeight;
     }
 
     private float AddNPCMessageObject(Conversation conversation, Message message, bool showPortrait, float yPosition)
@@ -247,9 +307,30 @@ public class MessagesScreenController : MonoBehaviour {
         this._postHelper.SetupProfilePicBubble(profileBubble.gameObject, conversation.npcProperties);
 
         var textHeight = this.SetupText(popupMessage, message.text);
+        this.StoreMessageObject(conversation, popupMessage);
 
         var messageHeight = 0.75f + textHeight; // One and two liners are 0.75f tall. Every line after is 0.05f.
         return messageHeight;
+    }
+
+    private float AddResultMessageObject(Conversation conversation, string prefabName, float yPosition)
+    {
+        var popupMessage = GameObject.Instantiate(Resources.Load(prefabName) as GameObject);
+        popupMessage.transform.parent = this.pageScrollArea;
+        popupMessage.transform.localPosition = new Vector3(0.0f, yPosition, 0.0f);
+
+        this.StoreMessageObject(conversation, popupMessage);
+        return 0.75f;
+    }
+
+    private void StoreMessageObject(Conversation conversation, GameObject messageObject)
+    {
+        if (!conversation.viewed)
+        {
+            messageObject.SetActive(false);
+            this._messageQueue.Enqueue(messageObject);
+        }
+        this._messageObjects.Add(messageObject);
     }
 
     private float SetupText(GameObject popupMessage, string text)

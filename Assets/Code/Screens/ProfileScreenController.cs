@@ -18,6 +18,9 @@ public class ProfileScreenController : MonoBehaviour
     private GameObject scrollArea;
     private List<GameObject> _youPostObjects;
 
+    private GameObject _editScreen;
+    private CharacterProperties _previousCharacterProperties;
+
     void Awake () {
         this.globalVars = GlobalVars.Instance;
         this.characterSerializer = CharacterSerializer.Instance;
@@ -44,57 +47,75 @@ public class ProfileScreenController : MonoBehaviour
 
     void Update ()
     {
-        CheckHover();
-    }
-
-    private void CheckHover()
-    {
-        if (Input.GetMouseButton(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
-            {
-                switch (hit.collider.name)
-                {
-                    default:
-                        break;
-                }
-            }
-        }
     }
 
     public void CheckClick(string colliderName)
     {
-        switch (colliderName)
+        if (this._editScreen)
         {
-            case "RandomNameButton":
-                var randomName = this.randomNameGenerator.GenerateRandomName();
-                globalVars.PlayerName = randomName;
-                UpdateText();
-                break;
-            case "MaleButton":
-                this.SetAvatar(Gender.Male);
-                this.characterSerializer.Gender = Gender.Male;
-                break;
-            case "FemaleButton":
-                this.SetAvatar(Gender.Female);
-                this.characterSerializer.Gender = Gender.Female;
-                break;
+            if (colliderName == "BackButton")
+            {
+                this.ResetCharacterProperties();
+                GameObject.Destroy(this._editScreen);
+                this.page.SetActive(true);
+            } else if (colliderName == "DoneButton") {
+                GameObject.Destroy(this._editScreen);
+                this.page.SetActive(true);
+            } else {
+                this._editScreen.GetComponent<CharacterEditor>().CheckClick(colliderName);
+            }
+        } else {
+            switch (colliderName)
+            {
+                case "RandomNameButton":
+                    var randomName = this.randomNameGenerator.GenerateRandomName();
+                    globalVars.PlayerName = randomName;
+                    UpdateText();
+                    break;
+                case "MaleButton":
+                    this.characterSerializer.Gender = Gender.Male;
+                    this.SetAvatar(scrollArea.transform.Find("SpriteMask").gameObject);
+                    this.page.GetComponent<CharacterEditor>().RandomizeCharacter();
+                    break;
+                case "FemaleButton":
+                    this.characterSerializer.Gender = Gender.Female;
+                    this.SetAvatar(scrollArea.transform.Find("SpriteMask").gameObject);
+                    this.page.GetComponent<CharacterEditor>().RandomizeCharacter();
+                    break;
+                case "EditButton":
+                    this.CreateEditAvatarScreen();
+                    break;
+            }
         }
     }
 
-    private void SetAvatar(Gender gender)
+    private void CreateEditAvatarScreen()
     {
+        this._editScreen = GameObject.Instantiate(Resources.Load("Profile/CreateCharacterPopup") as GameObject);
+        this._editScreen.transform.position = new Vector3(0.3f, 1.55f, 0.0f);
+        this.SetAvatar(this._editScreen);
+        this.page.SetActive(false);
+
+        this._previousCharacterProperties = new CharacterProperties(this.characterSerializer.CurrentCharacterProperties);
+    }
+
+    private void ResetCharacterProperties()
+    {
+        this.characterSerializer.CurrentCharacterProperties = this._previousCharacterProperties;
+    }
+
+    private void SetAvatar(GameObject parent)
+    {
+        var gender = this.characterSerializer.Gender;
         switch (gender)
         {
             case Gender.Female:
-                scrollArea.transform.Find("FemaleAvatar").gameObject.SetActive(true);
-                scrollArea.transform.Find("MaleAvatar").gameObject.SetActive(false);
+                parent.transform.Find("FemaleAvatar").gameObject.SetActive(true);
+                parent.transform.Find("MaleAvatar").gameObject.SetActive(false);
                 break;
             case Gender.Male:
-                scrollArea.transform.Find("MaleAvatar").gameObject.SetActive(true);
-                scrollArea.transform.Find("FemaleAvatar").gameObject.SetActive(false);
+                parent.transform.Find("MaleAvatar").gameObject.SetActive(true);
+                parent.transform.Find("FemaleAvatar").gameObject.SetActive(false);
                 break;
         }
     }
@@ -107,9 +128,7 @@ public class ProfileScreenController : MonoBehaviour
         scrollArea = page.transform.Find("ScrollArea").gameObject;
         scrollController = scrollArea.AddComponent<ScrollController>();
         scrollController.UpdateScrollArea(scrollArea, scrollArea.transform.localPosition.y, 4.0f);
-
-        var currentGender = this.characterSerializer.Gender;
-        this.SetAvatar(currentGender);
+        this.SetAvatar(scrollArea.transform.Find("SpriteMask").gameObject);
 
         UpdateText();
 
@@ -139,6 +158,12 @@ public class ProfileScreenController : MonoBehaviour
             }
         }
         this._youPostObjects.Clear();
+
+        if (this._editScreen)
+        {
+            this.ResetCharacterProperties();
+            GameObject.Destroy(this._editScreen);
+        }
 
         globalVars.UnregisterCashListener(this);
         this._userSerializer.UnregisterFollowersListener(this);

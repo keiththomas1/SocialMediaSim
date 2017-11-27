@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CharacterEditor : MonoBehaviour {
-    [SerializeField]
-    private GameObject _randomPersonButton;
     private CharacterSerializer _characterSerializer;
     private CharacterRandomization _characterRandomization;
 
@@ -22,42 +20,87 @@ public class CharacterEditor : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        if (Input.GetMouseButtonDown(0))
+    }
+
+    public void CheckClick(string colliderName)
+    {
+        Debug.Log(colliderName);
+        switch (colliderName)
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
-            {
-                if (hit.collider.name == this._randomPersonButton.name)
-                {
-                    // var bodySprite = GetRandomBodySprite();
-                    // this._characterCustomization.SetBodySprite(bodySprite);
-                    // this._characterSerializer.BodySprite = bodySprite;
-
-                    switch (this._characterSerializer.Gender)
-                    {
-                        case Gender.Male:
-                            var maleFace = this._characterRandomization.GetRandomMaleFaceSprite();
-                            this._characterSerializer.FaceSprite = maleFace;
-                            break;
-                        case Gender.Female:
-                            var femaleFace = this._characterRandomization.GetRandomFemaleFaceSprite();
-                            this._characterSerializer.FaceSprite = femaleFace;
-                            break;
-                    }
-
-                    var skinColor = this._characterRandomization.GetRandomSkinColor();
-                    this._characterSerializer.SkinColor = skinColor;
-
-                    var hairColor = this._characterRandomization.GetRandomColor();
-                    this._characterSerializer.HairColor = hairColor;
-
-                    var shirtColor = this._characterRandomization.GetRandomColor();
-                    this._characterSerializer.ShirtColor = shirtColor;
-
-                    this._characterSerializer.SaveFile();
-                }
-            }
+            case "RandomEverythingButton":
+                this.RandomizeCharacter();
+                break;
+            case "RandomHairButton":
+                this.RandomizeHair();
+                break;
+            case "RandomFaceButton":
+                this.RandomizeFace();
+                break;
+            case "RandomSkinButton":
+                this.RandomizeSkin();
+                break;
+            case "RandomShirtButton":
+                this.RandomizeShirt();
+                break;
+            case "RandomPantsButton":
+                this.RandomizePants();
+                break;
         }
+    }
+
+    public void RandomizeCharacter()
+    {
+        // var bodySprite = GetRandomBodySprite();
+        // this._characterCustomization.SetBodySprite(bodySprite);
+        // this._characterSerializer.BodySprite = bodySprite;
+
+        this.RandomizeFace();
+        this.RandomizeHair();
+        this.RandomizeShirt();
+        this.RandomizeSkin();
+        this.RandomizePants();
+    }
+
+    private void RandomizeFace()
+    {
+        switch (this._characterSerializer.Gender)
+        {
+            case Gender.Male:
+                this._characterSerializer.FaceSprite = this._characterRandomization.GetRandomMaleFaceSprite();
+                break;
+            case Gender.Female:
+                this._characterSerializer.FaceSprite = this._characterRandomization.GetRandomFemaleFaceSprite();
+                break;
+        }
+    }
+
+    private void RandomizeHair()
+    {
+        switch (this._characterSerializer.Gender)
+        {
+            case Gender.Male:
+                this._characterSerializer.HairSprite = this._characterRandomization.GetRandomMaleHairSprite();
+                break;
+            case Gender.Female:
+                this._characterSerializer.HairSprite = this._characterRandomization.GetRandomFemaleHairSprite();
+                break;
+        }
+        var hairColor = this._characterRandomization.GetRandomColor();
+        this._characterSerializer.HairColor = hairColor;
+    }
+    private void RandomizeSkin()
+    {
+        var skinColor = this._characterRandomization.GetRandomSkinColor();
+        this._characterSerializer.SkinColor = skinColor;
+    }
+    private void RandomizeShirt()
+    {
+        Debug.Log("here");
+        var shirtColor = this._characterRandomization.GetRandomColor();
+        this._characterSerializer.ShirtColor = shirtColor;
+    }
+    private void RandomizePants()
+    {
+
     }
 }

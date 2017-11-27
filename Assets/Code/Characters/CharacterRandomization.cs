@@ -29,8 +29,18 @@ public class CharacterRandomization {
     public CharacterProperties GetFullRandomCharacter()
     {
         var newProperties = new CharacterProperties();
-        newProperties.faceSprite = this.GetRandomFemaleFaceSprite();
-        newProperties.gender = Gender.Female;
+        if (Random.Range(0, 2) == 0)
+        {
+            newProperties.faceSprite = this.GetRandomMaleFaceSprite();
+            newProperties.hairSprite = this.GetRandomMaleHairSprite();
+            newProperties.gender = Gender.Male;
+        }
+        else
+        {
+            newProperties.faceSprite = this.GetRandomFemaleFaceSprite();
+            newProperties.hairSprite = this.GetRandomFemaleHairSprite();
+            newProperties.gender = Gender.Female;
+        }
         newProperties.hairColor = new SerializableColor(this.GetRandomColor());
         newProperties.shirtColor = new SerializableColor(this.GetRandomColor());
         newProperties.skinColor = new SerializableColor(this.GetRandomSkinColor());
@@ -52,6 +62,17 @@ public class CharacterRandomization {
     {
         var faceSprites = this._spriteCollection.FemaleFaceSprites;
         return faceSprites[Random.Range(0, faceSprites.Count - 1)].name;
+    }
+
+    public string GetRandomMaleHairSprite()
+    {
+        var hairSprites = this._spriteCollection.MaleHairSprites;
+        return hairSprites[Random.Range(0, hairSprites.Count - 1)].name;
+    }
+    public string GetRandomFemaleHairSprite()
+    {
+        var hairSprites = this._spriteCollection.FemaleHairSprites;
+        return hairSprites[Random.Range(0, hairSprites.Count - 1)].name;
     }
 
     public Color GetRandomColor()

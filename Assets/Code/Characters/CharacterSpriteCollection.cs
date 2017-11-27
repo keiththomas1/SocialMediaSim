@@ -10,6 +10,10 @@ public class CharacterSpriteCollection : MonoBehaviour
     private List<Sprite> _maleFaceSprites;
     [SerializeField]
     private List<Sprite> _femaleFaceSprites;
+    [SerializeField]
+    private List<Sprite> _maleHairSprites;
+    [SerializeField]
+    private List<Sprite> _femaleHairSprites;
 
     // Use this for initialization
     void Start () {
@@ -28,9 +32,17 @@ public class CharacterSpriteCollection : MonoBehaviour
     {
         get { return this._maleFaceSprites; }
     }
-
     public List<Sprite> FemaleFaceSprites
     {
         get { return this._femaleFaceSprites; }
+    }
+
+    public List<Sprite> MaleHairSprites
+    {
+        get { return this._maleHairSprites; }
+    }
+    public List<Sprite> FemaleHairSprites
+    {
+        get { return this._femaleHairSprites; }
     }
 }
