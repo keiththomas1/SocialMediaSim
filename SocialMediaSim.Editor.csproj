@@ -125,11 +125,8 @@
     <Reference Include="NestedPrefabs_Editor">
       <HintPath>Assets\Nested Prefabs\NestedPrefabs_Editor.dll</HintPath>
     </Reference>
-    <Reference Include="TextMeshPro-1.0.55.2017.1.0b12">
-      <HintPath>Assets\TextMesh Pro\Plugins\TextMeshPro-1.0.55.2017.1.0b12.dll</HintPath>
-    </Reference>
-    <Reference Include="TextMeshPro-1.0.55.2017.1.0b12-Editor">
-      <HintPath>Assets\TextMesh Pro\Plugins\Editor\TextMeshPro-1.0.55.2017.1.0b12-Editor.dll</HintPath>
+    <Reference Include="Opencoding.CommandHandlers">
+      <HintPath>Assets\Opencoding\Console\DLLs\Opencoding.CommandHandlers.dll</HintPath>
     </Reference>
     <Reference Include="Opencoding.Console">
       <HintPath>Assets\Opencoding\Console\DLLs\Opencoding.Console.dll</HintPath>
@@ -137,11 +134,14 @@
     <Reference Include="Opencoding.LogHistory">
       <HintPath>Assets\Opencoding\Console\DLLs\Opencoding.LogHistory.dll</HintPath>
     </Reference>
-    <Reference Include="Opencoding.CommandHandlers">
-      <HintPath>Assets\Opencoding\Console\DLLs\Opencoding.CommandHandlers.dll</HintPath>
-    </Reference>
     <Reference Include="Opencoding.Shared">
       <HintPath>Assets\Opencoding\Console\DLLs\Opencoding.Shared.dll</HintPath>
+    </Reference>
+    <Reference Include="TextMeshPro-1.0.55.2017.1.0b12">
+      <HintPath>Assets\TextMesh Pro\Plugins\TextMeshPro-1.0.55.2017.1.0b12.dll</HintPath>
+    </Reference>
+    <Reference Include="TextMeshPro-1.0.55.2017.1.0b12-Editor">
+      <HintPath>Assets\TextMesh Pro\Plugins\Editor\TextMeshPro-1.0.55.2017.1.0b12-Editor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -151,6 +151,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Editor\CustomAssetImporter.cs" />
     <Compile Include="Assets\Nested Prefabs\Editor\CustomBuildPipeline.cs" />
     <Compile Include="Assets\Nested Prefabs\Editor\NestedPrefabsBuildProcessor.cs" />
     <Compile Include="Assets\Nested Prefabs\Editor\NestedPrefabsCloudBuildProcessor.cs" />

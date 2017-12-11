@@ -33,8 +33,9 @@ public class PostHelper {
                 data.avatarPosition.y,
                 data.avatarPosition.z);
             avatar.transform.Rotate(0, 0, data.avatarRotation);
-            // avatar.transform.localRotation = Quaternion.Euler(0, 0, data.avatarRotation);
             avatar.transform.localScale = new Vector3(data.avatarScale, data.avatarScale, 1);
+            avatar.GetComponent<Animator>().Play("Standing", -1, UnityEngine.Random.Range(0.0f, 1.0f));
+
             var avatarCustomization = avatar.GetComponent<CharacterCustomization>();
             avatarCustomization.SetCharacterLook(data.characterProperties);
         }
@@ -48,6 +49,12 @@ public class PostHelper {
                 break;
             case "Louvre":
                 postPicture.transform.Find("LouvreBackground").gameObject.SetActive(true);
+                break;
+            case "Park":
+                postPicture.transform.Find("ParkBackground").gameObject.SetActive(true);
+                break;
+            case "CamRoom":
+                postPicture.transform.Find("CamRoomBackground").gameObject.SetActive(true);
                 break;
             case "Beach":
             default:

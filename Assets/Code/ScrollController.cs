@@ -30,6 +30,11 @@ public class ScrollController : MonoBehaviour
 
         scrollInitialized = true;
     }
+
+    public void ScrollToPosition(float yPosition)
+    {
+        this.currentScrollSpeed = (transform.position.y - yPosition) * 4;
+    }
 	
 	// Update is called once per frame
     void Update()
@@ -67,7 +72,7 @@ public class ScrollController : MonoBehaviour
             if (isScrolling) {
                 this.currentScrollSpeed = (prevMouseY - mouseY) / 4.0f;
             } else {
-                this.currentScrollSpeed = this.currentScrollSpeed * 0.95f;
+                this.currentScrollSpeed = this.currentScrollSpeed * 0.97f;
             }
 
             if ((this.currentScrollSpeed <= 0.0f && transform.localPosition.y > scrollAreaBottom) ||

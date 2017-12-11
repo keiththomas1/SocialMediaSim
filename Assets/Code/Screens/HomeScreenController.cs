@@ -65,6 +65,12 @@ public class HomeScreenController : MonoBehaviour {
         GameObject.Destroy(this._postPage);
     }
 
+    public bool BackOut()
+    {
+        return true;
+    }
+
+
     private void EnterWorldSection()
     {
         this._worldScrollArea.SetActive(true);

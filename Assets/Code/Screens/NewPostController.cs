@@ -12,7 +12,6 @@ public class NewPostController : MonoBehaviour
     private GlobalVars _globalVars;
     private MessagePost _messagePost;
     private SoundController soundController;
-    private NotificationController _notificationController;
     private PostHelper _postHelper;
     private RESTRequester _restRequester;
 
@@ -41,7 +40,6 @@ public class NewPostController : MonoBehaviour
         this._globalVars = GlobalVars.Instance;
         this._messagePost = MessagePost.Instance;
         this.soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
-        this._notificationController = GameObject.Find("CONTROLLER").GetComponent<NotificationController>();
         this._postHelper = new PostHelper();
         this._restRequester = new RESTRequester();
 
@@ -61,71 +59,29 @@ public class NewPostController : MonoBehaviour
     {
         this.Initialize();
         this._postCallBack = callBack;
-        var postPopupWindowPrefab = Resources.Load("Posts/NewPostPopup") as GameObject;
-        if (postPopupWindowPrefab)
+        this._postPopupWindow = GameObject.Instantiate(Resources.Load("Posts/NewPostPopup") as GameObject);
+        this._postPopupWindow.transform.position = new Vector3(2.24f, 0.55f, 0.0f);
+
+        var newPost = this._postPopupWindow.transform.Find("NewPost");
+        var picture = newPost.transform.Find("Picture");
+        switch (this.characterSerializer.Gender)
         {
-            this._postPopupWindow = GameObject.Instantiate(postPopupWindowPrefab);
-            this._postPopupWindow.transform.position = new Vector3(2.24f, 0.55f, -3.0f);
-
-            var newPost = this._postPopupWindow.transform.Find("NewPost");
-            var picture = newPost.transform.Find("Picture");
-            switch (this.characterSerializer.Gender)
-            {
-                case Gender.Male:
-                    this._avatar = picture.transform.Find("MaleAvatar").gameObject;
-                    break;
-                case Gender.Female:
-                default:
-                    this._avatar = picture.transform.Find("FemaleAvatar").gameObject;
-                    break;
-            }
-            this._avatar.SetActive(true);
-
-            this._itemObjects = this.SetupItemsInPost(picture.gameObject);
-            var movableObjects = this._itemObjects;
-            movableObjects.Add(this._avatar);
-
-            var croppingController = picture.GetComponent<CroppingController>();
-            croppingController.SetMovableItems(movableObjects);
+            case Gender.Male:
+                this._avatar = picture.transform.Find("MaleAvatar").gameObject;
+                break;
+            case Gender.Female:
+            default:
+                this._avatar = picture.transform.Find("FemaleAvatar").gameObject;
+                break;
         }
-    }
+        this._avatar.SetActive(true);
 
-    private void Initialize()
-    {
-        this._currentPostState = NewPostState.BackgroundSelection;
-        this._items = new List<PictureItem>();
-        this._itemObjects = new List<GameObject>();
-    }
+        this._itemObjects = this.SetupItemsInPost(picture.gameObject);
+        var movableObjects = this._itemObjects;
+        movableObjects.Add(this._avatar);
 
-    private List<GameObject> SetupItemsInPost(GameObject pictureObject)
-    {
-        if (this._userSerializer.HasBulldog)
-        {
-            var bulldog = new PictureItem();
-            bulldog.name = "Bulldog";
-            bulldog.location = new SerializableVector3(new Vector3(1.2f, -0.5f, 0.0f));
-            bulldog.rotation = 0;
-            bulldog.scale = 0.45f;
-            this._items.Add(bulldog);
-        }
-        if (this._userSerializer.HasDrone)
-        {
-            var drone = new PictureItem();
-            drone.name = "D-Rone";
-            drone.location = new SerializableVector3(new Vector3(-0.64f, 0.8f, 0.0f));
-            drone.rotation = 0;
-            drone.scale = 0.34f;
-            this._items.Add(drone);
-        }
-        var itemObjects = this._postHelper.PopulatePostWithItems(pictureObject, this._items);
-        foreach(var item in itemObjects)
-        {
-            item.transform.Find("LeftArrow").gameObject.SetActive(true);
-            item.transform.Find("RightArrow").gameObject.SetActive(true);
-            item.transform.Find("TopArrow").gameObject.SetActive(true);
-            item.transform.Find("BottomArrow").gameObject.SetActive(true);
-        }
-        return itemObjects;
+        var croppingController = picture.GetComponent<CroppingController>();
+        croppingController.SetMovableItems(movableObjects);
     }
 
     public void CheckClick(string colliderName)
@@ -150,20 +106,28 @@ public class NewPostController : MonoBehaviour
                 this._currentBackground = "Louvre";
                 this.GotoNewState(NewPostState.Cropping);
                 break;
+            case "Park":
+                this._currentBackground = "Park";
+                this.GotoNewState(NewPostState.Cropping);
+                break;
+            case "CamRoom":
+                this._currentBackground = "CamRoom";
+                this.GotoNewState(NewPostState.Cropping);
+                break;
             case "BackButton":
-                switch(this._currentPostState)
-                {
-                    case NewPostState.BackgroundSelection:
-                        this.DestroyPage();
-                        break;
-                    case NewPostState.Cropping:
-                        this.DestroyPage();
-                        this.CreatePopup(this._postCallBack);
-                        this.GotoNewState(NewPostState.BackgroundSelection);
-                        break;
-                }
+                this.BackButtonPressed();
                 break;
         }
+    }
+
+    public bool BackOut()
+    {
+        if (this._currentPostState != NewPostState.BackgroundSelection)
+        {
+            this.BackButtonPressed();
+            return false;
+        }
+        return true;
     }
 
     public void DestroyPage()
@@ -184,6 +148,64 @@ public class NewPostController : MonoBehaviour
         return id;
     }
 
+    private void Initialize()
+    {
+        this._currentPostState = NewPostState.BackgroundSelection;
+        this._items = new List<PictureItem>();
+        this._itemObjects = new List<GameObject>();
+    }
+
+    private List<GameObject> SetupItemsInPost(GameObject pictureObject)
+    {
+        if (this._userSerializer.HasBulldog)
+        {
+            var bulldog = new PictureItem();
+            bulldog.name = "Bulldog";
+            bulldog.location = new SerializableVector3(new Vector3(1.2f, -0.5f, 0.0f));
+            bulldog.rotation = 0;
+            bulldog.scale = 0.45f;
+            this._items.Add(bulldog);
+        }
+        if (this._userSerializer.HasDrone)
+        {
+            var drone = new PictureItem();
+            drone.name = "D-Rone";
+            drone.location = new SerializableVector3(new Vector3(0.0f, 0.245f, 0.0f));
+            drone.rotation = 0;
+            drone.scale = 0.34f;
+            this._items.Add(drone);
+        }
+        var itemObjects = this._postHelper.PopulatePostWithItems(pictureObject, this._items);
+        foreach (var item in itemObjects)
+        {
+            var components = item.GetComponentsInChildren<SpriteRenderer>(true);
+            foreach (var component in components)
+            {
+                if (component.name == "LeftArrow" || component.name == "RightArrow"
+                    || component.name == "TopArrow" || component.name == "BottomArrow")
+                {
+                    component.gameObject.SetActive(true);
+                }
+            }
+        }
+        return itemObjects;
+    }
+
+    private void BackButtonPressed()
+    {
+        switch (this._currentPostState)
+        {
+            case NewPostState.BackgroundSelection:
+                this.DestroyPage();
+                break;
+            case NewPostState.Cropping:
+                this.DestroyPage();
+                this.CreatePopup(this._postCallBack);
+                this.GotoNewState(NewPostState.BackgroundSelection);
+                break;
+        }
+    }
+
     private void GotoNewState(NewPostState newState)
     {
         switch (newState)
@@ -194,6 +216,8 @@ public class NewPostController : MonoBehaviour
                 this._postPopupWindow.transform.Find("Beach").gameObject.SetActive(false);
                 this._postPopupWindow.transform.Find("City").gameObject.SetActive(false);
                 this._postPopupWindow.transform.Find("Louvre").gameObject.SetActive(false);
+                this._postPopupWindow.transform.Find("Park").gameObject.SetActive(false);
+                this._postPopupWindow.transform.Find("CamRoom").gameObject.SetActive(false);
                 this._postPopupWindow.transform.Find("ChooseText").GetComponent<TextMeshPro>().text
                     = "Edit your photo:";
                 this._postPopupWindow.transform.Find("NewPostDoneButton").gameObject.SetActive(true);
@@ -212,6 +236,12 @@ public class NewPostController : MonoBehaviour
                     case "Louvre":
                         picture.transform.Find("LouvreBackground").gameObject.SetActive(true);
                         break;
+                    case "Park":
+                        picture.transform.Find("ParkBackground").gameObject.SetActive(true);
+                        break;
+                    case "CamRoom":
+                        picture.transform.Find("CamRoomBackground").gameObject.SetActive(true);
+                        break;
                 }
 
                 break;
@@ -226,10 +256,7 @@ public class NewPostController : MonoBehaviour
 
         var newPost = this.CreateNewPostDataStructure();
 
-        if (this._messagePost.TriggerActivated(MessageTriggerType.NewPost))
-        {
-            this._notificationController.NewPostEvent(newPost);
-        }
+        this._messagePost.TriggerActivated(MessageTriggerType.NewPost);
 
         var postPicture = this._restRequester.PostPicture(newPost);
         StartCoroutine(postPicture);

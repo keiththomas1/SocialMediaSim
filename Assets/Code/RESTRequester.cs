@@ -42,7 +42,10 @@ public class PictureModelJsonSend
     public SerializableColor skinColor;
     public SerializableColor hairColor;
     public SerializableColor shirtColor;
+    public SerializableColor pantsColor;
     public string gender;
+    public string hairSprite;
+    public string faceSprite;
     public string bodySprite;
     public string backgroundName;
     public List<PictureItem> items;
@@ -61,7 +64,10 @@ public class PictureModelJsonReceive
     public SerializableColor skinColor;
     public SerializableColor hairColor;
     public SerializableColor shirtColor;
+    public SerializableColor pantsColor;
     public string gender;
+    public string hairSprite;
+    public string faceSprite;
     public string bodySprite;
     public string backgroundName;
     public List<PictureItem> items;
@@ -85,10 +91,13 @@ public class RESTRequester
         newPicture.avatarRotation = post.avatarRotation;
         newPicture.avatarScale = post.avatarScale;
         newPicture.playerName = post.playerName;
+        newPicture.hairSprite = post.characterProperties.hairSprite;
+        newPicture.faceSprite = post.characterProperties.faceSprite;
         newPicture.bodySprite = post.characterProperties.bodySprite;
         newPicture.skinColor = post.characterProperties.skinColor;
         newPicture.hairColor = post.characterProperties.hairColor;
         newPicture.shirtColor = post.characterProperties.shirtColor;
+        newPicture.pantsColor = post.characterProperties.pantsColor;
         newPicture.gender = post.characterProperties.gender.ToString();
         newPicture.backgroundName = post.backgroundName;
         newPicture.items = post.items;
@@ -99,7 +108,7 @@ public class RESTRequester
         var headers = new Dictionary<string, string>();
         headers.Add("Content-Type", "application/json");
         var www = new WWW(@"http://13.59.159.27/pictures", pictureData, headers);
-        //var www = new WWW(@"http://localhost:3000/pictures", pictureData, headers);
+        // var www = new WWW(@"http://localhost:3000/pictures", pictureData, headers);
         yield return www;
     }
 
@@ -172,10 +181,13 @@ public class RESTRequester
         newPost.backgroundName = picture.backgroundName;
         newPost.characterProperties = new CharacterProperties();
         newPost.characterProperties.gender = (Gender)Enum.Parse(typeof(Gender), picture.gender);
+        newPost.characterProperties.hairSprite = picture.hairSprite;
+        newPost.characterProperties.faceSprite = picture.faceSprite;
         newPost.characterProperties.bodySprite = picture.bodySprite;
         newPost.characterProperties.skinColor = picture.skinColor;
         newPost.characterProperties.hairColor = picture.hairColor;
         newPost.characterProperties.shirtColor = picture.shirtColor;
+        newPost.characterProperties.pantsColor = picture.pantsColor;
         newPost.likes = picture.likes;
         newPost.dislikes = picture.dislikes;
         newPost.imageID = picture._id; // this.newPostController.GetRandomImageID();

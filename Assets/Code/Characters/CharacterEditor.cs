@@ -27,6 +27,16 @@ public class CharacterEditor : MonoBehaviour {
         Debug.Log(colliderName);
         switch (colliderName)
         {
+            case "MaleButton":
+                this._characterSerializer.Gender = Gender.Male;
+                this.UpdateAvatarGender();
+                this.RandomizeCharacter();
+                break;
+            case "FemaleButton":
+                this._characterSerializer.Gender = Gender.Female;
+                this.UpdateAvatarGender();
+                this.RandomizeCharacter();
+                break;
             case "RandomEverythingButton":
                 this.RandomizeCharacter();
                 break;
@@ -59,6 +69,28 @@ public class CharacterEditor : MonoBehaviour {
         this.RandomizeShirt();
         this.RandomizeSkin();
         this.RandomizePants();
+    }
+
+    private void UpdateAvatarGender()
+    {
+        var maleAvatar = this.transform.Find("MaleAvatar");
+        var femaleAvatar = this.transform.Find("FemaleAvatar");
+        if (!maleAvatar || !femaleAvatar)
+        {
+            return;
+        }
+        var gender = this._characterSerializer.Gender;
+        switch (gender)
+        {
+            case Gender.Female:
+                femaleAvatar.gameObject.SetActive(true);
+                maleAvatar.gameObject.SetActive(false);
+                break;
+            case Gender.Male:
+                maleAvatar.gameObject.SetActive(true);
+                femaleAvatar.gameObject.SetActive(false);
+                break;
+        }
     }
 
     private void RandomizeFace()
@@ -95,12 +127,12 @@ public class CharacterEditor : MonoBehaviour {
     }
     private void RandomizeShirt()
     {
-        Debug.Log("here");
         var shirtColor = this._characterRandomization.GetRandomColor();
         this._characterSerializer.ShirtColor = shirtColor;
     }
     private void RandomizePants()
     {
-
+        var skinColor = this._characterRandomization.GetRandomColor();
+        this._characterSerializer.PantsColor = skinColor;
     }
 }

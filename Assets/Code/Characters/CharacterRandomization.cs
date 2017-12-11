@@ -43,6 +43,7 @@ public class CharacterRandomization {
         }
         newProperties.hairColor = new SerializableColor(this.GetRandomColor());
         newProperties.shirtColor = new SerializableColor(this.GetRandomColor());
+        newProperties.pantsColor = new SerializableColor(this.GetRandomColor());
         newProperties.skinColor = new SerializableColor(this.GetRandomSkinColor());
         return newProperties;
     }

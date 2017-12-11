@@ -2,8 +2,14 @@ using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 using System;
+using UnityEngine.UI;
 
 public class MessagesScreenController : MonoBehaviour {
+    [SerializeField]
+    private GameObject _messageHeader;
+    [SerializeField]
+    private GameObject _delaygramTitleText;
+
     private MessagesSerializer _messagesSerializer;
     private CharacterSerializer _characterSerializer;
     private MessagePost _messagePost;
@@ -26,6 +32,13 @@ public class MessagesScreenController : MonoBehaviour {
     private float _messageWritingTimer = 0.0f;
     private GameObject _currentTypingBubble;
 
+    private enum MessageScreenState
+    {
+        MessageStubs,
+        InMessage
+    }
+    private MessageScreenState _currentState;
+
 	// Use this for initialization
 	void Start () {
         this._messagesSerializer = MessagesSerializer.Instance;
@@ -38,6 +51,9 @@ public class MessagesScreenController : MonoBehaviour {
         this.createdStubs = new List<GameObject>();
         this.stubStartingY = 0.0f;
         this._messageObjects = new List<GameObject>();
+
+        this._messageHeader.GetComponent<Button>().onClick.AddListener(this.MessageBackClicked);
+        this._currentState = MessageScreenState.MessageStubs;
     }
 	
 	// Update is called once per frame
@@ -81,7 +97,7 @@ public class MessagesScreenController : MonoBehaviour {
                 }
             }
         }
-	}
+    }
 
     public void CheckClick(string colliderName)
     {
@@ -102,6 +118,8 @@ public class MessagesScreenController : MonoBehaviour {
                     if (colliderName == conversation.npcName)
                     {
                         GenerateConversation(conversation, conversation.messages, 0.0f);
+                        ShowMessageUI(conversation.npcName);
+                        this._currentState = MessageScreenState.InMessage;
                     }
                 }
                 break;
@@ -122,10 +140,23 @@ public class MessagesScreenController : MonoBehaviour {
         scrollController = this.pageScrollArea.gameObject.AddComponent<ScrollController>();
         scrollController.UpdateScrollArea(this.pageScrollArea.gameObject, this.pageScrollArea.localPosition.y, 7.0f);
 
-        this.activeConversations = this._messagesSerializer.ActiveConversations;
+        this.activeConversations = new List<Conversation>(this._messagesSerializer.ActiveConversations);
         this.activeConversations.Reverse();
 
+        this._messageWritingTimer = 0.0f;
+
         GenerateMessageStubs();
+        this._currentState = MessageScreenState.MessageStubs;
+    }
+
+    public bool BackOut()
+    {
+        if (this._currentState == MessageScreenState.InMessage)
+        {
+            this.MessageBackClicked();
+            return false;
+        }
+        return true;
     }
 
     public void DestroyPage()
@@ -134,9 +165,29 @@ public class MessagesScreenController : MonoBehaviour {
         {
             GameObject.Destroy(page);
         }
+        this.HideMessageUI();
     }
 
     /* Private methods */
+
+    private void MessageBackClicked()
+    {
+        this.DestroyPage();
+        this.EnterScreen();
+    }
+
+    private void ShowMessageUI(string npcName)
+    {
+        var nameText = this._messageHeader.transform.Find("NPCNameText");
+        nameText.GetComponent<TextMeshProUGUI>().text = npcName;
+        this._messageHeader.SetActive(true);
+        this._delaygramTitleText.SetActive(false);
+    }
+    private void HideMessageUI()
+    {
+        this._messageHeader.SetActive(false);
+        this._delaygramTitleText.SetActive(true);
+    }
 
     private void MakeChoice(int choice)
     {

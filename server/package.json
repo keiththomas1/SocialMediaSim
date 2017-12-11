@@ -1,6 +1,6 @@
 {
   "name": "delaygram-server",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "API to GET and POST delaygram-related information",
   "main": "index.js",
   "scripts": {

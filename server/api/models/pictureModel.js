@@ -39,7 +39,10 @@ let PictureSchema = new Schema({
 	skinColor: Color3,
 	hairColor: Color3,
 	shirtColor: Color3,
+	pantsColor: Color3,
 	gender: String,
+	hairSprite: String,
+	faceSprite: String,
 	bodySprite: String,
 	likes: {
 		type: Number,

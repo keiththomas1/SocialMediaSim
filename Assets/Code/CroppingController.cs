@@ -72,6 +72,7 @@ public class CroppingController : MonoBehaviour {
                 this._currentObject.transform.localScale.z);
             }   
         }
+        // If left touch or tap
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -84,11 +85,34 @@ public class CroppingController : MonoBehaviour {
                     {
                         this._currentObject = hit.collider.gameObject;
                         this._currentObjectDepth = this._currentObject.transform.position.z;
+                        var animators = this._currentObject.GetComponentsInChildren<Animator>();
+                        if (animators.Length > 0)
+                        {
+                            foreach(Animator animator in animators)
+                            {
+                                animator.enabled = false;
+                            }
+                        }
 
-                        this._leftArrow = this._currentObject.transform.Find("LeftArrow").gameObject;
-                        this._rightArrow = this._currentObject.transform.Find("RightArrow").gameObject;
-                        this._upArrow = this._currentObject.transform.Find("TopArrow").gameObject;
-                        this._downArrow = this._currentObject.transform.Find("BottomArrow").gameObject;
+                        var components = this._currentObject.GetComponentsInChildren<SpriteRenderer>(true);
+                        foreach (var component in components)
+                        {
+                            switch(component.name)
+                            {
+                                case "LeftArrow":
+                                    this._leftArrow = component.gameObject;
+                                    break;
+                                case "RightArrow":
+                                    this._rightArrow = component.gameObject;
+                                    break;
+                                case "TopArrow":
+                                    this._upArrow = component.gameObject;
+                                    break;
+                                case "BottomArrow":
+                                    this._downArrow = component.gameObject;
+                                    break;
+                            }
+                        }
 
                         this._currentlyDragging = true;
                         this._dragStartMouseDifference =
@@ -105,10 +129,21 @@ public class CroppingController : MonoBehaviour {
         }
         if (Input.GetMouseButtonUp(0))
         {
-            this._currentlyDragging = false;
-            if (this._scrollController)
+            if (this._currentObject)
             {
-                this._scrollController.CanScroll = true;
+                this._currentlyDragging = false;
+                if (this._scrollController)
+                {
+                    this._scrollController.CanScroll = true;
+                }
+                var animators = this._currentObject.GetComponentsInChildren<Animator>();
+                if (animators.Length > 0)
+                {
+                    foreach (Animator animator in animators)
+                    {
+                        animator.enabled = true;
+                    }
+                }
             }
         }
 

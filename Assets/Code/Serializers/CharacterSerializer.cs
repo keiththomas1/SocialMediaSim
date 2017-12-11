@@ -98,6 +98,14 @@ public class CharacterSerializer
             this.SaveFile();
         }
     }
+    public Color PantsColor
+    {
+        set
+        {
+            this._currentSave.properties.pantsColor = new SerializableColor(value);
+            this.SaveFile();
+        }
+    }
     public CharacterProperties CurrentCharacterProperties
     {
         get
@@ -230,6 +238,7 @@ public class CharacterProperties
     public SerializableColor skinColor;
     public SerializableColor hairColor;
     public SerializableColor shirtColor;
+    public SerializableColor pantsColor;
 
     public CharacterProperties()
     {
@@ -238,6 +247,7 @@ public class CharacterProperties
         skinColor = new SerializableColor(255, 255, 255);
         hairColor = new SerializableColor(255, 255, 255);
         shirtColor = new SerializableColor(255, 255, 255);
+        pantsColor = new SerializableColor(255, 255, 255);
     }
     public CharacterProperties(CharacterProperties other)
     {
@@ -248,6 +258,7 @@ public class CharacterProperties
         skinColor = other.skinColor;
         hairColor = other.hairColor;
         shirtColor = other.shirtColor;
+        pantsColor = other.pantsColor;
     }
 }
 

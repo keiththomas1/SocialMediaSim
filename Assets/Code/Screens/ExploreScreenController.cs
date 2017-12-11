@@ -6,11 +6,13 @@ using UnityEngine.Networking;
 
 public class ExploreScreenController : MonoBehaviour
 {
+    private RESTRequester _restRequester;
+    private PostHelper _postHelper;
+    private MessagePost _messagePost;
+
     private GameObject _explorePage;
     private GameObject _dislikeBorder;
     private GameObject _likeBorder;
-    private RESTRequester _restRequester;
-    private PostHelper _postHelper;
 
     private GameObject _currentDragObject;
     private Vector3 _dragStartMouseDifference;
@@ -21,11 +23,15 @@ public class ExploreScreenController : MonoBehaviour
     private bool _loadingPictures = false;
     private GameObject _loadingIcon;
 
+    private GameObject _swipeCountText;
+    private int _swipesLeft = 10;
+
     // Use this for initialization
-    void Awake()
+    void Start()
     {
         this._restRequester = new RESTRequester();
         this._postHelper = new PostHelper();
+        this._messagePost = MessagePost.Instance;
     }
 
     void Update()
@@ -102,12 +108,13 @@ public class ExploreScreenController : MonoBehaviour
         this._dislikeBorder.SetActive(false);
         this._likeBorder = this._explorePage.transform.Find("LikeBorder").gameObject;
         this._likeBorder.SetActive(false);
+        this._swipeCountText = this._explorePage.transform.Find("SwipeText2").gameObject;
+        this._swipeCountText.GetComponent<TextMeshPro>().text = this._swipesLeft.ToString();
 
         this._loadingIcon = GameObject.Instantiate(Resources.Load("LoadingIcon") as GameObject);
 
         this._loadingPictures = true;
         this._restRequester.RequestLastTenPosts(this.SetPhotos);
-        // StartCoroutine(requestLastTen);
     }
 
     public void SetPhotos(PictureArrayJson pictures, bool success)
@@ -135,9 +142,25 @@ public class ExploreScreenController : MonoBehaviour
         }
     }
 
+    public bool BackOut()
+    {
+        return true;
+    }
+
     public void DestroyPage()
     {
         GameObject.Destroy(this._explorePage);
+    }
+
+    private void IterateSwipes()
+    {
+        this._swipesLeft--;
+        if (this._swipesLeft <= 0)
+        {
+            this._messagePost.TriggerActivated(MessageTriggerType.SwipeGoal);
+            this._swipesLeft = 10;
+        }
+        this._swipeCountText.GetComponent<TextMeshPro>().text = this._swipesLeft.ToString();
     }
 
     private void LikePicture()
@@ -148,6 +171,8 @@ public class ExploreScreenController : MonoBehaviour
         CreateNewExplorePost();
         DisableCurrentDragObject(PictureRotateAway.RotateDirection.Right);
         this._likeBorder.SetActive(false);
+
+        this.IterateSwipes();
 
         // GameObject.Instantiate(Resources.Load("Explore/Upvote") as GameObject);
     }
@@ -160,6 +185,8 @@ public class ExploreScreenController : MonoBehaviour
         CreateNewExplorePost();
         DisableCurrentDragObject(PictureRotateAway.RotateDirection.Left);
         this._dislikeBorder.SetActive(false);
+
+        this.IterateSwipes();
 
         // GameObject.Instantiate(Resources.Load("Explore/Downvote") as GameObject);
     }

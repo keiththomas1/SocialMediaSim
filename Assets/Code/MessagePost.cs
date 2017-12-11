@@ -4,7 +4,8 @@ using UnityEngine;
 
 public enum MessageTriggerType
 {
-    NewPost
+    NewPost,
+    SwipeGoal
 }
 
 public class MessagePost
@@ -12,6 +13,7 @@ public class MessagePost
     private static MessagePost _instance;
     private UserSerializer _userSerializer;
     private MessagesSerializer _messageSerializer;
+    private NotificationController _notificationController;
     private CharacterRandomization _characterRandomization;
     private MessageCollection _messageCollection;
 
@@ -35,6 +37,7 @@ public class MessagePost
         this._userSerializer = UserSerializer.Instance;
         this._messageSerializer = MessagesSerializer.Instance;
         this._messageCollection = new MessageCollection();
+        this._notificationController = GameObject.Find("CONTROLLER").GetComponent<NotificationController>();
 
         foreach (Conversation convo in this._messageSerializer.ActiveConversations)
         {
@@ -50,14 +53,24 @@ public class MessagePost
         }
     }
 
-    public bool TriggerActivated(MessageTriggerType trigger)
+    public void TriggerActivated(MessageTriggerType trigger)
     {
         switch(trigger)
         {
             case MessageTriggerType.NewPost:
-                return CreateNextMessage();
+                if (CreateNextMessage())
+                {
+                    this._notificationController.CreateNotificationBubble(NotificationType.Message, 1);
+                }
+                break;
+            case MessageTriggerType.SwipeGoal:
+                if (CreateNextMessage())
+                {
+                    this._notificationController.CreateNotificationBubble(NotificationType.Message, 1);
+                }
+                break;
             default:
-                return false;
+                break;
         }
     }
 

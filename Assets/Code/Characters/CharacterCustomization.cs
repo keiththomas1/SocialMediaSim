@@ -47,6 +47,7 @@ public class CharacterCustomization : MonoBehaviour
         this.SetSkinColor(properties.skinColor.GetColor());
         this.SetHairColor(properties.hairColor.GetColor());
         this.SetShirtColor(properties.shirtColor.GetColor());
+        this.SetPantsColor(properties.pantsColor.GetColor());
     }
 
     public void SetBodySprite(string spriteName)
@@ -127,5 +128,10 @@ public class CharacterCustomization : MonoBehaviour
     public void SetShirtColor(Color color)
     {
         this.transform.Find("Body").GetComponent<SpriteRenderer>().color = color;
+    }
+    public void SetPantsColor(Color color)
+    {
+        this.transform.Find("LeftLeg").GetComponent<SpriteRenderer>().color = color;
+        this.transform.Find("RightLeg").GetComponent<SpriteRenderer>().color = color;
     }
 }

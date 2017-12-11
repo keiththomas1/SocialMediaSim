@@ -61,8 +61,10 @@ public class UIController : MonoBehaviour {
     private UserSerializer _userSerializer;
 
     private Page _currentPage;
+    private List<Page> _lastPages;
 
     private float _postTimeTimer = 0.0f;
+    private float _backOutTimer = 0.0f;
 
     // Use this for initialization
     void Start () {
@@ -83,7 +85,8 @@ public class UIController : MonoBehaviour {
         this._soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
         this._userSerializer = UserSerializer.Instance;
 
-        this.OnProfileClick();
+        this._lastPages = new List<Page>();
+        this.GoToProfilePage();
 
         if (this._userSerializer.NextPostTime > DateTime.Now)
         {
@@ -102,11 +105,22 @@ public class UIController : MonoBehaviour {
                 this._postTimeTimer = 1;
             }
         }
-    }
+        if (this._backOutTimer > 0.0f)
+        {
+            this._backOutTimer -= Time.deltaTime;
+        }
 
-    public bool BackOut()
-    {
-        return false;
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            if (Input.GetKey(KeyCode.Escape))
+            {
+                if (this._backOutTimer <= 0.0f)
+                {
+                    this.BackOut();
+                    this._backOutTimer = 0.5f;
+                }
+            }
+        }
     }
 
     public Page GetCurrentPage()
@@ -116,42 +130,80 @@ public class UIController : MonoBehaviour {
 
     /* Private methods */
 
+    private void BackOut()
+    {
+        switch(this._currentPage)
+        {
+            case Page.Home:
+                if (!this._homeController.BackOut())
+                {
+                    return;
+                }
+                break;
+            case Page.Profile:
+                if (!this._profileController.BackOut())
+                {
+                    return;
+                }
+                break;
+            case Page.Post:
+                if (!this._newPostController.BackOut())
+                {
+                    return;
+                }
+                break;
+            case Page.Explore:
+                if (!this._exploreController.BackOut())
+                {
+                    return;
+                }
+                break;
+            case Page.Messages:
+                if (!this._messagesController.BackOut())
+                {
+                    return;
+                }
+                break;
+        }
+
+        if (this._lastPages.Count > 0)
+        {
+            var lastPage = this._lastPages[this._lastPages.Count - 1];
+            this._lastPages.RemoveAt(this._lastPages.Count - 1);
+
+            switch (lastPage)
+            {
+                case Page.Home:
+                    this.GoToHomePage();
+                    break;
+                case Page.Profile:
+                    this.GoToProfilePage();
+                    break;
+                case Page.Post:
+                    this.GoToPostPage();
+                    break;
+                case Page.Explore:
+                    this.GoToExplorePage();
+                    break;
+                case Page.Messages:
+                    this.GoToMessagesPage();
+                    break;
+            }
+        }
+    }
+
     private void OnHomeClick()
+    {
+        this.UpdateLastVisited();
+        this.GoToHomePage();
+    }
+    private void GoToHomePage()
     {
         GenerateHomePage();
         this._soundController.PlayClickSound(1);
         UpdateButtonState();
         this._notificationController.ClearNotifications(this._currentPage);
     }
-    private void OnProfileClick()
-    {
-        GenerateProfilePage();
-        this._soundController.PlayClickSound(1);
-        UpdateButtonState();
-        this._notificationController.ClearNotifications(this._currentPage);
-    }
-    private void OnPostClick()
-    {
-        GeneratePostPage();
-        this._soundController.PlayClickSound(1);
-        UpdateButtonState();
-        this._notificationController.ClearNotifications(this._currentPage);
-    }
-    private void OnExploreClick()
-    {
-        GenerateExplorePage();
-        this._soundController.PlayClickSound(1);
-        UpdateButtonState();
-        this._notificationController.ClearNotifications(this._currentPage);
-    }
-    private void OnMessagesClick()
-    {
-        GenerateMessagesPage();
-        this._soundController.PlayClickSound(1);
-        UpdateButtonState();
-        this._notificationController.ClearNotifications(this._currentPage);
-    }
-
     private void GenerateHomePage()
     {
         if (this._currentPage != Page.Home)
@@ -160,6 +212,19 @@ public class UIController : MonoBehaviour {
             this._homeController.EnterScreen();
             this._currentPage = Page.Home;
         }
+    }
+
+    private void OnProfileClick()
+    {
+        this.UpdateLastVisited();
+        this.GoToProfilePage();
+    }
+    private void GoToProfilePage()
+    {
+        GenerateProfilePage();
+        this._soundController.PlayClickSound(1);
+        UpdateButtonState();
+        this._notificationController.ClearNotifications(this._currentPage);
     }
     private void GenerateProfilePage()
     {
@@ -170,6 +235,19 @@ public class UIController : MonoBehaviour {
             this._currentPage = Page.Profile;
         }
     }
+
+    private void OnPostClick()
+    {
+        this.UpdateLastVisited();
+        this.GoToPostPage();
+    }
+    private void GoToPostPage()
+    {
+        GeneratePostPage();
+        this._soundController.PlayClickSound(1);
+        UpdateButtonState();
+        this._notificationController.ClearNotifications(this._currentPage);
+    }
     private void GeneratePostPage()
     {
         if (this._currentPage != Page.Post)
@@ -178,6 +256,19 @@ public class UIController : MonoBehaviour {
             this._newPostController.CreatePopup(this.FinishedCreatingPicture);
             this._currentPage = Page.Post;
         }
+    }
+
+    private void OnExploreClick()
+    {
+        this.UpdateLastVisited();
+        this.GoToExplorePage();
+    }
+    private void GoToExplorePage()
+    {
+        GenerateExplorePage();
+        this._soundController.PlayClickSound(1);
+        UpdateButtonState();
+        this._notificationController.ClearNotifications(this._currentPage);
     }
     private void GenerateExplorePage()
     {
@@ -188,6 +279,19 @@ public class UIController : MonoBehaviour {
             this._currentPage = Page.Explore;
         }
     }
+
+    private void OnMessagesClick()
+    {
+        this.UpdateLastVisited();
+        this.GoToMessagesPage();
+    }
+    private void GoToMessagesPage()
+    {
+        GenerateMessagesPage();
+        this._soundController.PlayClickSound(1);
+        UpdateButtonState();
+        this._notificationController.ClearNotifications(this._currentPage);
+    }
     private void GenerateMessagesPage()
     {
         if (this._currentPage != Page.Messages)
@@ -196,6 +300,15 @@ public class UIController : MonoBehaviour {
             this._messagesController.EnterScreen();
             this._currentPage = Page.Messages;
         }
+    }
+
+    private void UpdateLastVisited()
+    {
+        if (this._lastPages.Contains(this._currentPage))
+        {
+            this._lastPages.Remove(this._currentPage);
+        }
+        this._lastPages.Add(this._currentPage);
     }
 
     private void DestroyPage(Page page)
@@ -223,7 +336,8 @@ public class UIController : MonoBehaviour {
     private void FinishedCreatingPicture(DelayGramPost post)
     {
         this._postTimeTimer = 0.1f;
-        this.OnProfileClick();
+        this._profileController.MarkFirstPostAsNew();
+        this.GoToProfilePage();
     }
 
     private void ShowPostTimeRemaining(DelayGramPost post)
