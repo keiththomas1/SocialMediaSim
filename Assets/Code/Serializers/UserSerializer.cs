@@ -7,7 +7,6 @@ using System.IO;
 
 public class UserSerializer
 {
-    private List<MonoBehaviour> followerListeners = new List<MonoBehaviour>();
     private static UserSerializer instance;
     private UserSaveVariables currentSave;
 
@@ -31,16 +30,6 @@ public class UserSerializer
         this.savePath = Application.persistentDataPath + "/DelayGram.dat";
     }
 
-    public void RegisterFollowersListener(MonoBehaviour listener)
-    {
-        this.followerListeners.Add(listener);
-    }
-
-    public void UnregisterFollowersListener(MonoBehaviour listener)
-    {
-        this.followerListeners.Remove(listener);
-    }
-
     public List<DelayGramPost> GetReverseChronologicalPosts()
     {
         List<DelayGramPost> returnList = new List<DelayGramPost>();
@@ -61,39 +50,6 @@ public class UserSerializer
             returnList.Reverse();
         }
         return returnList;
-    }
-
-    public void AddFollowers(int followers)
-    {
-        this.currentSave.followers += followers;
-
-        foreach (MonoBehaviour listener in this.followerListeners)
-        {
-            if (listener)
-            {
-                listener.BroadcastMessage("OnFollowersUpdated", this.currentSave.followers);
-            } else {
-                this.followerListeners.Remove(listener);
-            }
-        }
-
-        this.SaveFile();
-    }
-
-    public int Followers
-    {
-        get { return this.currentSave.followers; }
-    }
-
-    public void AddEndorsement(string endorsement)
-    {
-        this.currentSave.endorsements.Add(endorsement);
-        this.SaveFile();
-    }
-
-    public List<string> Endorsements
-    {
-        get { return this.currentSave.endorsements; }
     }
 
     public bool HasBulldog
@@ -141,6 +97,16 @@ public class UserSerializer
         set
         {
             this.currentSave.nextPostTime = value;
+            this.SaveFile();
+        }
+    }
+
+    public bool CompletedTutorial
+    {
+        get { return this.currentSave.completedTutorial; }
+        set
+        {
+            this.currentSave.completedTutorial = value;
             this.SaveFile();
         }
     }
@@ -198,14 +164,13 @@ public class UserSerializer
         {
             this.currentSave = new UserSaveVariables();
             this.currentSave.lastUpdate = DateTime.Now;
-            this.currentSave.followers = 0;
             this.currentSave.storyProperties = new StoryProperties();
             this.currentSave.storyProperties.hasBulldog = false;
             this.currentSave.storyProperties.hasDrone = true;
             this.currentSave.posts = new List<DelayGramPost>();
             this.currentSave.notifications = new List<DelayGramNotification>();
-            this.currentSave.endorsements = new List<string>();
             this.currentSave.nextPostTime = DateTime.Now;
+            this.currentSave.completedTutorial = false;
             this.SaveFile();
         }
 
@@ -262,10 +227,9 @@ public class StoryProperties
 class UserSaveVariables
 {
     public DateTime lastUpdate;
-    public int followers;
     public StoryProperties storyProperties;
     public List<DelayGramPost> posts;
     public List<DelayGramNotification> notifications;
-    public List<string> endorsements;
     public DateTime nextPostTime;
+    public bool completedTutorial;
 }

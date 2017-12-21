@@ -11,7 +11,8 @@ public enum Page
     Profile,
     Post,
     Explore,
-    Messages
+    Messages,
+    Tutorial
 }
 
 public class UIController : MonoBehaviour {
@@ -56,8 +57,8 @@ public class UIController : MonoBehaviour {
     private NewPostController _newPostController;
     private ExploreScreenController _exploreController;
     private MessagesScreenController _messagesController;
+    private TutorialScreenController _tutorialController;
     private NotificationController _notificationController;
-    private SoundController _soundController;
     private UserSerializer _userSerializer;
 
     private Page _currentPage;
@@ -81,12 +82,19 @@ public class UIController : MonoBehaviour {
         this._newPostController = GetComponent<NewPostController>();
         this._exploreController = GetComponent<ExploreScreenController>();
         this._messagesController = GetComponent<MessagesScreenController>();
+        this._tutorialController = GetComponent<TutorialScreenController>();
         this._notificationController = GetComponent<NotificationController>();
-        this._soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
         this._userSerializer = UserSerializer.Instance;
 
         this._lastPages = new List<Page>();
-        this.GoToProfilePage();
+
+        if (!this._userSerializer.CompletedTutorial)
+        {
+            this.GoToTutorialPage();
+        } else
+        {
+            this.GoToProfilePage();
+        }
 
         if (this._userSerializer.NextPostTime > DateTime.Now)
         {
@@ -126,6 +134,12 @@ public class UIController : MonoBehaviour {
     public Page GetCurrentPage()
     {
         return this._currentPage;
+    }
+
+    public void TutorialFinished()
+    {
+        this._userSerializer.CompletedTutorial = true;
+        this.GoToProfilePage();
     }
 
     /* Private methods */
@@ -200,7 +214,6 @@ public class UIController : MonoBehaviour {
     private void GoToHomePage()
     {
         GenerateHomePage();
-        this._soundController.PlayClickSound(1);
         UpdateButtonState();
         this._notificationController.ClearNotifications(this._currentPage);
     }
@@ -222,7 +235,6 @@ public class UIController : MonoBehaviour {
     private void GoToProfilePage()
     {
         GenerateProfilePage();
-        this._soundController.PlayClickSound(1);
         UpdateButtonState();
         this._notificationController.ClearNotifications(this._currentPage);
     }
@@ -244,7 +256,6 @@ public class UIController : MonoBehaviour {
     private void GoToPostPage()
     {
         GeneratePostPage();
-        this._soundController.PlayClickSound(1);
         UpdateButtonState();
         this._notificationController.ClearNotifications(this._currentPage);
     }
@@ -266,7 +277,6 @@ public class UIController : MonoBehaviour {
     private void GoToExplorePage()
     {
         GenerateExplorePage();
-        this._soundController.PlayClickSound(1);
         UpdateButtonState();
         this._notificationController.ClearNotifications(this._currentPage);
     }
@@ -288,7 +298,6 @@ public class UIController : MonoBehaviour {
     private void GoToMessagesPage()
     {
         GenerateMessagesPage();
-        this._soundController.PlayClickSound(1);
         UpdateButtonState();
         this._notificationController.ClearNotifications(this._currentPage);
     }
@@ -300,6 +309,12 @@ public class UIController : MonoBehaviour {
             this._messagesController.EnterScreen();
             this._currentPage = Page.Messages;
         }
+    }
+
+    private void GoToTutorialPage()
+    {
+        this._tutorialController.EnterScreen();
+        this._currentPage = Page.Tutorial;
     }
 
     private void UpdateLastVisited()

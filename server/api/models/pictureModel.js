@@ -43,6 +43,7 @@ let PictureSchema = new Schema({
 	gender: String,
 	hairSprite: String,
 	faceSprite: String,
+	eyeSprite: String,
 	bodySprite: String,
 	likes: {
 		type: Number,

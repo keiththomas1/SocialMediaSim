@@ -135,7 +135,7 @@ public class MessageCollection
         newConversation.messages.Add(newMessage2);
 
         var newMessage3 = new Message();
-        newMessage3.text = "whoops, *good ideas";
+        newMessage3.text = "*good ideas";
         newMessage3.type = MessageType.NPC;
         newMessage3.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage3);
@@ -147,7 +147,7 @@ public class MessageCollection
         newConversation.messages.Add(newMessage4);
 
         var newMessage5 = new Message();
-        newMessage5.text = "soooo, anyways, can I make you a shirt? You have to promise to wear it forever. LMAO!!";
+        newMessage5.text = "LOL! soooo, anyways, can I make you a shirt? You have to promise to wear it forever. HAHA!!";
         newMessage5.type = MessageType.NPC;
         newMessage5.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage5);

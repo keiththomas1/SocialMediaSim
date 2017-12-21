@@ -12,15 +12,12 @@
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <TargetFrameworkProfile></TargetFrameworkProfile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>Android:13</UnityBuildTarget>
     <UnityVersion>2017.1.0p4</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion>6</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -83,8 +80,8 @@
     <Reference Include="NestedPrefabs_Editor">
       <HintPath>Assets\Nested Prefabs\NestedPrefabs_Editor.dll</HintPath>
     </Reference>
-    <Reference Include="TextMeshPro-1.0.55.2017.1.0b12">
-      <HintPath>Assets\TextMesh Pro\Plugins\TextMeshPro-1.0.55.2017.1.0b12.dll</HintPath>
+    <Reference Include="Opencoding.CommandHandlers">
+      <HintPath>Assets\Opencoding\Console\DLLs\Opencoding.CommandHandlers.dll</HintPath>
     </Reference>
     <Reference Include="Opencoding.Console">
       <HintPath>Assets\Opencoding\Console\DLLs\Opencoding.Console.dll</HintPath>
@@ -92,16 +89,17 @@
     <Reference Include="Opencoding.LogHistory">
       <HintPath>Assets\Opencoding\Console\DLLs\Opencoding.LogHistory.dll</HintPath>
     </Reference>
-    <Reference Include="Opencoding.CommandHandlers">
-      <HintPath>Assets\Opencoding\Console\DLLs\Opencoding.CommandHandlers.dll</HintPath>
-    </Reference>
     <Reference Include="Opencoding.Shared">
       <HintPath>Assets\Opencoding\Console\DLLs\Opencoding.Shared.dll</HintPath>
+    </Reference>
+    <Reference Include="TextMeshPro-1.0.55.2017.1.0b12">
+      <HintPath>Assets\TextMesh Pro\Plugins\TextMeshPro-1.0.55.2017.1.0b12.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Code\Animations\FollowTextAnimation.cs" />
     <Compile Include="Assets\Code\Animations\PictureRotateAway.cs" />
+    <Compile Include="Assets\Code\BlinkAnimation.cs" />
     <Compile Include="Assets\Code\Characters\CharacterCustomization.cs" />
     <Compile Include="Assets\Code\Characters\CharacterEditor.cs" />
     <Compile Include="Assets\Code\Characters\CharacterRandomization.cs" />
@@ -121,12 +119,13 @@
     <Compile Include="Assets\Code\Screens\MessagesScreenController.cs" />
     <Compile Include="Assets\Code\Screens\NewPostController.cs" />
     <Compile Include="Assets\Code\Screens\ProfileScreenController.cs" />
+    <Compile Include="Assets\Code\Screens\TutorialScreenController.cs" />
     <Compile Include="Assets\Code\ScrollController.cs" />
     <Compile Include="Assets\Code\Serializers\CharacterSerializer.cs" />
     <Compile Include="Assets\Code\Serializers\GlobalVars.cs" />
     <Compile Include="Assets\Code\Serializers\MessagesSerializer.cs" />
     <Compile Include="Assets\Code\Serializers\UserSerializer.cs" />
-    <Compile Include="Assets\Code\SoundController.cs" />
+    <Compile Include="Assets\Code\TextTypingAnimation.cs" />
     <Compile Include="Assets\Code\UIController.cs" />
     <Compile Include="Assets\Opencoding\Console\NativeMethods.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples\Scripts\Benchmark01.cs" />

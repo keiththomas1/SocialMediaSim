@@ -46,6 +46,7 @@ public class PictureModelJsonSend
     public string gender;
     public string hairSprite;
     public string faceSprite;
+    public string eyeSprite;
     public string bodySprite;
     public string backgroundName;
     public List<PictureItem> items;
@@ -68,6 +69,7 @@ public class PictureModelJsonReceive
     public string gender;
     public string hairSprite;
     public string faceSprite;
+    public string eyeSprite;
     public string bodySprite;
     public string backgroundName;
     public List<PictureItem> items;
@@ -93,6 +95,7 @@ public class RESTRequester
         newPicture.playerName = post.playerName;
         newPicture.hairSprite = post.characterProperties.hairSprite;
         newPicture.faceSprite = post.characterProperties.faceSprite;
+        newPicture.eyeSprite = post.characterProperties.eyeSprite;
         newPicture.bodySprite = post.characterProperties.bodySprite;
         newPicture.skinColor = post.characterProperties.skinColor;
         newPicture.hairColor = post.characterProperties.hairColor;
@@ -183,6 +186,7 @@ public class RESTRequester
         newPost.characterProperties.gender = (Gender)Enum.Parse(typeof(Gender), picture.gender);
         newPost.characterProperties.hairSprite = picture.hairSprite;
         newPost.characterProperties.faceSprite = picture.faceSprite;
+        newPost.characterProperties.eyeSprite = picture.eyeSprite;
         newPost.characterProperties.bodySprite = picture.bodySprite;
         newPost.characterProperties.skinColor = picture.skinColor;
         newPost.characterProperties.hairColor = picture.hairColor;

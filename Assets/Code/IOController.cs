@@ -11,6 +11,7 @@ public class IOController : MonoBehaviour
     private NewPostController _newPostController;
     private ExploreScreenController _exploreController;
     private MessagesScreenController _messagesController;
+    private TutorialScreenController _tutorialController;
 
     // Use this for initialization
     void Start ()
@@ -21,6 +22,7 @@ public class IOController : MonoBehaviour
         this._newPostController = GetComponent<NewPostController>();
         this._exploreController = GetComponent<ExploreScreenController>();
         this._messagesController = GetComponent<MessagesScreenController>();
+        this._tutorialController = GetComponent<TutorialScreenController>();
     }
 
     // Update is called once per frame
@@ -54,6 +56,9 @@ public class IOController : MonoBehaviour
                 break;
             case Page.Messages:
                 this._messagesController.CheckClick(colliderName);
+                break;
+            case Page.Tutorial:
+                this._tutorialController.CheckClick(colliderName);
                 break;
             default:
                 break;

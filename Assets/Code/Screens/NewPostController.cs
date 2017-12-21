@@ -11,7 +11,6 @@ public class NewPostController : MonoBehaviour
     private CharacterSerializer characterSerializer;
     private GlobalVars _globalVars;
     private MessagePost _messagePost;
-    private SoundController soundController;
     private PostHelper _postHelper;
     private RESTRequester _restRequester;
 
@@ -39,7 +38,6 @@ public class NewPostController : MonoBehaviour
         this.characterSerializer = CharacterSerializer.Instance;
         this._globalVars = GlobalVars.Instance;
         this._messagePost = MessagePost.Instance;
-        this.soundController = GameObject.Find("SoundController").GetComponent<SoundController>();
         this._postHelper = new PostHelper();
         this._restRequester = new RESTRequester();
 
@@ -61,6 +59,8 @@ public class NewPostController : MonoBehaviour
         this._postCallBack = callBack;
         this._postPopupWindow = GameObject.Instantiate(Resources.Load("Posts/NewPostPopup") as GameObject);
         this._postPopupWindow.transform.position = new Vector3(2.24f, 0.55f, 0.0f);
+
+        this._postPopupWindow.transform.Find("BackButton").gameObject.SetActive(false);
 
         var newPost = this._postPopupWindow.transform.Find("NewPost");
         var picture = newPost.transform.Find("Picture");
@@ -90,7 +90,6 @@ public class NewPostController : MonoBehaviour
         switch (colliderName)
         {
             case "NewPostDoneButton":
-                this.soundController.PlayLikeSound();
                 this.CreateNewPost();
                 this.DestroyPage();
                 break;
@@ -213,6 +212,7 @@ public class NewPostController : MonoBehaviour
             case NewPostState.BackgroundSelection:
                 break;
             case NewPostState.Cropping:
+                this._postPopupWindow.transform.Find("BackButton").gameObject.SetActive(true);
                 this._postPopupWindow.transform.Find("Beach").gameObject.SetActive(false);
                 this._postPopupWindow.transform.Find("City").gameObject.SetActive(false);
                 this._postPopupWindow.transform.Find("Louvre").gameObject.SetActive(false);

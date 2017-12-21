@@ -6,6 +6,7 @@ public class CharacterCustomization : MonoBehaviour
 {
     private CharacterSerializer _characterSerializer;
     private CharacterSpriteCollection _spriteController;
+
     [SerializeField]
     private bool _loadFromSave;
 
@@ -38,23 +39,30 @@ public class CharacterCustomization : MonoBehaviour
 
     public void SetCharacterLook(CharacterProperties properties)
     {
-        if (properties.gender == Gender.Female)
-        {
-            // SetBodySprite(properties.bodySprite);
-        }
-        this.SetFaceSprite(properties.faceSprite);
-        this.SetHairSprite(properties.hairSprite);
+        this.SetBodySprite(properties.gender, properties.bodySprite);
+        this.SetFaceSprite(properties.gender, properties.faceSprite);
+        this.SetEyeSprite(properties.gender, properties.eyeSprite);
+        this.SetHairSprite(properties.gender, properties.hairSprite);
         this.SetSkinColor(properties.skinColor.GetColor());
         this.SetHairColor(properties.hairColor.GetColor());
         this.SetShirtColor(properties.shirtColor.GetColor());
         this.SetPantsColor(properties.pantsColor.GetColor());
     }
 
-    public void SetBodySprite(string spriteName)
+    public void SetBodySprite(Gender gender, string spriteName)
     {
         if (this._spriteController)
         {
-            var bodySprites = this._spriteController.BodySprites;
+            List<Sprite> bodySprites = new List<Sprite>();
+            switch (gender)
+            {
+                case Gender.Female:
+                    bodySprites = this._spriteController.FemaleBodySprites;
+                    break;
+                case Gender.Male:
+                    bodySprites = this._spriteController.MaleBodySprites;
+                    break;
+            }
             foreach (Sprite sprite in bodySprites)
             {
                 if (sprite.name == spriteName)
@@ -65,12 +73,60 @@ public class CharacterCustomization : MonoBehaviour
             }
         }
     }
-    public void SetFaceSprite(string spriteName)
+    public void SetLeftArmSprite(Gender gender, string spriteName)
+    {
+        if (this._spriteController)
+        {
+            List<Sprite> leftArmSprites = new List<Sprite>();
+            switch (gender)
+            {
+                case Gender.Female:
+                    leftArmSprites = this._spriteController.FemaleLeftArmSprites;
+                    break;
+                case Gender.Male:
+                    leftArmSprites = this._spriteController.MaleLeftArmSprites;
+                    break;
+            }
+            foreach (Sprite sprite in leftArmSprites)
+            {
+                if (sprite.name == spriteName)
+                {
+                    this.transform.Find("LeftArm").GetComponent<SpriteRenderer>().sprite = sprite;
+                    return;
+                }
+            }
+        }
+    }
+    public void SetRightArmSprite(Gender gender, string spriteName)
+    {
+        if (this._spriteController)
+        {
+            List<Sprite> rightArmSprites = new List<Sprite>();
+            switch (gender)
+            {
+                case Gender.Female:
+                    rightArmSprites = this._spriteController.FemaleRightArmSprites;
+                    break;
+                case Gender.Male:
+                    rightArmSprites = this._spriteController.MaleRightArmSprites;
+                    break;
+            }
+            foreach (Sprite sprite in rightArmSprites)
+            {
+                if (sprite.name == spriteName)
+                {
+                    this.transform.Find("RightArm").GetComponent<SpriteRenderer>().sprite = sprite;
+                    return;
+                }
+            }
+        }
+    }
+    public void SetFaceSprite(Gender gender, string spriteName)
     {
         if (this._spriteController)
         {
             List<Sprite> faceSprites = new List<Sprite>();
-            switch (this._characterSerializer.Gender)
+            switch (gender)
             {
                 case Gender.Female:
                     faceSprites = this._spriteController.FemaleFaceSprites;
@@ -90,12 +146,39 @@ public class CharacterCustomization : MonoBehaviour
             }
         }
     }
-    public void SetHairSprite(string spriteName)
+    public void SetEyeSprite(Gender gender, string spriteName)
+    {
+        var head = this.transform.Find("Head");
+        switch (gender)
+        {
+            case Gender.Female:
+                foreach (var femaleEye in this._spriteController.FemaleEyeSprites)
+                {
+                    var femaleEyeObject = head.transform.Find(femaleEye);
+                    if (femaleEyeObject)
+                    {
+                        femaleEyeObject.gameObject.SetActive(femaleEye == spriteName);
+                    }
+                }
+                break;
+            case Gender.Male:
+                foreach (var maleEye in this._spriteController.MaleEyeSprites)
+                {
+                    var maleEyeObject = head.transform.Find(maleEye);
+                    if (maleEyeObject)
+                    {
+                        maleEyeObject.gameObject.SetActive(maleEye == spriteName);
+                    }
+                }
+                break;
+        }
+    }
+    public void SetHairSprite(Gender gender, string spriteName)
     {
         if (this._spriteController)
         {
             List<Sprite> hairSprites = new List<Sprite>();
-            switch (this._characterSerializer.Gender)
+            switch (gender)
             {
                 case Gender.Female:
                     hairSprites = this._spriteController.FemaleHairSprites;

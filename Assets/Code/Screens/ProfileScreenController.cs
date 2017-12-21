@@ -62,16 +62,6 @@ public class ProfileScreenController : MonoBehaviour
         this._firstPostNew = true;
     }
 
-    public void OnTotalCashUpdated(float newCash)
-    {
-        UpdateText();
-    }
-
-    public void OnFollowersUpdated(int newFollowers)
-    {
-        UpdateText();
-    }
-
     public void CheckClick(string colliderName)
     {
         if (this._chooseNameBox.activeSelf)
@@ -82,12 +72,15 @@ public class ProfileScreenController : MonoBehaviour
         {
             switch (colliderName)
             {
+                case "ChooseNameTextBox":
+                    this._chooseNameBox.SetActive(true);
+                    break;
                 case "BackButton":
-                    this.BackPressedFromEditScreen();
+                    this.ResetCharacterProperties();
+                    this.DestroyEditScreen();
                     break;
                 case "DoneButton":
-                    GameObject.Destroy(this._editScreen);
-                    this.page.SetActive(true);
+                    this.DestroyEditScreen();
                     break;
                 default:
                     this._editScreen.GetComponent<CharacterEditor>().CheckClick(colliderName);
@@ -96,17 +89,6 @@ public class ProfileScreenController : MonoBehaviour
         } else {
             switch (colliderName)
             {
-                case "NameText":
-                    this._chooseNameBox.SetActive(true);
-                    // Set a flag to know that this is active
-                    // Check for hitbox on random button and done button and outside of box
-                    // Don't check hitbox on anything else
-                    break;
-                case "RandomNameButton":
-                    var randomName = this.randomNameGenerator.GenerateRandomName();
-                    globalVars.PlayerName = randomName;
-                    UpdateText();
-                    break;
                 case "EditButton":
                     this.CreateEditAvatarScreen();
                     break;
@@ -122,12 +104,10 @@ public class ProfileScreenController : MonoBehaviour
         scrollArea = page.transform.Find("ScrollArea").gameObject;
         scrollController = scrollArea.AddComponent<ScrollController>();
         scrollController.UpdateScrollArea(scrollArea, scrollArea.transform.localPosition.y, 4.0f);
-        this.SetAvatar(scrollArea.transform.Find("SpriteMask").gameObject);
 
-        UpdateText();
-
-        globalVars.RegisterCashListener(this);
-        this._userSerializer.RegisterFollowersListener(this);
+        var spriteMask = scrollArea.transform.Find("SpriteMask").gameObject;
+        this.SetAvatar(spriteMask);
+        this.SetupItems(spriteMask);
 
         this.GenerateProfilePosts();
     }
@@ -136,7 +116,8 @@ public class ProfileScreenController : MonoBehaviour
     {
         if (this._editScreen)
         {
-            this.BackPressedFromEditScreen();
+            this.ResetCharacterProperties();
+            this.DestroyEditScreen();
             return false;
         }
         return true;
@@ -160,8 +141,6 @@ public class ProfileScreenController : MonoBehaviour
             GameObject.Destroy(this._editScreen);
         }
 
-        globalVars.UnregisterCashListener(this);
-        this._userSerializer.UnregisterFollowersListener(this);
         GameObject.Destroy(page);
     }
 
@@ -178,13 +157,15 @@ public class ProfileScreenController : MonoBehaviour
     {
         this.globalVars.PlayerName = this._chooseNameText.text;
         this._chooseNameBox.SetActive(false);
+        UpdateText(this._editScreen.transform.Find("ChooseNameTextBox").Find("NameText").gameObject);
     }
 
-    private void BackPressedFromEditScreen()
+    private void DestroyEditScreen()
     {
-        this.ResetCharacterProperties();
         GameObject.Destroy(this._editScreen);
         this.page.SetActive(true);
+        this.characterSerializer.UpdateAllCharacters();
+        this.SetAvatar(scrollArea.transform.Find("SpriteMask").gameObject);
     }
 
     private void CreateEditAvatarScreen()
@@ -194,6 +175,8 @@ public class ProfileScreenController : MonoBehaviour
         this.SetAvatar(this._editScreen);
         this.page.SetActive(false);
 
+        UpdateText(this._editScreen.transform.Find("ChooseNameTextBox").Find("NameText").gameObject);
+
         this._previousCharacterProperties = new CharacterProperties(this.characterSerializer.CurrentCharacterProperties);
     }
 
@@ -202,12 +185,11 @@ public class ProfileScreenController : MonoBehaviour
         this.characterSerializer.CurrentCharacterProperties = this._previousCharacterProperties;
     }
 
-    private void UpdateText()
+    private void UpdateText(GameObject textObject)
     {
-        var nameText = scrollArea.transform.Find("NameText");
-        if (nameText)
+        if (textObject)
         {
-            nameText.gameObject.GetComponent<TextMeshPro>().text = globalVars.PlayerName;
+            textObject.GetComponent<TextMeshPro>().text = globalVars.PlayerName;
         }
     }
 
@@ -224,6 +206,26 @@ public class ProfileScreenController : MonoBehaviour
                 parent.transform.Find("MaleAvatar").gameObject.SetActive(true);
                 parent.transform.Find("FemaleAvatar").gameObject.SetActive(false);
                 break;
+        }
+    }
+
+    private void SetupItems(GameObject parent)
+    {
+        if (this._userSerializer.HasBulldog)
+        {
+            var bulldog = parent.transform.Find("Bulldog");
+            if (bulldog)
+            {
+                bulldog.gameObject.SetActive(true);
+            }
+        }
+        if (this._userSerializer.HasDrone)
+        {
+            var drone = parent.transform.Find("D-Rone");
+            if (drone)
+            {
+                drone.gameObject.SetActive(true);
+            }
         }
     }
 

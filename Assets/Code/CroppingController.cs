@@ -15,6 +15,10 @@ public class CroppingController : MonoBehaviour {
     private GameObject _rightArrow;
     private GameObject _upArrow;
     private GameObject _downArrow;
+    private GameObject _topLeftArrow;
+    private GameObject _topRightArrow;
+    private GameObject _bottomLeftArrow;
+    private GameObject _bottomRightArrow;
 
     // Use this for initialization
     void Start () {
@@ -51,8 +55,6 @@ public class CroppingController : MonoBehaviour {
                 touchOne.position.x - touchTwo.position.x);
             var rotation = Mathf.Rad2Deg * (newAngle - previousAngle);
             this._currentObject.transform.Rotate(0, 0, rotation);
-            Debug.Log(this._currentObject.transform.localRotation.eulerAngles.z);
-            Debug.Log(this._currentObject.transform.rotation.eulerAngles.z);
 
             // Find the magnitude of the vector (the distance) between the touches in each frame.
             float prevTouchDeltaMag = (touchOnePrevPos - touchTwoPrevPos).magnitude;
@@ -111,6 +113,18 @@ public class CroppingController : MonoBehaviour {
                                 case "BottomArrow":
                                     this._downArrow = component.gameObject;
                                     break;
+                                case "TopLeftArrow":
+                                    this._topLeftArrow = component.gameObject;
+                                    break;
+                                case "TopRightArrow":
+                                    this._topRightArrow = component.gameObject;
+                                    break;
+                                case "BottomLeftArrow":
+                                    this._bottomLeftArrow = component.gameObject;
+                                    break;
+                                case "BottomRightArrow":
+                                    this._bottomRightArrow = component.gameObject;
+                                    break;
                             }
                         }
 
@@ -162,6 +176,10 @@ public class CroppingController : MonoBehaviour {
                 this._rightArrow.GetComponent<SpriteRenderer>().color = currentColor;
                 this._upArrow.GetComponent<SpriteRenderer>().color = currentColor;
                 this._downArrow.GetComponent<SpriteRenderer>().color = currentColor;
+                this._topLeftArrow.GetComponent<SpriteRenderer>().color = currentColor;
+                this._topRightArrow.GetComponent<SpriteRenderer>().color = currentColor;
+                this._bottomLeftArrow.GetComponent<SpriteRenderer>().color = currentColor;
+                this._bottomRightArrow.GetComponent<SpriteRenderer>().color = currentColor;
             }
         } else {
             if (this._currentObject)
@@ -174,6 +192,10 @@ public class CroppingController : MonoBehaviour {
                     this._rightArrow.GetComponent<SpriteRenderer>().color = currentColor;
                     this._upArrow.GetComponent<SpriteRenderer>().color = currentColor;
                     this._downArrow.GetComponent<SpriteRenderer>().color = currentColor;
+                    this._topLeftArrow.GetComponent<SpriteRenderer>().color = currentColor;
+                    this._topRightArrow.GetComponent<SpriteRenderer>().color = currentColor;
+                    this._bottomLeftArrow.GetComponent<SpriteRenderer>().color = currentColor;
+                    this._bottomRightArrow.GetComponent<SpriteRenderer>().color = currentColor;
                 }
             }
         }

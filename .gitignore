@@ -1,0 +1,10 @@
+*.pem
+*.ppk
+Contracted/
+Library/
+Temp/
+androidBuilds/
+obj/
+*.keystore
+*.csproj
+.vs/

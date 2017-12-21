@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -20,7 +18,6 @@ public class NotificationController : MonoBehaviour
     // Use this for initialization
     void Start () {
         this._userSerializer = UserSerializer.Instance;
-        this._userSerializer.RegisterFollowersListener(this);
 
         this._messagesNotificationBubble.GetComponent<CanvasGroup>().alpha = 0.0f;
     }
@@ -31,7 +28,6 @@ public class NotificationController : MonoBehaviour
 
     void OnDestroy()
     {
-        _userSerializer.UnregisterFollowersListener(this);
     }
 
     public void ClearNotifications(Page currentPage)
@@ -55,11 +51,6 @@ public class NotificationController : MonoBehaviour
                 this._messagesNotificationBubble.GetComponent<CanvasGroup>().alpha = 1.0f;
                 var messageCountText = this._messagesNotificationBubble.transform.Find("Count");
                 messageCountText.GetComponent<TextMeshProUGUI>().text = count.ToString();
-                break;
-            case NotificationType.Follower:
-                //this._followersNotificationBubble.GetComponent<CanvasGroup>().alpha = 1.0f;
-                //var followerCountText = this._followersNotificationBubble.transform.Find("Count");
-                //followerCountText.GetComponent<TextMeshProUGUI>().text = count.ToString();
                 break;
         }
     }
