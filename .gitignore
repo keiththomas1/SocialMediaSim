@@ -1,6 +1,5 @@
 *.pem
 *.ppk
-Contracted/
 Library/
 Temp/
 androidBuilds/
