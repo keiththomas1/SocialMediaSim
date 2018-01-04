@@ -7,7 +7,7 @@ public class CroppingController : MonoBehaviour {
 
     private List<GameObject> _movableObjects;
     private GameObject _currentObject = null;
-    private float _currentObjectDepth;
+    // private bool _currentlySizing = false;
     private bool _currentlyDragging = false;
     private Vector3 _dragStartMouseDifference;
 
@@ -22,6 +22,26 @@ public class CroppingController : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        foreach(GameObject obj in this._movableObjects)
+        {
+            var components = obj.GetComponentsInChildren<SpriteRenderer>(true);
+            foreach (var component in components)
+            {
+                switch (component.name)
+                {
+                    case "LeftArrow":
+                    case "RightArrow":
+                    case "TopArrow":
+                    case "BottomArrow":
+                    case "TopLeftArrow":
+                    case "TopRightArrow":
+                    case "BottomLeftArrow":
+                    case "BottomRightArrow":
+                        component.gameObject.SetActive(true);
+                        break;
+                }
+            }
+        }
     }
 
     // Update is called once per frame
@@ -38,6 +58,8 @@ public class CroppingController : MonoBehaviour {
         }
         if (currentTouchCount == 2)
         {
+            // this._currentlySizing = true;
+
             // Store both touches.
             Touch touchOne = Input.GetTouch(0);
             Touch touchTwo = Input.GetTouch(1);
@@ -86,7 +108,7 @@ public class CroppingController : MonoBehaviour {
                     if (hit.collider.gameObject == movable)
                     {
                         this._currentObject = hit.collider.gameObject;
-                        this._currentObjectDepth = this._currentObject.transform.position.z;
+                        this._currentObject.transform.SetAsLastSibling();
                         var animators = this._currentObject.GetComponentsInChildren<Animator>();
                         if (animators.Length > 0)
                         {
@@ -165,39 +187,43 @@ public class CroppingController : MonoBehaviour {
         {
             var newAvatarPosition =
                 Camera.main.ScreenToWorldPoint(Input.mousePosition) - this._dragStartMouseDifference;
-            newAvatarPosition.z = this._currentObjectDepth;
             this._currentObject.transform.position = newAvatarPosition;
 
-            var currentColor = this._leftArrow.GetComponent<SpriteRenderer>().color;
-            if (currentColor.a > 0.0f)
+            var directionColor = this._leftArrow.GetComponent<SpriteRenderer>().color;
+            var scaleColor = this._topLeftArrow.GetComponent<SpriteRenderer>().color;
+            if (directionColor.a > 0.0f)
             {
-                currentColor.a -= 0.03f;
-                this._leftArrow.GetComponent<SpriteRenderer>().color = currentColor;
-                this._rightArrow.GetComponent<SpriteRenderer>().color = currentColor;
-                this._upArrow.GetComponent<SpriteRenderer>().color = currentColor;
-                this._downArrow.GetComponent<SpriteRenderer>().color = currentColor;
-                this._topLeftArrow.GetComponent<SpriteRenderer>().color = currentColor;
-                this._topRightArrow.GetComponent<SpriteRenderer>().color = currentColor;
-                this._bottomLeftArrow.GetComponent<SpriteRenderer>().color = currentColor;
-                this._bottomRightArrow.GetComponent<SpriteRenderer>().color = currentColor;
+                directionColor.a -= 0.03f;
+                scaleColor.a -= 0.03f;
+                this._leftArrow.GetComponent<SpriteRenderer>().color = directionColor;
+                this._rightArrow.GetComponent<SpriteRenderer>().color = directionColor;
+                this._upArrow.GetComponent<SpriteRenderer>().color = directionColor;
+                this._downArrow.GetComponent<SpriteRenderer>().color = directionColor;
+                this._topLeftArrow.GetComponent<SpriteRenderer>().color = scaleColor;
+                this._topRightArrow.GetComponent<SpriteRenderer>().color = scaleColor;
+                this._bottomLeftArrow.GetComponent<SpriteRenderer>().color = scaleColor;
+                this._bottomRightArrow.GetComponent<SpriteRenderer>().color = scaleColor;
             }
         } else {
-            if (this._currentObject)
+            // If you want to fade the arrows back in
+            /*if (this._currentObject)
             {
-                var currentColor = this._leftArrow.GetComponent<SpriteRenderer>().color;
-                if (currentColor.a < 1.0f)
+                var directionColor = this._leftArrow.GetComponent<SpriteRenderer>().color;
+                var scaleColor = this._topLeftArrow.GetComponent<SpriteRenderer>().color;
+                if (directionColor.a < 1.0f)
                 {
-                    currentColor.a += 0.03f;
-                    this._leftArrow.GetComponent<SpriteRenderer>().color = currentColor;
-                    this._rightArrow.GetComponent<SpriteRenderer>().color = currentColor;
-                    this._upArrow.GetComponent<SpriteRenderer>().color = currentColor;
-                    this._downArrow.GetComponent<SpriteRenderer>().color = currentColor;
-                    this._topLeftArrow.GetComponent<SpriteRenderer>().color = currentColor;
-                    this._topRightArrow.GetComponent<SpriteRenderer>().color = currentColor;
-                    this._bottomLeftArrow.GetComponent<SpriteRenderer>().color = currentColor;
-                    this._bottomRightArrow.GetComponent<SpriteRenderer>().color = currentColor;
+                    directionColor.a += 0.03f;
+                    scaleColor.a += 0.03f;
+                    this._leftArrow.GetComponent<SpriteRenderer>().color = directionColor;
+                    this._rightArrow.GetComponent<SpriteRenderer>().color = directionColor;
+                    this._upArrow.GetComponent<SpriteRenderer>().color = directionColor;
+                    this._downArrow.GetComponent<SpriteRenderer>().color = directionColor;
+                    this._topLeftArrow.GetComponent<SpriteRenderer>().color = scaleColor;
+                    this._topRightArrow.GetComponent<SpriteRenderer>().color = scaleColor;
+                    this._bottomLeftArrow.GetComponent<SpriteRenderer>().color = scaleColor;
+                    this._bottomRightArrow.GetComponent<SpriteRenderer>().color = scaleColor;
                 }
-            }
+            }*/
         }
     }
 

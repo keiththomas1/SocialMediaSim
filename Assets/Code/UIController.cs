@@ -140,6 +140,7 @@ public class UIController : MonoBehaviour {
     {
         this._userSerializer.CompletedTutorial = true;
         this.GoToProfilePage();
+        this._profileController.CreateEditAvatarScreen();
     }
 
     /* Private methods */

@@ -10,7 +10,7 @@ public class ProfileScreenController : MonoBehaviour
     private GameObject _chooseNameBox;
     private TextMeshProUGUI _chooseNameText;
 
-    private const float POST_X_OFFSET = -0.2f;
+    private const float POST_X_OFFSET = -1.06f;
     private const float POST_Y_OFFSET = -2.5f;
 
     private GlobalVars globalVars;
@@ -22,7 +22,7 @@ public class ProfileScreenController : MonoBehaviour
 
     private GameObject page;
     private GameObject scrollArea;
-    private List<GameObject> _youPostObjects;
+    private List<DelayGramPostObject> _youPostObjects;
     private bool _firstPostNew;
 
     private GameObject _editScreen;
@@ -35,7 +35,7 @@ public class ProfileScreenController : MonoBehaviour
         this.randomNameGenerator = new RandomNameGenerator();
         this._postHelper = new PostHelper();
 
-        this._youPostObjects = new List<GameObject>();
+        this._youPostObjects = new List<DelayGramPostObject>();
         this._firstPostNew = false;
 
         this._chooseNameText = this._chooseNameBox.transform.Find("TextInput")
@@ -105,6 +105,9 @@ public class ProfileScreenController : MonoBehaviour
         scrollController = scrollArea.AddComponent<ScrollController>();
         scrollController.UpdateScrollArea(scrollArea, scrollArea.transform.localPosition.y, 4.0f);
 
+        var characterStats = scrollArea.transform.Find("CharacterStats").gameObject;
+        this.SetupStatistics(characterStats);
+
         var spriteMask = scrollArea.transform.Find("SpriteMask").gameObject;
         this.SetAvatar(spriteMask);
         this.SetupItems(spriteMask);
@@ -125,12 +128,12 @@ public class ProfileScreenController : MonoBehaviour
 
     public void DestroyPage()
     {
-        foreach (GameObject postObject in this._youPostObjects)
+        foreach (DelayGramPostObject post in this._youPostObjects)
         {
-            if (postObject)
+            if (post.postObject)
             {
-                postObject.SetActive(false);
-                GameObject.Destroy(postObject);
+                post.postObject.SetActive(false);
+                GameObject.Destroy(post.postObject);
             }
         }
         this._youPostObjects.Clear();
@@ -142,6 +145,18 @@ public class ProfileScreenController : MonoBehaviour
         }
 
         GameObject.Destroy(page);
+    }
+
+    public void CreateEditAvatarScreen()
+    {
+        this._editScreen = GameObject.Instantiate(Resources.Load("Profile/CreateCharacterPopup") as GameObject);
+        this._editScreen.transform.position = new Vector3(0.3f, 1.55f, 0.0f);
+        this.SetAvatar(this._editScreen);
+        this.page.SetActive(false);
+
+        UpdateText(this._editScreen.transform.Find("ChooseNameTextBox").Find("NameText").gameObject);
+
+        this._previousCharacterProperties = new CharacterProperties(this.characterSerializer.CurrentCharacterProperties);
     }
 
     private void NameExitClicked()
@@ -168,18 +183,6 @@ public class ProfileScreenController : MonoBehaviour
         this.SetAvatar(scrollArea.transform.Find("SpriteMask").gameObject);
     }
 
-    private void CreateEditAvatarScreen()
-    {
-        this._editScreen = GameObject.Instantiate(Resources.Load("Profile/CreateCharacterPopup") as GameObject);
-        this._editScreen.transform.position = new Vector3(0.3f, 1.55f, 0.0f);
-        this.SetAvatar(this._editScreen);
-        this.page.SetActive(false);
-
-        UpdateText(this._editScreen.transform.Find("ChooseNameTextBox").Find("NameText").gameObject);
-
-        this._previousCharacterProperties = new CharacterProperties(this.characterSerializer.CurrentCharacterProperties);
-    }
-
     private void ResetCharacterProperties()
     {
         this.characterSerializer.CurrentCharacterProperties = this._previousCharacterProperties;
@@ -191,6 +194,24 @@ public class ProfileScreenController : MonoBehaviour
         {
             textObject.GetComponent<TextMeshPro>().text = globalVars.PlayerName;
         }
+    }
+
+    private void SetupStatistics(GameObject parent)
+    {
+        var postsCreatedText = parent.transform.Find("PostsCreatedNumber");
+        postsCreatedText.GetComponent<TextMeshPro>().text = this._userSerializer.PostCount.ToString();
+
+        var yourLikesText = parent.transform.Find("LikesOnYoursNumber");
+        yourLikesText.GetComponent<TextMeshPro>().text = "0";
+
+        var yourDislikesText = parent.transform.Find("DislikesOnYoursNumber");
+        yourDislikesText.GetComponent<TextMeshPro>().text = "0";
+
+        var othersLikesText = parent.transform.Find("LikesOnOthersNumber");
+        othersLikesText.GetComponent<TextMeshPro>().text = "0";
+
+        var othersDislikesText = parent.transform.Find("DislikesOnOthersNumber");
+        othersDislikesText.GetComponent<TextMeshPro>().text = "0";
     }
 
     private void SetAvatar(GameObject parent)
@@ -241,9 +262,10 @@ public class ProfileScreenController : MonoBehaviour
             this.scrollController.ScrollToPosition(2.3f);
 
             var postAnimation = GameObject.Instantiate(Resources.Load("Posts/NewPostAnimation") as GameObject);
-            var animationPosition = this._youPostObjects[0].transform.position;
+            var animationPosition = this._youPostObjects[0].postObject.transform.position;
             animationPosition.z += 1;
             postAnimation.transform.position = animationPosition;
+            postAnimation.transform.localScale = new Vector3(0.5f, 0.5f, 1.0f);
             postAnimation.transform.parent = this.scrollArea.transform;
 
             this._firstPostNew = false;

@@ -37,20 +37,22 @@ public class CharacterEditor : MonoBehaviour {
             case "RandomEverythingButton":
                 this.RandomizeCharacter();
                 break;
+            case "ColorHairButton":
+                var hairColor = this._characterRandomization.GetRandomColor();
+                this._characterSerializer.HairColor = hairColor;
+                break;
             case "RandomHairButton":
                 switch (this._characterSerializer.Gender)
                 {
                     case Gender.Male:
-                        this._characterSerializer.HairSprite = this._characterRandomization.GetRandomMaleHairSprite(
+                        this._characterSerializer.HairSprite = this._characterRandomization.GetNextMaleHairSprite(
                             this._characterSerializer.HairSprite);
                         break;
                     case Gender.Female:
-                        this._characterSerializer.HairSprite = this._characterRandomization.GetRandomFemaleHairSprite(
+                        this._characterSerializer.HairSprite = this._characterRandomization.GetNextFemaleHairSprite(
                             this._characterSerializer.HairSprite);
                         break;
                 }
-                var hairColor = this._characterRandomization.GetRandomColor();
-                this._characterSerializer.HairColor = hairColor;
                 break;
             case "RandomFaceButton":
                 switch (this._characterSerializer.Gender)
@@ -69,16 +71,16 @@ public class CharacterEditor : MonoBehaviour {
                         break;
                 }
                 break;
-            case "RandomSkinButton":
-                var skinColor = this._characterRandomization.GetRandomSkinColor(
+            case "ColorSkinButton":
+                var skinColor = this._characterRandomization.GetNextSkinColor(
                     this._characterSerializer.SkinColor);
                 this._characterSerializer.SkinColor = skinColor;
                 break;
-            case "RandomShirtButton":
+            case "ColorShirtButton":
                 var shirtColor = this._characterRandomization.GetRandomColor();
                 this._characterSerializer.ShirtColor = shirtColor;
                 break;
-            case "RandomPantsButton":
+            case "ColorPantsButton":
                 var pantsColor = this._characterRandomization.GetRandomColor();
                 this._characterSerializer.PantsColor = pantsColor;
                 break;

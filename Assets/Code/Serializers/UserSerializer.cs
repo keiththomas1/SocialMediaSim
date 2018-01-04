@@ -30,6 +30,53 @@ public class UserSerializer
         this.savePath = Application.persistentDataPath + "/DelayGram.dat";
     }
 
+    public DateTime NextPostTime
+    {
+        get { return this.currentSave.nextPostTime; }
+        set
+        {
+            this.currentSave.nextPostTime = value;
+            this.SaveFile();
+        }
+    }
+
+    public bool CompletedTutorial
+    {
+        get { return this.currentSave.completedTutorial; }
+        set
+        {
+            this.currentSave.completedTutorial = value;
+            this.SaveFile();
+        }
+    }
+
+    public bool HasBulldog
+    {
+        get { return this.currentSave.storyProperties.hasBulldog; }
+        set
+        {
+            this.currentSave.storyProperties.hasBulldog = value;
+            this.SaveFile();
+        }
+    }
+    public bool HasDrone
+    {
+        get { return this.currentSave.storyProperties.hasDrone; }
+        set
+        {
+            this.currentSave.storyProperties.hasDrone = value;
+            this.SaveFile();
+        }
+    }
+
+    public int PostCount
+    {
+        get
+        {
+            return this.currentSave.posts.Count;
+        }
+    }
+
     public List<DelayGramPost> GetReverseChronologicalPosts()
     {
         List<DelayGramPost> returnList = new List<DelayGramPost>();
@@ -52,25 +99,6 @@ public class UserSerializer
         return returnList;
     }
 
-    public bool HasBulldog
-    {
-        get { return this.currentSave.storyProperties.hasBulldog; }
-        set
-        {
-            this.currentSave.storyProperties.hasBulldog = value;
-            this.SaveFile();
-        }
-    }
-    public bool HasDrone
-    {
-        get { return this.currentSave.storyProperties.hasDrone; }
-        set
-        {
-            this.currentSave.storyProperties.hasDrone = value;
-            this.SaveFile();
-        }
-    }
-
     public void SerializePost(DelayGramPost newPost)
     {
         if (this.currentSave.posts == null)
@@ -89,26 +117,6 @@ public class UserSerializer
         }
         this.currentSave.notifications.Add(newNotification);
         this.SaveFile();
-    }
-
-    public DateTime NextPostTime
-    {
-        get { return this.currentSave.nextPostTime; }
-        set
-        {
-            this.currentSave.nextPostTime = value;
-            this.SaveFile();
-        }
-    }
-
-    public bool CompletedTutorial
-    {
-        get { return this.currentSave.completedTutorial; }
-        set
-        {
-            this.currentSave.completedTutorial = value;
-            this.SaveFile();
-        }
     }
 
     public void SerializePostCooldown(DateTime nextPostTime)

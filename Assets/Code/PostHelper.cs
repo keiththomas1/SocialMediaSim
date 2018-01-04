@@ -3,8 +3,22 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
+public struct DelayGramPostObject
+{
+    public GameObject postObject;
+    public DelayGramPost post;
+
+    public DelayGramPostObject(GameObject _postObject, DelayGramPost _post)
+    {
+        this.postObject = _postObject;
+        this.post = _post;
+    }
+}
+
 public class PostHelper {
-    private float LENGTH_BETWEEN_POSTS = 3.7f;
+    // private float LENGTH_BETWEEN_POSTS = 3.7f;
+    private float WIDTH_BETWEEN_THUMBNAILS = 1.7f;
+    private float HEIGHT_BETWEEN_THUMBNAILS = 1.32f;
 
     // Use this for initialization
     public PostHelper() {
@@ -144,17 +158,26 @@ public class PostHelper {
     public void GeneratePostFeed(
         GameObject scrollArea,
         List<DelayGramPost> posts,
-        List<GameObject> postObjects,
+        List<DelayGramPostObject> postObjects,
         float postXOffset,
         float postYOffset)
     {
+        var currentX = postXOffset;
         var currentY = scrollArea.transform.localPosition.y + postYOffset;
         foreach (DelayGramPost post in posts)
         {
-            var newPost = SetupPostPrefab(post, postXOffset, currentY, scrollArea);
+            var newPost = SetupPostPrefab(post, currentX, currentY, scrollArea, false);
 
-            currentY -= LENGTH_BETWEEN_POSTS;
-            postObjects.Add(newPost);
+            if (currentX == postXOffset)
+            {
+                currentX = postXOffset + WIDTH_BETWEEN_THUMBNAILS;
+            }
+            else
+            {
+                currentX = postXOffset;
+                currentY -= HEIGHT_BETWEEN_THUMBNAILS;
+            }
+            postObjects.Add(new DelayGramPostObject(newPost, post));
         }
 
         var scrollController = scrollArea.AddComponent<ScrollController>();
@@ -178,43 +201,24 @@ public class PostHelper {
         }
     }
 
-    private GameObject SetupPostPrefab(DelayGramPost post, float xPosition, float yPosition, GameObject scrollArea)
+    private GameObject SetupPostPrefab(
+        DelayGramPost post,
+        float xPosition,
+        float yPosition,
+        GameObject scrollArea,
+        bool showDetails)
     {
-        var postPrefab = Resources.Load("Posts/NewPost") as GameObject;
+        GameObject postPrefab = Resources.Load("Posts/NewPost") as GameObject;
+
         if (postPrefab)
         {
             var postPrefabInstance = GameObject.Instantiate(postPrefab);
             postPrefabInstance.name = post.imageID;
             postPrefabInstance.transform.parent = scrollArea.transform;
             postPrefabInstance.transform.localPosition = new Vector3(xPosition, yPosition, 0.0f);
+            postPrefabInstance.transform.localScale = new Vector3(0.4f, 0.4f, 1.0f);
 
-            var nameText = postPrefabInstance.transform.Find("NameText").GetComponent<TextMeshPro>();
-            nameText.text = post.playerName;
-
-            var timeText = postPrefabInstance.transform.Find("TimeText").GetComponent<TextMeshPro>();
-            var timeTextXPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.86f, 0.0f, 0.0f)).x;
-            timeText.transform.position = new Vector3(
-                timeTextXPosition,
-                timeText.transform.position.y,
-                timeText.transform.position.z);
-            // var timeSincePost = DateTime.Now - post.dateTime;
-            // timeText.text = this._restRequester.GetPostTimeFromDateTime(timeSincePost);
-
-            var profilePicBubble = postPrefabInstance.transform.Find("ProfilePicBubble");
-            var profileBubbleXPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.07f, 0.0f, 0.0f)).x;
-            profilePicBubble.transform.position = new Vector3(
-                profileBubbleXPosition,
-                profilePicBubble.transform.position.y,
-                profilePicBubble.transform.position.z);
-            this.SetupProfilePicBubble(profilePicBubble.gameObject, post.characterProperties);
-
-            var likeDislikeArea = postPrefabInstance.transform.Find("LikeDislikeArea");
-            var likeDislikeAreaXPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.67f, 0.0f, 0.0f)).x;
-            likeDislikeArea.transform.position = new Vector3(
-                likeDislikeAreaXPosition,
-                likeDislikeArea.transform.position.y,
-                likeDislikeArea.transform.position.z);
-
+            this.SetPostDetails(postPrefabInstance, post, showDetails);
             this.PopulatePostFromData(postPrefabInstance, post);
 
             return postPrefabInstance;
@@ -222,6 +226,53 @@ public class PostHelper {
         else
         {
             return null;
+        }
+    }
+
+    public void SetPostDetails(GameObject postObject, DelayGramPost post, bool showDetails)
+    {
+        var nameText = postObject.transform.Find("NameText").gameObject;
+        if (nameText)
+        {
+            nameText.SetActive(showDetails);
+            nameText.GetComponent<TextMeshPro>().text = post.playerName;
+        }
+
+        var timeText = postObject.transform.Find("TimeText").gameObject;
+        if (timeText)
+        {
+            timeText.SetActive(showDetails);
+            var timeTextXPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.86f, 0.0f, 0.0f)).x;
+            timeText.transform.position = new Vector3(
+                timeTextXPosition,
+                timeText.transform.position.y,
+                timeText.transform.position.z);
+            // Need to make rest requester a singleton or try to find the gameobject that has it which is dubious
+            // var timeSincePost = DateTime.Now - post.dateTime;
+            // timeText.GetComponent<TextMeshPro>().text = this._restRequester.GetPostTimeFromDateTime(timeSincePost);
+        }
+
+        var profilePicBubble = postObject.transform.Find("ProfilePicBubble").gameObject;
+        if (profilePicBubble)
+        {
+            profilePicBubble.SetActive(showDetails);
+            var profileBubbleXPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.07f, 0.0f, 0.0f)).x;
+            profilePicBubble.transform.position = new Vector3(
+                profileBubbleXPosition,
+                profilePicBubble.transform.position.y,
+                profilePicBubble.transform.position.z);
+            this.SetupProfilePicBubble(profilePicBubble, post.characterProperties);
+        }
+
+        var likeDislikeArea = postObject.transform.Find("LikeDislikeArea").gameObject;
+        if (likeDislikeArea)
+        {
+            likeDislikeArea.SetActive(showDetails);
+            var likeDislikeAreaXPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.67f, 0.0f, 0.0f)).x;
+            likeDislikeArea.transform.position = new Vector3(
+                likeDislikeAreaXPosition,
+                likeDislikeArea.transform.position.y,
+                likeDislikeArea.transform.position.z);
         }
     }
 }

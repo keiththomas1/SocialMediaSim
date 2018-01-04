@@ -127,6 +127,29 @@ public class CharacterRandomization {
         return finalSprite;
     }
 
+    public string GetNextMaleHairSprite(string oldSprite = "")
+    {
+        var index = this._spriteCollection.MaleHairSprites.FindIndex(s => s.name == oldSprite);
+        if (index != -1)
+        {
+            var nextIndex = this._spriteCollection.MaleHairSprites.Count == (index + 1) ? 0 : (index + 1);
+            return this._spriteCollection.MaleHairSprites[nextIndex].name;
+        }
+
+        return this._spriteCollection.MaleHairSprites[0].name;
+    }
+    public string GetNextFemaleHairSprite(string oldSprite = "")
+    {
+        var index = this._spriteCollection.FemaleHairSprites.FindIndex(s => s.name == oldSprite);
+        if (index != -1)
+        {
+            var nextIndex = this._spriteCollection.FemaleHairSprites.Count == (index + 1) ? 0 : (index + 1);
+            return this._spriteCollection.FemaleHairSprites[nextIndex].name;
+        }
+
+        return this._spriteCollection.FemaleHairSprites[0].name;
+    }
+
     public Color GetRandomColor()
     {
         return new Color(Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f));
@@ -142,23 +165,34 @@ public class CharacterRandomization {
         return finalColor;
     }
 
+    public Color GetNextSkinColor(Color previousColor)
+    {
+        var index = this._skinColors.FindIndex(c => c == previousColor);
+        if (index != -1) {
+            var nextIndex = this._skinColors.Count == (index + 1) ? 0 : (index + 1);
+            return this._skinColors[nextIndex];
+        }
+
+        return this._skinColors[0];
+    }
+
     private void LoadSkinColors()
     {
         // In increasing order of light to dark
         Color currentColor;
-        ColorUtility.TryParseHtmlString("#FFF4D0FF", out currentColor);
-        this._skinColors.Add(currentColor);
-        ColorUtility.TryParseHtmlString("#FFE89EFF", out currentColor);
-        this._skinColors.Add(currentColor);
-        ColorUtility.TryParseHtmlString("#EACE70FF", out currentColor);
-        this._skinColors.Add(currentColor);
-        ColorUtility.TryParseHtmlString("#D2B656FF", out currentColor);
-        this._skinColors.Add(currentColor);
-        ColorUtility.TryParseHtmlString("#BA9E40FF", out currentColor);
+        ColorUtility.TryParseHtmlString("#6D570FFF", out currentColor);
         this._skinColors.Add(currentColor);
         ColorUtility.TryParseHtmlString("#967E2FFF", out currentColor);
         this._skinColors.Add(currentColor);
-        ColorUtility.TryParseHtmlString("#6D570FFF", out currentColor);
+        ColorUtility.TryParseHtmlString("#BA9E40FF", out currentColor);
+        this._skinColors.Add(currentColor);
+        ColorUtility.TryParseHtmlString("#D2B656FF", out currentColor);
+        this._skinColors.Add(currentColor);
+        ColorUtility.TryParseHtmlString("#EACE70FF", out currentColor);
+        this._skinColors.Add(currentColor);
+        ColorUtility.TryParseHtmlString("#FFE89EFF", out currentColor);
+        this._skinColors.Add(currentColor);
+        ColorUtility.TryParseHtmlString("#FFF4D0FF", out currentColor);
         this._skinColors.Add(currentColor);
     }
 }

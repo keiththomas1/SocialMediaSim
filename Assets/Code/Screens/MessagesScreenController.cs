@@ -290,10 +290,10 @@ public class MessagesScreenController : MonoBehaviour {
         {
             switch (message.type)
             {
-                case MessageType.NPC:
+                case DelaygramMessageType.NPC:
                     yPosition -= this.AddNPCMessageObject(conversation, message, true, yPosition);
                     break;
-                case MessageType.Choice:
+                case DelaygramMessageType.Choice:
                     int choiceCount = 1;
                     foreach(string choice in message.choices)
                     {
@@ -301,10 +301,10 @@ public class MessagesScreenController : MonoBehaviour {
                         choiceCount++;
                     }
                     break;
-                case MessageType.Player:
+                case DelaygramMessageType.Player:
                     yPosition -= this.AddPlayerMessageObject(conversation, message, yPosition);
                     break;
-                case MessageType.Result:
+                case DelaygramMessageType.Result:
                     var prefabName = this._messageCollection.GetResultPrefabName(conversation);
                     yPosition -= this.AddResultMessageObject(conversation, prefabName, yPosition);
                     break;

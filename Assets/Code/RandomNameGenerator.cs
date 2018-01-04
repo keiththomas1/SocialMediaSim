@@ -58,17 +58,13 @@ public class RandomNameGenerator
 
         // Neutral
         this._words.Add("love");
-        this._words.Add("trucker");
-        this._words.Add("shocker");
         this._words.Add("diva");
         this._words.Add("badass");
         this._words.Add("rich");
-        this._words.Add("dick");
         this._words.Add("nasty");
-        this._words.Add("af");
+        this._words.Add("AF");
         this._words.Add("dope");
         this._words.Add("shady");
-        this._words.Add("gay");
         this._words.Add("hard");
         this._words.Add("huge");
         this._words.Add("massive");

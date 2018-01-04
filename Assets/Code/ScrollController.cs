@@ -14,7 +14,8 @@ public class ScrollController : MonoBehaviour
     private float currentScrollSpeed;
 
     // For mouse position handling
-    private float prevMouseY, mouseY;
+    private float _previousMouseY;
+    private float _currentMouseY;
 
 	// Use this for initialization
 	void Start () {
@@ -41,8 +42,8 @@ public class ScrollController : MonoBehaviour
     {
         if (scrollInitialized && canScroll)
         {
-            prevMouseY = mouseY;
-            mouseY = Input.mousePosition.y;
+            this._previousMouseY = this._currentMouseY;
+            this._currentMouseY = Input.mousePosition.y;
 
             if (!isScrolling && Input.GetMouseButton(0))
             {
@@ -70,7 +71,7 @@ public class ScrollController : MonoBehaviour
             }
 
             if (isScrolling) {
-                this.currentScrollSpeed = (prevMouseY - mouseY) / 4.0f;
+                this.currentScrollSpeed = (this._previousMouseY - this._currentMouseY) / 5.0f;
             } else {
                 this.currentScrollSpeed = this.currentScrollSpeed * 0.97f;
             }

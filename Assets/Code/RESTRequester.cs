@@ -125,7 +125,14 @@ public class RESTRequester
             var sendRequest = new Action(()=> {
                 response = (HttpWebResponse)request.GetResponse();
             });
-            await Task.Run(sendRequest);
+            try
+            {
+                await Task.Run(sendRequest);
+            }
+            catch (Exception exception)
+            {
+                Debug.Log("Exception making web request:" + exception.ToString());
+            }
 
             if (response != null && response.StatusCode == HttpStatusCode.OK)
             {

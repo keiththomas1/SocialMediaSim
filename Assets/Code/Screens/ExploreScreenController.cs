@@ -124,13 +124,16 @@ public class ExploreScreenController : MonoBehaviour
             GameObject.Destroy(this._loadingIcon);
         }
 
-        this._currentPictures = new Queue<PictureModelJsonReceive>();
-        foreach(PictureModelJsonReceive picture in pictures.pictureModels)
+        if (success)
         {
-            this._currentPictures.Enqueue(picture);
+            this._currentPictures = new Queue<PictureModelJsonReceive>();
+            foreach (PictureModelJsonReceive picture in pictures.pictureModels)
+            {
+                this._currentPictures.Enqueue(picture);
+            }
+            this._loadingPictures = false;
+            this.CreateNewExplorePost();
         }
-        this._loadingPictures = false;
-        this.CreateNewExplorePost();
     }
 
     public void CheckClick(string colliderName)

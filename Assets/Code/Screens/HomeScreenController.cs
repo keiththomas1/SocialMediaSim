@@ -1,7 +1,7 @@
 using UnityEngine;
-using System;
 using System.Collections.Generic;
 using TMPro;
+using DG.Tweening;
 
 public class HomeScreenController : MonoBehaviour {
     [SerializeField]
@@ -9,28 +9,46 @@ public class HomeScreenController : MonoBehaviour {
     [SerializeField]
     private Sprite _rightSideNav;
 
-    private const float POST_X_OFFSET = -0.05f;
-    private const float POST_Y_OFFSET = 1.34f;
+    private const float POST_X_OFFSET = -0.87f;
+    private const float POST_Y_OFFSET = 2.84f;
     private GameObject _postPage;
     private GameObject _errorText;
 
     // World objects
     private GameObject _worldScrollArea;
-    private List<GameObject> _worldPostObjects;
+    private List<DelayGramPostObject> _worldPostObjects;
     private RESTRequester _restRequester;
     private PostHelper _postHelper;
     private GameObject _loadingIcon;
 
-    // Use this for initialization
-    void Awake()
+    // For handling of selecting an image and resizing/repositioning
+    private DelayGramPostObject _currentSelectedImage;
+    private Vector3 _originalImageScale;
+    private Vector3 _originalImagePosition;
+    private bool _imageCurrentlyShrinking = false;
+
+    private enum HomeScreenState
     {
-        this._worldPostObjects = new List<GameObject>();
+        WorldFeed,
+        SinglePicture
+    }
+    private HomeScreenState _currentState = HomeScreenState.WorldFeed;
+
+    // Use this for initialization
+    private void Awake()
+    {
+        this._worldPostObjects = new List<DelayGramPostObject>();
         this._restRequester = new RESTRequester();
         this._postHelper = new PostHelper();
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+    private void Start()
+    {
+        DOTween.Init();
+    }
+
+    // Update is called once per frame
+    private void Update () {
 	}
 
     public void EnterScreen()
@@ -51,13 +69,75 @@ public class HomeScreenController : MonoBehaviour {
 
     public void CheckClick(string colliderName)
     {
-        switch (colliderName)
+        foreach(DelayGramPostObject post in this._worldPostObjects)
         {
-            default:
-                break;
+            if (post.postObject && colliderName == post.postObject.name)
+            {
+                if (this._currentState == HomeScreenState.WorldFeed)
+                {
+                    this.EnlargePost(post);
+                } else
+                {
+                    this.ShrinkPost(this._currentSelectedImage);
+                }
+            }
         }
     }
-    
+
+    private void EnlargePost(DelayGramPostObject post)
+    {
+        if (this._imageCurrentlyShrinking)
+        {
+            return;
+        }
+
+        this._currentState = HomeScreenState.SinglePicture;
+        this._currentSelectedImage = post;
+        this._originalImageScale = post.postObject.transform.localScale;
+        this._originalImagePosition = post.postObject.transform.localPosition;
+
+        // Scale post up and position in middle of screen
+        post.postObject.transform.DOScale(1.0f, 0.5f).SetEase(Ease.InOutBack);
+        var middleScreenPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f));
+        middleScreenPosition.z = 0.0f;
+        post.postObject.transform.DOMove(middleScreenPosition, 0.5f, false)
+            .OnComplete(() =>
+                this._postHelper.SetPostDetails(post.postObject, post.post, true));
+
+        foreach(DelayGramPostObject newPostObject in this._worldPostObjects)
+        {
+            if (newPostObject.postObject.name != post.postObject.name)
+            {
+                newPostObject.postObject.SetActive(false);
+            }
+        }
+    }
+
+    private void ShrinkPost(DelayGramPostObject post)
+    {
+        this._currentState = HomeScreenState.WorldFeed;
+        this._imageCurrentlyShrinking = true;
+
+        // Scale post down and position where it used to be
+        post.postObject.transform.DOScale(this._originalImageScale, 0.5f).SetEase(Ease.InOutBack);
+        post.postObject.transform.DOLocalMove(this._originalImagePosition, 0.5f, false)
+            .OnComplete( () => this.PostFinishedShrinking(post, false) );
+
+        foreach (DelayGramPostObject newPostObject in this._worldPostObjects)
+        {
+            if (newPostObject.postObject.name != post.postObject.name)
+            {
+                newPostObject.postObject.SetActive(true);
+            }
+        }
+    }
+
+    private void PostFinishedShrinking(DelayGramPostObject postObject, bool showDetails)
+    {
+        this._imageCurrentlyShrinking = false;
+        this._postHelper.SetPostDetails(postObject.postObject, postObject.post, false);
+    }
+
     public void DestroyPage()
     {
         DestroyPosts(this._worldPostObjects);
@@ -108,14 +188,14 @@ public class HomeScreenController : MonoBehaviour {
         }
     }
 
-    private void DestroyPosts(List<GameObject> postObjects)
+    private void DestroyPosts(List<DelayGramPostObject> postObjects)
     {
-        foreach (GameObject postObject in postObjects)
+        foreach (DelayGramPostObject post in postObjects)
         {
-            if (postObject)
+            if (post.postObject)
             {
-                postObject.SetActive(false);
-                GameObject.Destroy(postObject);
+                post.postObject.SetActive(false);
+                GameObject.Destroy(post.postObject);
             }
         }
     }

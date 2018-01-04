@@ -13,12 +13,8 @@ public class NotificationController : MonoBehaviour
     [SerializeField]
     private GameObject _messagesNotificationBubble;
 
-    private UserSerializer _userSerializer;
-
     // Use this for initialization
     void Start () {
-        this._userSerializer = UserSerializer.Instance;
-
         this._messagesNotificationBubble.GetComponent<CanvasGroup>().alpha = 0.0f;
     }
 

@@ -5,7 +5,7 @@ using System.Threading;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
-public enum MessageType
+public enum DelaygramMessageType
 {
     NPC,
     Player,
@@ -150,7 +150,7 @@ public struct Conversation
 [Serializable]
 public struct Message
 {
-    public MessageType type;
+    public DelaygramMessageType type;
     public string text;
     public List<string> choices;
     public DateTime timeSent;

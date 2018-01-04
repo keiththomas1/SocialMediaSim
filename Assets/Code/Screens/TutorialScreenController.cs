@@ -21,7 +21,7 @@ public class TutorialScreenController : MonoBehaviour {
         this._uiController = GetComponent<UIController>();
         this._introDialog = new List<string>();
         this._introDialog.Add("Delaygram is the work of many sleepless nights spent in my friend's dorm at college.");
-        this._introDialog.Add("Let me show you really quick how to navigate around and then you will be free to explore.");
+        this._introDialog.Add("Let's start by creating your avatar!");
         this._currentState = TutorialState.Introduction;
 	}
 	
@@ -43,7 +43,7 @@ public class TutorialScreenController : MonoBehaviour {
         switch(this._currentState)
         {
             case TutorialState.Introduction:
-                var continueText = this._introTextAnimation.FinishText();
+                bool continueText = this._introTextAnimation.FinishText();
                 if (continueText)
                 {
                     if (this._currentDialogPosition >= this._introDialog.Count)
