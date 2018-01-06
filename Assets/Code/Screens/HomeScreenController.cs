@@ -76,8 +76,7 @@ public class HomeScreenController : MonoBehaviour {
                 if (this._currentState == HomeScreenState.WorldFeed)
                 {
                     this.EnlargePost(post);
-                } else
-                {
+                } else {
                     this.ShrinkPost(this._currentSelectedImage);
                 }
             }
@@ -96,13 +95,7 @@ public class HomeScreenController : MonoBehaviour {
         this._originalImageScale = post.postObject.transform.localScale;
         this._originalImagePosition = post.postObject.transform.localPosition;
 
-        // Scale post up and position in middle of screen
-        post.postObject.transform.DOScale(1.0f, 0.5f).SetEase(Ease.InOutBack);
-        var middleScreenPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f));
-        middleScreenPosition.z = 0.0f;
-        post.postObject.transform.DOMove(middleScreenPosition, 0.5f, false)
-            .OnComplete(() =>
-                this._postHelper.SetPostDetails(post.postObject, post.post, true));
+        this._postHelper.EnlargeAndCenterPost(post);
 
         foreach(DelayGramPostObject newPostObject in this._worldPostObjects)
         {
@@ -119,9 +112,11 @@ public class HomeScreenController : MonoBehaviour {
         this._imageCurrentlyShrinking = true;
 
         // Scale post down and position where it used to be
-        post.postObject.transform.DOScale(this._originalImageScale, 0.5f).SetEase(Ease.InOutBack);
-        post.postObject.transform.DOLocalMove(this._originalImagePosition, 0.5f, false)
-            .OnComplete( () => this.PostFinishedShrinking(post, false) );
+        this._postHelper.ShrinkAndReturnPost(
+            post,
+            this._originalImageScale,
+            this._originalImagePosition,
+            () => this.PostFinishedShrinking(post, false));
 
         foreach (DelayGramPostObject newPostObject in this._worldPostObjects)
         {
@@ -174,7 +169,7 @@ public class HomeScreenController : MonoBehaviour {
             if (this._errorText)
             {
                 this._errorText.SetActive(true);
-                this._errorText.GetComponent<TextMeshPro>().text = "Sorry, we were unable to talk to the server.";
+                this._errorText.GetComponent<TextMeshPro>().text = "No internet connection.";
             }
         }
         else

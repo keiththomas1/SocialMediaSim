@@ -131,7 +131,7 @@ public class RESTRequester
             }
             catch (Exception exception)
             {
-                Debug.Log("Exception making web request:" + exception.ToString());
+                Debug.Log("No internet? Exception making web request:" + exception.ToString());
             }
 
             if (response != null && response.StatusCode == HttpStatusCode.OK)

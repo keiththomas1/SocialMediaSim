@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -274,5 +275,26 @@ public class PostHelper {
                 likeDislikeArea.transform.position.y,
                 likeDislikeArea.transform.position.z);
         }
+    }
+
+    public void EnlargeAndCenterPost(DelayGramPostObject post)
+    {
+        // Scale post up and position in middle of screen
+        post.postObject.transform.DOScale(1.0f, 0.5f).SetEase(Ease.InOutBack);
+        var middleScreenPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f));
+        middleScreenPosition.z = 0.0f;
+        post.postObject.transform.DOMove(middleScreenPosition, 0.5f, false)
+            .OnComplete(() =>
+                this.SetPostDetails(post.postObject, post.post, true));
+    }
+
+    public void ShrinkAndReturnPost(
+        DelayGramPostObject post,
+        Vector3 originalScale,
+        Vector3 originalPosition,
+        TweenCallback callback)
+    {
+        post.postObject.transform.DOScale(originalScale, 0.5f).SetEase(Ease.InOutBack);
+        post.postObject.transform.DOLocalMove(originalPosition, 0.5f, false).OnComplete(callback);
     }
 }

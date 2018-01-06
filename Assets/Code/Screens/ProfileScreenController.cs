@@ -28,6 +28,19 @@ public class ProfileScreenController : MonoBehaviour
     private GameObject _editScreen;
     private CharacterProperties _previousCharacterProperties;
 
+    private enum ProfileScreenState
+    {
+        ProfileDefault,
+        SinglePicture
+    }
+    private ProfileScreenState _currentState;
+
+    // For handling of selecting an image and resizing/repositioning
+    private DelayGramPostObject _currentSelectedImage;
+    private Vector3 _originalImageScale;
+    private Vector3 _originalImagePosition;
+    private bool _imageCurrentlyShrinking = false;
+
     void Awake () {
         this.globalVars = GlobalVars.Instance;
         this.characterSerializer = CharacterSerializer.Instance;
@@ -91,6 +104,22 @@ public class ProfileScreenController : MonoBehaviour
             {
                 case "EditButton":
                     this.CreateEditAvatarScreen();
+                    break;
+                default:
+                    foreach (DelayGramPostObject post in this._youPostObjects)
+                    {
+                        if (post.postObject && colliderName == post.postObject.name)
+                        {
+                            if (this._currentState == ProfileScreenState.ProfileDefault)
+                            {
+                                this.EnlargePost(post);
+                            }
+                            else
+                            {
+                                this.ShrinkPost(this._currentSelectedImage);
+                            }
+                        }
+                    }
                     break;
             }
         }
@@ -270,5 +299,46 @@ public class ProfileScreenController : MonoBehaviour
 
             this._firstPostNew = false;
         }
+    }
+
+
+    private void EnlargePost(DelayGramPostObject post)
+    {
+        if (this._imageCurrentlyShrinking)
+        {
+            return;
+        }
+
+        this._currentState = ProfileScreenState.SinglePicture;
+        this._currentSelectedImage = post;
+        this._originalImageScale = post.postObject.transform.localScale;
+        this._originalImagePosition = post.postObject.transform.localPosition;
+
+        this._postHelper.EnlargeAndCenterPost(post);
+
+        post.postObject.transform.parent = null;
+        this.page.SetActive(false);
+    }
+
+    private void ShrinkPost(DelayGramPostObject post)
+    {
+        this._currentState = ProfileScreenState.ProfileDefault;
+        this._imageCurrentlyShrinking = true;
+
+        // Scale post down and position where it used to be
+        this._postHelper.ShrinkAndReturnPost(
+            post,
+            this._originalImageScale,
+            this._originalImagePosition,
+            () => this.PostFinishedShrinking(post, false));
+
+        this.page.SetActive(true);
+        post.postObject.transform.parent = this.scrollArea.transform;
+    }
+
+    private void PostFinishedShrinking(DelayGramPostObject postObject, bool showDetails)
+    {
+        this._imageCurrentlyShrinking = false;
+        this._postHelper.SetPostDetails(postObject.postObject, postObject.post, false);
     }
 }

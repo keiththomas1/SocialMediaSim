@@ -13,6 +13,10 @@ public class IOController : MonoBehaviour
     private MessagesScreenController _messagesController;
     private TutorialScreenController _tutorialController;
 
+    private GameObject _currentObject;
+    private const float CLICK_THRESHHOLD = 0.3f;
+    private float _clickTimer = 0.0f;
+
     // Use this for initialization
     void Start ()
     {
@@ -33,11 +37,31 @@ public class IOController : MonoBehaviour
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             Physics.Raycast(ray, out hit);
-            this.CheckPageClick(hit.collider);
+
+            this._currentObject = hit.collider.gameObject;
+            this._clickTimer = CLICK_THRESHHOLD;
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            Physics.Raycast(ray, out hit);
+            if (hit.collider.gameObject == this._currentObject)
+            {
+                if (this._clickTimer >= 0.0f)
+                {
+                    this.CheckPageMouseClick(hit.collider);
+                }
+            }
+        }
+
+        if (this._clickTimer > 0.0f)
+        {
+            this._clickTimer -= Time.deltaTime;
         }
     }
 
-    private void CheckPageClick(Collider collider)
+    private void CheckPageMouseClick(Collider collider)
     {
         var colliderName = (collider == null) ? "" : collider.name;
         switch (this._uiController.GetCurrentPage())

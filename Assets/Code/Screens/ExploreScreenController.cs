@@ -133,6 +133,16 @@ public class ExploreScreenController : MonoBehaviour
             }
             this._loadingPictures = false;
             this.CreateNewExplorePost();
+        } else {
+            if (this._explorePage)
+            {
+                var errorText = this._explorePage.transform.Find("ErrorText");
+                if (errorText)
+                {
+                    errorText.gameObject.SetActive(true);
+                    errorText.GetComponent<TextMeshPro>().text = "No internet connection.";
+                }
+            }
         }
     }
 
