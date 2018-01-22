@@ -57,24 +57,44 @@ public class PostHelper {
 
         this.PopulatePostWithItems(postPicture.gameObject, data.items);
 
+        GameObject background;
         switch (data.backgroundName)
         {
             case "City":
-                postPicture.transform.Find("CityBackground").gameObject.SetActive(true);
+                background = postPicture.transform.Find("CityBackground").gameObject;
                 break;
             case "Louvre":
-                postPicture.transform.Find("LouvreBackground").gameObject.SetActive(true);
+                background = postPicture.transform.Find("LouvreBackground").gameObject;
                 break;
             case "Park":
-                postPicture.transform.Find("ParkBackground").gameObject.SetActive(true);
+                background = postPicture.transform.Find("ParkBackground").gameObject;
                 break;
             case "CamRoom":
-                postPicture.transform.Find("CamRoomBackground").gameObject.SetActive(true);
+                background = postPicture.transform.Find("CamRoomBackground").gameObject;
                 break;
             case "Beach":
             default:
-                postPicture.transform.Find("BeachBackground").gameObject.SetActive(true);
+                background = postPicture.transform.Find("BeachBackground").gameObject;
                 break;
+        }
+        background.SetActive(true);
+
+        // Look at all animator components in the background and it's children and randomize start time
+        var components = background.transform.GetComponentsInChildren<Animator>(true);
+        var componentsList = new List<Animator>(components);
+        if (background.GetComponent<Animator>())
+        {
+            componentsList.Add(background.GetComponent<Animator>());
+        }
+        foreach (Animator animator in componentsList)
+        {
+            var clipInfo = animator.GetCurrentAnimatorClipInfo(0);
+            var info = animator.GetCurrentAnimatorStateInfo(0);
+            if (clipInfo.Length > 0)
+            {
+                var clip = clipInfo[0].clip;
+                animator.Play(info.shortNameHash, 0, clip.length * UnityEngine.Random.value);
+            }
         }
 
         var likeDislikeArea = post.transform.Find("LikeDislikeArea");
@@ -135,6 +155,9 @@ public class PostHelper {
             GameObject itemObject = null;
             switch(item.name)
             {
+                case "Sylvester":
+                    itemObject = GameObject.Instantiate(Resources.Load("Characters/Sylvester") as GameObject);
+                    break;
                 case "Bulldog":
                     itemObject = GameObject.Instantiate(Resources.Load("Characters/Bulldog") as GameObject);
                     break;
@@ -150,6 +173,24 @@ public class PostHelper {
                     item.location.x, item.location.y, item.location.z);
                 itemObject.transform.Rotate(0, 0, item.rotation); //  = Quaternion.Euler(0, 0, item.rotation);
                 itemObject.transform.localScale = new Vector3(item.scale, item.scale, 1);
+
+                // Look at all of the animations on the object and it's children and randomize the start time
+                var components = itemObject.transform.GetComponentsInChildren<Animator>();
+                var componentsList = new List<Animator>(components);
+                if (itemObject.GetComponent<Animator>())
+                {
+                    componentsList.Add(itemObject.GetComponent<Animator>());
+                }
+                foreach(Animator animator in componentsList)
+                {
+                    var clipInfo = animator.GetCurrentAnimatorClipInfo(0);
+                    if (clipInfo.Length > 0)
+                    {
+                        AnimationClip clip = clipInfo[0].clip;
+                        animator.Play(clip.name, 0, clip.length * UnityEngine.Random.value);
+                    }
+                }
+
                 itemObjects.Add(itemObject);
             }
         }
@@ -181,7 +222,8 @@ public class PostHelper {
             postObjects.Add(new DelayGramPostObject(newPost, post));
         }
 
-        var scrollController = scrollArea.AddComponent<ScrollController>();
+        var scrollController = scrollArea.GetComponent<ScrollController>();
+        // var scrollController = scrollArea.AddComponent<ScrollController>();
         scrollController.UpdateScrollArea(scrollArea, scrollArea.transform.localPosition.y, -currentY);
     }
 
@@ -219,7 +261,7 @@ public class PostHelper {
             postPrefabInstance.transform.localPosition = new Vector3(xPosition, yPosition, 0.0f);
             postPrefabInstance.transform.localScale = new Vector3(0.4f, 0.4f, 1.0f);
 
-            this.SetPostDetails(postPrefabInstance, post, showDetails);
+            this.SetPostDetails(postPrefabInstance, post, showDetails, true);
             this.PopulatePostFromData(postPrefabInstance, post);
 
             return postPrefabInstance;
@@ -230,7 +272,7 @@ public class PostHelper {
         }
     }
 
-    public void SetPostDetails(GameObject postObject, DelayGramPost post, bool showDetails)
+    public void SetPostDetails(GameObject postObject, DelayGramPost post, bool showDetails, bool showPostShadow)
     {
         var nameText = postObject.transform.Find("NameText").gameObject;
         if (nameText)
@@ -275,17 +317,26 @@ public class PostHelper {
                 likeDislikeArea.transform.position.y,
                 likeDislikeArea.transform.position.z);
         }
+
+        var postShadow = postObject.transform.Find("DropShadow");
+        if (postShadow)
+        {
+            postShadow.gameObject.SetActive(showPostShadow);
+        }
     }
 
     public void EnlargeAndCenterPost(DelayGramPostObject post)
     {
+        // First, disable drop shadow
+        this.SetPostDetails(post.postObject, post.post, false, false);
+
         // Scale post up and position in middle of screen
         post.postObject.transform.DOScale(1.0f, 0.5f).SetEase(Ease.InOutBack);
         var middleScreenPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f));
         middleScreenPosition.z = 0.0f;
         post.postObject.transform.DOMove(middleScreenPosition, 0.5f, false)
             .OnComplete(() =>
-                this.SetPostDetails(post.postObject, post.post, true));
+                this.SetPostDetails(post.postObject, post.post, true, false));
     }
 
     public void ShrinkAndReturnPost(
@@ -294,7 +345,10 @@ public class PostHelper {
         Vector3 originalPosition,
         TweenCallback callback)
     {
-        post.postObject.transform.DOScale(originalScale, 0.5f).SetEase(Ease.InOutBack);
-        post.postObject.transform.DOLocalMove(originalPosition, 0.5f, false).OnComplete(callback);
+        if (post.postObject)
+        {
+            post.postObject.transform.DOScale(originalScale, 0.5f).SetEase(Ease.InOutBack);
+            post.postObject.transform.DOLocalMove(originalPosition, 0.5f, false).OnComplete(callback);
+        }
     }
 }

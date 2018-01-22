@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
+using DG.Tweening;
 
 public class ExploreScreenController : MonoBehaviour
 {
@@ -11,8 +12,13 @@ public class ExploreScreenController : MonoBehaviour
     private MessagePost _messagePost;
 
     private GameObject _explorePage;
-    private GameObject _dislikeBorder;
-    private GameObject _likeBorder;
+
+    private SpriteRenderer _dislikeBorder;
+    private Color _originalDislikeColor;
+    private Color _transparentDislikeColor;
+    private SpriteRenderer _likeBorder;
+    private Color _originalLikeColor;
+    private Color _transparentLikeColor;
 
     private GameObject _currentDragObject;
     private Vector3 _dragStartMouseDifference;
@@ -36,6 +42,21 @@ public class ExploreScreenController : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit))
+            {
+                if (hit.collider.gameObject.name == "ExplorePost")
+                {
+                    this._currentDragObject = hit.collider.gameObject;
+                    this._dragStartMouseDifference =
+                        Camera.main.ScreenToWorldPoint(Input.mousePosition) - this._currentDragObject.transform.position;
+                    this._dragObjectDepth = this._currentDragObject.transform.position.z;
+                }
+            }
+        }
         if (Input.GetMouseButtonUp(0))
         {
             if (this._currentDragObject)
@@ -62,56 +83,58 @@ public class ExploreScreenController : MonoBehaviour
 
             if (newObjectPosition.x <= -1.0f)
             { // Dislike
-                this._dislikeBorder.SetActive(true);
+                this.ShowDislikeBar();
+                this._dislikeBorder.color = this._originalDislikeColor;
             }
             else if (newObjectPosition.x >= 1.0f)
             { // Like
-                this._likeBorder.SetActive(true);
+                this.ShowLikeBar();
+                this._likeBorder.color = this._originalLikeColor;
             }
             else
             {
-                if (this._likeBorder.activeSelf == true)
+                if (this._dislikeBorder.color != this._transparentDislikeColor)
                 {
-                    this._likeBorder.SetActive(false);
+                    this.HideDislikeBar();
+                    this._dislikeBorder.color = this._transparentDislikeColor;
                 }
-                if (this._dislikeBorder.activeSelf == true)
+                if (this._likeBorder.color != this._transparentLikeColor)
                 {
-                    this._dislikeBorder.SetActive(false);
+                    this.HideLikeBar();
+                    this._likeBorder.color = this._transparentLikeColor;
                 }
             }
         }
     }
 
-    // Update is called once per frame
-    public void CheckClick(Collider collider)
+    public void CheckClick(string colliderName)
     {
-        if (collider == null)
-        {
-            return;
-        }
-        switch (collider.name)
-        {
-            case "ExplorePost":
-                this._currentDragObject = collider.gameObject;
-                this._dragStartMouseDifference =
-                    Camera.main.ScreenToWorldPoint(Input.mousePosition) - this._currentDragObject.transform.position;
-                this._dragObjectDepth = this._currentDragObject.transform.position.z;
-                break;
-        }
     }
 
     public void EnterScreen()
     {
         this._explorePage = GameObject.Instantiate(Resources.Load("Explore/ExplorePage") as GameObject);
         this._explorePage.transform.position = new Vector3(0.0f, 0.5f, 0.0f);
-        this._dislikeBorder = this._explorePage.transform.Find("DislikeBorder").gameObject;
-        this._dislikeBorder.SetActive(false);
-        this._likeBorder = this._explorePage.transform.Find("LikeBorder").gameObject;
-        this._likeBorder.SetActive(false);
+
+        this._dislikeBorder = this._explorePage.transform.Find("DislikeBorder").GetComponent<SpriteRenderer>();
+        this._originalDislikeColor = this._dislikeBorder.color;
+        this._transparentDislikeColor = this._dislikeBorder.color;
+        this._transparentDislikeColor.a = 0.45f;
+        this._dislikeBorder.color = this._transparentDislikeColor;
+        this.HideDislikeBar();
+
+        this._likeBorder = this._explorePage.transform.Find("LikeBorder").GetComponent<SpriteRenderer>();
+        this._originalLikeColor = this._likeBorder.color;
+        this._transparentLikeColor = this._likeBorder.color;
+        this._transparentLikeColor.a = 0.45f;
+        this._likeBorder.color = this._transparentLikeColor;
+        this.HideLikeBar();
+
         this._swipeCountText = this._explorePage.transform.Find("SwipeText2").gameObject;
         this._swipeCountText.GetComponent<TextMeshPro>().text = this._swipesLeft.ToString();
 
         this._loadingIcon = GameObject.Instantiate(Resources.Load("LoadingIcon") as GameObject);
+        this._loadingIcon.transform.position = new Vector3(0.0f, 0.65f, 0.0f);
 
         this._loadingPictures = true;
         this._restRequester.RequestLastTenPosts(this.SetPhotos);
@@ -146,15 +169,6 @@ public class ExploreScreenController : MonoBehaviour
         }
     }
 
-    public void CheckClick(string colliderName)
-    {
-        switch (colliderName)
-        {
-            default:
-                break;
-        }
-    }
-
     public bool BackOut()
     {
         return true;
@@ -183,9 +197,10 @@ public class ExploreScreenController : MonoBehaviour
 
         CreateNewExplorePost();
         DisableCurrentDragObject(PictureRotateAway.RotateDirection.Right);
-        this._likeBorder.SetActive(false);
+        this._likeBorder.color = this._transparentLikeColor;
 
         this.IterateSwipes();
+        this.HideLikeBar();
 
         // GameObject.Instantiate(Resources.Load("Explore/Upvote") as GameObject);
     }
@@ -197,11 +212,29 @@ public class ExploreScreenController : MonoBehaviour
 
         CreateNewExplorePost();
         DisableCurrentDragObject(PictureRotateAway.RotateDirection.Left);
-        this._dislikeBorder.SetActive(false);
+        this._dislikeBorder.color = this._transparentDislikeColor;
 
         this.IterateSwipes();
+        this.HideDislikeBar();
 
         // GameObject.Instantiate(Resources.Load("Explore/Downvote") as GameObject);
+    }
+
+    private void HideDislikeBar()
+    {
+        this._dislikeBorder.transform.DOLocalMoveX(-2.7f, 1.0f).SetEase(Ease.OutSine);
+    }
+    private void HideLikeBar()
+    {
+        this._likeBorder.transform.DOLocalMoveX(2.7f, 1.0f).SetEase(Ease.OutSine);
+    }
+    private void ShowDislikeBar()
+    {
+        this._dislikeBorder.transform.DOLocalMoveX(-1.7f, 0.5f).SetEase(Ease.OutSine);
+    }
+    private void ShowLikeBar()
+    {
+        this._likeBorder.transform.DOLocalMoveX(1.74f, 0.5f).SetEase(Ease.OutSine);
     }
 
     private void DisableCurrentDragObject(PictureRotateAway.RotateDirection rotateDirection)
@@ -233,6 +266,9 @@ public class ExploreScreenController : MonoBehaviour
         explorePost.transform.parent = this._explorePage.transform;
         explorePost.transform.localPosition = new Vector3(0.0f, 0.66f, 0.0f);
         var newPost = explorePost.transform.Find("NewPost").gameObject;
+
+        explorePost.transform.localScale = new Vector3(0.0f, 0.0f, 0.0f);
+        explorePost.transform.DOScale(new Vector3(0.7f, 0.7f, 1.0f), 0.5f).SetEase(Ease.OutSine);
 
         this._postHelper.PopulatePostFromData(newPost, data);
     }

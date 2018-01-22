@@ -1,17 +1,18 @@
 using UnityEngine;
 
 public class LoadController : MonoBehaviour {
-    private bool gameLoaded = false;
-    private GlobalVars globalVars;
+    private bool _gameLoaded = false;
+    private CharacterSerializer _characterSerializer;
+    private GoalSerializer _goalSerializer;
+    private MessagesSerializer _messagesSerializer;
     private UserSerializer _userSerializer;
-    private MessagesSerializer messagesSerializer;
 
     // Use this for initialization
     void Awake()
     {
-        LoadState();
+        this.LoadState();
     }
-	
+
 	// Update is called once per frame
 	void Update () {
     }
@@ -21,39 +22,42 @@ public class LoadController : MonoBehaviour {
     {
         if (pauseStatus) // Paused game
         {
-            SaveState();
+            this.SaveState();
         }
         else // Resumed game
         {
-            gameLoaded = false;
-            LoadState();
+            this._gameLoaded = false;
+            this.LoadState();
         }
+    }
+
+    private void OnApplicationQuit()
+    {
+        this.SaveState();
     }
 
     void SaveState()
     {
-        if (this._userSerializer != null)
-        {
-            this._userSerializer.SaveFile();
-        }
-        if (globalVars != null)
-        {
-            globalVars.SaveFile();
-        }
+        this._characterSerializer.SaveFile();
+        this._goalSerializer.SaveGame();
+        this._messagesSerializer.SaveFile();
+        this._userSerializer.SaveFile();
     }
 
     void LoadState()
     {
-        if (!gameLoaded)
+        if (!this._gameLoaded)
         {
-            globalVars = GlobalVars.Instance;
+            this._characterSerializer = CharacterSerializer.Instance;
+            this._characterSerializer.LoadGame();
+            this._goalSerializer = GoalSerializer.Instance;
+            this._goalSerializer.LoadGame();
+            this._messagesSerializer = MessagesSerializer.Instance;
+            this._messagesSerializer.LoadGame();
             this._userSerializer = UserSerializer.Instance;
-            messagesSerializer = MessagesSerializer.Instance;
-            globalVars.LoadGame();
             this._userSerializer.LoadGame();
-            messagesSerializer.LoadGame();
 
-            gameLoaded = true;
+            this._gameLoaded = true;
         }
     }
 }

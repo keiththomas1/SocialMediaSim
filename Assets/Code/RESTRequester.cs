@@ -160,7 +160,8 @@ public class RESTRequester
     {
         UnityWebRequest www = UnityWebRequest.Put("http://13.59.159.27//liked//" + pictureID, "{}");
         // UnityWebRequest www = UnityWebRequest.Put("localhost:3000/liked//" + pictureID, "{}");
-        yield return www.Send();
+        yield return www.SendWebRequest();
+        // yield return www.Send();
 
         if (www.isNetworkError)
         {
@@ -171,7 +172,8 @@ public class RESTRequester
     {
         UnityWebRequest www = UnityWebRequest.Put("http://13.59.159.27//disliked//" + pictureID, "{}");
         // UnityWebRequest www = UnityWebRequest.Put("localhost:3000//disliked//" + pictureID);
-        yield return www.Send();
+        yield return www.SendWebRequest();
+        // yield return www.Send();
 
         if (www.isNetworkError)
         {

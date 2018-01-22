@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class TextTypingAnimation : MonoBehaviour {
     [SerializeField]
-    private float _typeTime = 0.05f;
+    private float _typeTime = 0.03f;
 
     private TextMeshPro _textMesh;
     private string _cachedString;

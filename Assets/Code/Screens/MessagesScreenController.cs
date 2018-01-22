@@ -24,7 +24,7 @@ public class MessagesScreenController : MonoBehaviour {
     private List<GameObject> createdStubs;
     private Conversation _currentConversation;
     private const float STUB_STARTING_X = 0.0f;
-    private float stubStartingY;
+    private const float STUB_STARTING_Y = -.2f;
 
     private Queue<GameObject> _messageQueue;
     private List<GameObject> _messageObjects;
@@ -49,7 +49,6 @@ public class MessagesScreenController : MonoBehaviour {
         this.activeConversations = new List<Conversation>();
 
         this.createdStubs = new List<GameObject>();
-        this.stubStartingY = 0.0f;
         this._messageObjects = new List<GameObject>();
 
         this._messageHeader.GetComponent<Button>().onClick.AddListener(this.MessageBackClicked);
@@ -229,7 +228,7 @@ public class MessagesScreenController : MonoBehaviour {
 
     private void GenerateMessageStubs()
     {
-        float currentYPosition = stubStartingY;
+        float currentYPosition = STUB_STARTING_Y;
         foreach (Conversation conversation in this.activeConversations)
         {
             var messages = conversation.messages;
@@ -238,8 +237,16 @@ public class MessagesScreenController : MonoBehaviour {
                 var firstMessage = messages[0];
 
                 CreateMessageStub(conversation, firstMessage, currentYPosition);
-                currentYPosition -= 1.0f;
+                currentYPosition -= 0.9f;
             }
+        }
+
+        if (this.activeConversations.Count == 0)
+        {
+            var noMessagesText1 = this.pageScrollArea.Find("NoMessagesText1");
+            noMessagesText1.gameObject.SetActive(true);
+            var noMessagesText2 = this.pageScrollArea.Find("NoMessagesText2");
+            noMessagesText2.gameObject.SetActive(true);
         }
     }
 
@@ -249,6 +256,7 @@ public class MessagesScreenController : MonoBehaviour {
         messageStub.name = conversation.npcName;
         messageStub.transform.parent = pageScrollArea;
         messageStub.transform.localPosition = new Vector3(STUB_STARTING_X, yPosition, 0.0f);
+        messageStub.transform.localScale = new Vector3(.95f, .95f, 1.0f);
 
         var profileBubble = messageStub.transform.Find("ProfilePicBubble");
         this._postHelper.SetupProfilePicBubble(profileBubble.gameObject, conversation.npcProperties);
@@ -269,6 +277,12 @@ public class MessagesScreenController : MonoBehaviour {
             timeText.GetComponent<TextMeshPro>().text = this._postHelper.GetMessageTimeFromDateTime(message.timeSent);
         }
 
+        if (!conversation.viewed)
+        {
+            var newBubble = messageStub.transform.Find("NewBubble");
+            newBubble.gameObject.SetActive(true);
+        }
+
         createdStubs.Add(messageStub);
     }
 
@@ -283,7 +297,8 @@ public class MessagesScreenController : MonoBehaviour {
 
     private void GenerateConversation(Conversation conversation, List<Message> messages, float yPosition)
     {
-        DestroyMessageStubs();
+        this.DestroyMessageStubs();
+        this.SetTypeText("Choice", true);
 
         this._messageQueue = new Queue<GameObject>();
         foreach (Message message in messages)
@@ -305,7 +320,7 @@ public class MessagesScreenController : MonoBehaviour {
                     yPosition -= this.AddPlayerMessageObject(conversation, message, yPosition);
                     break;
                 case DelaygramMessageType.Result:
-                    var prefabName = this._messageCollection.GetResultPrefabName(conversation);
+                    var prefabName = this._messageCollection.GetResultPrefabName(message.text);
                     yPosition -= this.AddResultMessageObject(conversation, prefabName, yPosition);
                     break;
             }
@@ -319,6 +334,13 @@ public class MessagesScreenController : MonoBehaviour {
 
         this._currentConversation = conversation;
         conversation.viewed = true;
+    }
+
+    private void SetTypeText(string text, bool visible)
+    {
+        var typeText = this.pageScrollArea.Find("TypeText");
+        typeText.GetComponent<TextMeshPro>().text = text;
+        typeText.gameObject.SetActive(visible);
     }
 
     private float AddPlayerMessageObject(Conversation conversation, Message message, float yPosition)

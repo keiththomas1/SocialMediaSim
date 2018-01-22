@@ -1,4 +1,6 @@
+using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ScrollController : MonoBehaviour
 {
@@ -9,18 +11,17 @@ public class ScrollController : MonoBehaviour
     private bool canScroll = true;
 
     private bool isScrolling;
-    private float maxScrollTimer;
-    private float scrollTimer;
+    private const float SCROLL_DELAY = 0.2f;
     private float currentScrollSpeed;
 
     // For mouse position handling
     private float _previousMouseY;
     private float _currentMouseY;
 
+    public delegate void ScrollCallback();
+
 	// Use this for initialization
 	void Start () {
-        maxScrollTimer = 0.2f;
-        scrollTimer = maxScrollTimer;
 	}
 
     public void UpdateScrollArea(GameObject scrollArea, float top, float bottom)
@@ -32,9 +33,12 @@ public class ScrollController : MonoBehaviour
         scrollInitialized = true;
     }
 
-    public void ScrollToPosition(float yPosition)
+    public void ScrollToPosition(float yPosition, ScrollCallback callback = null)
     {
-        this.currentScrollSpeed = (transform.position.y - yPosition) * 4;
+        transform
+            .DOLocalMoveY(yPosition, 0.8f)
+            .SetEase(Ease.OutSine)
+            .OnComplete(() => { callback(); });
     }
 	
 	// Update is called once per frame
@@ -45,13 +49,20 @@ public class ScrollController : MonoBehaviour
             this._previousMouseY = this._currentMouseY;
             this._currentMouseY = Input.mousePosition.y;
 
+            // For case where user is clicking in whole new area, don't jump to it
+            if (Input.GetMouseButtonDown(0))
+            {
+                this._previousMouseY = this._currentMouseY;
+            }
+
             if (!isScrolling && Input.GetMouseButton(0))
             {
-                scrollTimer -= Time.deltaTime;
-                if (scrollTimer <= 0.0f)
-                {
-                    isScrolling = true;
-                }
+                isScrolling = true;
+            }
+
+            if (Input.GetMouseButtonUp(0))
+            {
+                isScrolling = false;
             }
 
             // Only for development use
@@ -64,25 +75,34 @@ public class ScrollController : MonoBehaviour
                 scrollObject.transform.Translate(new Vector2(0.0f, 20.0f * Time.deltaTime));
             }
 
-            if (Input.GetMouseButtonUp(0))
-            {
-                scrollTimer = maxScrollTimer;
-                isScrolling = false;
-            }
-
             if (isScrolling) {
-                this.currentScrollSpeed = (this._previousMouseY - this._currentMouseY) / 5.0f;
-            } else {
-                this.currentScrollSpeed = this.currentScrollSpeed * 0.97f;
+                var mouseDistance = this._previousMouseY - this._currentMouseY;
+                var relativeMouseDistance = mouseDistance / Screen.height;
+                this.currentScrollSpeed = relativeMouseDistance * 80.0f;
+            } else { // Slow down the scroll speed incrementally
+                this.currentScrollSpeed = this.currentScrollSpeed * 0.93f;
             }
 
-            if ((this.currentScrollSpeed <= 0.0f && transform.localPosition.y > scrollAreaBottom) ||
-                (this.currentScrollSpeed >= 0.0f && transform.localPosition.y < scrollAreaTop))
+            var finalScrollSpeed = -1 * Time.deltaTime * currentScrollSpeed;
+            // If at the borders of the scroll range, reset, else continue scrolling
+            if (this.currentScrollSpeed <= 0.0f && (transform.localPosition.y + finalScrollSpeed) > scrollAreaBottom)
             {
+                var newPosition = transform.localPosition;
+                newPosition.y = scrollAreaBottom;
+                this.transform.localPosition = newPosition;
                 this.currentScrollSpeed = 0.0f;
             }
-
-            scrollObject.transform.Translate(0.0f, -1 * Time.deltaTime * currentScrollSpeed, 0.0f);
+            else if (this.currentScrollSpeed >= 0.0f && (transform.localPosition.y + finalScrollSpeed) < scrollAreaTop)
+            {
+                var newPosition = transform.localPosition;
+                newPosition.y = scrollAreaTop;
+                this.transform.localPosition = newPosition;
+                this.currentScrollSpeed = 0.0f;
+            }
+            else
+            {
+                scrollObject.transform.Translate(0.0f, finalScrollSpeed, 0.0f);
+            }
         }
 	}
 

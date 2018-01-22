@@ -42,7 +42,7 @@ internal sealed class CustomAssetImporter : AssetPostprocessor
         // Set the texture import type drop-down to advanced so our changes reflect in the import settings inspector
         importer.textureType = TextureImporterType.Sprite;
         importer.isReadable = true;
-        importer.filterMode = FilterMode.Bilinear;
+        // importer.filterMode = FilterMode.Bilinear;
         importer.wrapMode = TextureWrapMode.Clamp;
         importer.alphaIsTransparency = true;
         importer.spriteImportMode = SpriteImportMode.Single;

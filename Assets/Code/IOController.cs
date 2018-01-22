@@ -16,6 +16,7 @@ public class IOController : MonoBehaviour
     private GameObject _currentObject;
     private const float CLICK_THRESHHOLD = 0.3f;
     private float _clickTimer = 0.0f;
+    private Vector3 _clickPosition;
 
     // Use this for initialization
     void Start ()
@@ -36,22 +37,34 @@ public class IOController : MonoBehaviour
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
-            Physics.Raycast(ray, out hit);
-
-            this._currentObject = hit.collider.gameObject;
-            this._clickTimer = CLICK_THRESHHOLD;
+            if (Physics.Raycast(ray, out hit))
+            {
+                this._currentObject = hit.collider.gameObject;
+                this._clickTimer = CLICK_THRESHHOLD;
+                this._clickPosition = Input.mousePosition;
+            }
         }
         if (Input.GetMouseButtonUp(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
-            Physics.Raycast(ray, out hit);
-            if (hit.collider.gameObject == this._currentObject)
+            if (Physics.Raycast(ray, out hit))
             {
-                if (this._clickTimer >= 0.0f)
+                if (hit.collider.gameObject == this._currentObject)
                 {
-                    this.CheckPageMouseClick(hit.collider);
+                    if (this._clickTimer >= 0.0f)
+                    {
+                        var newClickPosition = Input.mousePosition;
+                        if (Vector3.Distance(this._clickPosition, newClickPosition) < 20)
+                        {
+                            this.CheckPageMouseClick(hit.collider);
+                        }
+                    }
                 }
+            }
+            else
+            {
+                this.CheckPageMouseClick(null);
             }
         }
 
@@ -76,7 +89,7 @@ public class IOController : MonoBehaviour
                 this._newPostController.CheckClick(colliderName);
                 break;
             case Page.Explore:
-                this._exploreController.CheckClick(collider);
+                this._exploreController.CheckClick(colliderName);
                 break;
             case Page.Messages:
                 this._messagesController.CheckClick(colliderName);

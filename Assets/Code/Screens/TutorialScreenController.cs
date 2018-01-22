@@ -20,7 +20,9 @@ public class TutorialScreenController : MonoBehaviour {
 	void Start () {
         this._uiController = GetComponent<UIController>();
         this._introDialog = new List<string>();
-        this._introDialog.Add("Delaygram is the work of many sleepless nights spent in my friend's dorm at college.");
+        this._introDialog.Add("Hi! I made Delaygram.");
+        this._introDialog.Add("...");
+        this._introDialog.Add("Okay, well enough of that.");
         this._introDialog.Add("Let's start by creating your avatar!");
         this._currentState = TutorialState.Introduction;
 	}
@@ -35,7 +37,10 @@ public class TutorialScreenController : MonoBehaviour {
     public void EnterScreen()
     {
         this._introductionObject = GameObject.Instantiate(Resources.Load("Tutorial/TutorialIntroduction") as GameObject);
+        this._introductionObject.transform.position = new Vector3(0.27f, 0.17f, 0.0f);
         this._introTextAnimation = this._introductionObject.transform.Find("TutorialText").GetComponent<TextTypingAnimation>();
+
+        this.ShowNextDialog();
     }
 
     public void CheckClick(string colliderName)
@@ -43,20 +48,30 @@ public class TutorialScreenController : MonoBehaviour {
         switch(this._currentState)
         {
             case TutorialState.Introduction:
-                bool continueText = this._introTextAnimation.FinishText();
-                if (continueText)
-                {
-                    if (this._currentDialogPosition >= this._introDialog.Count)
-                    {
-                        this.EndTutorial();
-                        return;
-                    }
-                    var nextText = this._introDialog[this._currentDialogPosition];
-                    this._currentDialogPosition++;
-                    this._introTextAnimation.ResetText(nextText);
-                }
+                this.ContinueText();
                 break;
         }
+    }
+
+    private void ContinueText()
+    {
+        bool continueText = this._introTextAnimation.FinishText();
+        if (continueText)
+        {
+            if (this._currentDialogPosition >= this._introDialog.Count)
+            {
+                this.EndTutorial();
+            } else {
+                this.ShowNextDialog();
+            }
+        }
+    }
+
+    private void ShowNextDialog()
+    {
+        var nextText = this._introDialog[this._currentDialogPosition];
+        this._currentDialogPosition++;
+        this._introTextAnimation.ResetText(nextText);
     }
 
     private void EndTutorial()

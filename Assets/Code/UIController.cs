@@ -25,8 +25,6 @@ public class UIController : MonoBehaviour {
     [SerializeField]
     private GameObject _postButton;
     [SerializeField]
-    private GameObject _postTime;
-    [SerializeField]
     private GameObject _exploreButton;
     [SerializeField]
     private GameObject _messagesButton;
@@ -67,13 +65,18 @@ public class UIController : MonoBehaviour {
     private float _postTimeTimer = 0.0f;
     private float _backOutTimer = 0.0f;
 
+    private GameObject _nextPostText;
+    private GameObject _postTimeText;
+
     // Use this for initialization
     void Start () {
         this._bottomNavBackground.GetComponent<Image>().enabled = true;
         this._homeButton.GetComponent<Button>().onClick.AddListener(this.OnHomeClick);
         this._profileButton.GetComponent<Button>().onClick.AddListener(this.OnProfileClick);
         this._postButton.GetComponent<Button>().onClick.AddListener(this.OnPostClick);
-        this._postTime.GetComponent<TextMeshProUGUI>().text = "";
+        this._nextPostText = this._postButton.transform.Find("NextPostText").gameObject;
+        this._postTimeText = this._postButton.transform.Find("PostTimeText").gameObject;
+        this._postTimeText.GetComponent<TextMeshProUGUI>().text = "";
         this._exploreButton.GetComponent<Button>().onClick.AddListener(this.OnExploreClick);
         this._messagesButton.GetComponent<Button>().onClick.AddListener(this.OnMessagesClick);
 
@@ -99,6 +102,12 @@ public class UIController : MonoBehaviour {
         if (this._userSerializer.NextPostTime > DateTime.Now)
         {
             this._postTimeTimer = 0.3f;
+
+            this._postButton.GetComponent<Image>().enabled = false;
+#if !UNITY_EDITOR
+            this._postButton.GetComponent<Button>().enabled = false;
+#endif
+            this._nextPostText.SetActive(true);
         }
     }
 	
@@ -110,7 +119,6 @@ public class UIController : MonoBehaviour {
             if (this._postTimeTimer <= 0.0f)
             {
                 this.UpdateTimeRemaining();
-                this._postTimeTimer = 1;
             }
         }
         if (this._backOutTimer > 0.0f)
@@ -140,7 +148,7 @@ public class UIController : MonoBehaviour {
     {
         this._userSerializer.CompletedTutorial = true;
         this.GoToProfilePage();
-        this._profileController.CreateEditAvatarScreen();
+        this._profileController.CreateEditAvatarScreen(false);
     }
 
     /* Private methods */
@@ -304,12 +312,13 @@ public class UIController : MonoBehaviour {
     }
     private void GenerateMessagesPage()
     {
-        if (this._currentPage != Page.Messages)
-        {
+        // Even if we are currently in messages, destroy and refresh inbox
+        // if (this._currentPage != Page.Messages)
+        // {
             DestroyPage(this._currentPage);
             this._messagesController.EnterScreen();
             this._currentPage = Page.Messages;
-        }
+        // }
     }
 
     private void GoToTutorialPage()
@@ -352,18 +361,31 @@ public class UIController : MonoBehaviour {
     private void FinishedCreatingPicture(DelayGramPost post)
     {
         this._postTimeTimer = 0.1f;
-        this._profileController.MarkFirstPostAsNew();
+        this._postButton.GetComponent<Image>().enabled = false;
+#if !UNITY_EDITOR
+        this._postButton.GetComponent<Button>().enabled = false;
+#endif
+        this._nextPostText.SetActive(true);
+
+        this._profileController.FinishedCreatingPicture(post);
         this.GoToProfilePage();
     }
 
-    private void ShowPostTimeRemaining(DelayGramPost post)
-    {
-    }
     private void UpdateTimeRemaining()
     {
-        var timeTillCanPost = _userSerializer.NextPostTime - DateTime.Now;
-        var formattedTime = timeTillCanPost.ToString(@"mm\:ss");
-        this._postTime.GetComponent<TextMeshProUGUI>().text = formattedTime;
+        if (this._userSerializer.NextPostTime > DateTime.Now)
+        {
+            var timeTillCanPost = this._userSerializer.NextPostTime - DateTime.Now;
+            var formattedTime = timeTillCanPost.ToString(@"mm\:ss");
+            this._postTimeText.GetComponent<TextMeshProUGUI>().text = formattedTime;
+
+            this._postTimeTimer = 1.0f;
+        } else {
+            this._postButton.GetComponent<Image>().enabled = true;
+            this._postButton.GetComponent<Button>().enabled = true;
+            this._postTimeText.GetComponent<TextMeshProUGUI>().text = "";
+            this._nextPostText.SetActive(false);
+        }
     }
 
     private void UpdateButtonState()

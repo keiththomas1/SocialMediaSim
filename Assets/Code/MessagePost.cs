@@ -87,7 +87,11 @@ public class MessagePost
                 {
                     if (choice == 1)
                     {
-                        this._userSerializer.HasBulldog = true;
+                        this._userSerializer.HasCat = true;
+                    }
+                    else if (choice == 2)
+                    {
+                        this._userSerializer.HasCat = true;
                     }
                 }
                 newConversation = this._messageCollection.CreateLostDogConversation(choices);

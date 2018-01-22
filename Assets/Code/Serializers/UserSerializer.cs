@@ -30,6 +30,52 @@ public class UserSerializer
         this.savePath = Application.persistentDataPath + "/DelayGram.dat";
     }
 
+    public string PlayerName
+    {
+        get { return currentSave.playerName; }
+        set
+        {
+            currentSave.playerName = value;
+            SaveFile();
+        }
+    }
+
+    public TimeSpan GetTotalTimePlayed()
+    {
+        var timePlayedThisSession = DateTime.Now - currentSave.lastUpdate;
+        return currentSave.totalTimePlayed + timePlayedThisSession;
+    }
+
+    public int PlayerLevel
+    {
+        get { return this.currentSave.playerLevel; }
+        set
+        {
+            this.currentSave.playerLevel = value;
+            this.SaveFile();
+        }
+    }
+
+    public int LevelExperience
+    {
+        get { return this.currentSave.levelExperience; }
+        set
+        {
+            this.currentSave.levelExperience = value;
+            this.SaveFile();
+        }
+    }
+
+    public int NeededLevelExperience
+    {
+        get { return this.currentSave.neededLevelExperience; }
+        set
+        {
+            this.currentSave.neededLevelExperience = value;
+            this.SaveFile();
+        }
+    }
+
     public DateTime NextPostTime
     {
         get { return this.currentSave.nextPostTime; }
@@ -56,6 +102,15 @@ public class UserSerializer
         set
         {
             this.currentSave.storyProperties.hasBulldog = value;
+            this.SaveFile();
+        }
+    }
+    public bool HasCat
+    {
+        get { return this.currentSave.storyProperties.hasCat; }
+        set
+        {
+            this.currentSave.storyProperties.hasCat = value;
             this.SaveFile();
         }
     }
@@ -171,14 +226,23 @@ public class UserSerializer
         if (!fileLoaded)
         {
             this.currentSave = new UserSaveVariables();
+            this.currentSave.playerName = "Temp.Name";
+            this.currentSave.totalTimePlayed = new TimeSpan(0);
             this.currentSave.lastUpdate = DateTime.Now;
+
+            this.currentSave.playerLevel = 1;
+            this.currentSave.levelExperience = 0;
+            this.currentSave.neededLevelExperience = 100;
+
             this.currentSave.storyProperties = new StoryProperties();
             this.currentSave.storyProperties.hasBulldog = false;
-            this.currentSave.storyProperties.hasDrone = true;
+            this.currentSave.storyProperties.hasCat = false;
+            this.currentSave.storyProperties.hasDrone = false;
+            this.currentSave.completedTutorial = false;
+
             this.currentSave.posts = new List<DelayGramPost>();
             this.currentSave.notifications = new List<DelayGramNotification>();
             this.currentSave.nextPostTime = DateTime.Now;
-            this.currentSave.completedTutorial = false;
             this.SaveFile();
         }
 
@@ -227,6 +291,7 @@ public class DelayGramNotification
 public class StoryProperties
 {
     public bool hasBulldog;
+    public bool hasCat;
     public bool hasDrone;
 }
 
@@ -235,9 +300,17 @@ public class StoryProperties
 class UserSaveVariables
 {
     public DateTime lastUpdate;
+    public string playerName;
+    public TimeSpan totalTimePlayed;
+
+    public int playerLevel;
+    public int levelExperience;
+    public int neededLevelExperience;
+
     public StoryProperties storyProperties;
+    public bool completedTutorial;
+
     public List<DelayGramPost> posts;
     public List<DelayGramNotification> notifications;
     public DateTime nextPostTime;
-    public bool completedTutorial;
 }

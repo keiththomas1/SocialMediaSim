@@ -9,7 +9,6 @@ public class NewPostController : MonoBehaviour
 {
     private UserSerializer _userSerializer;
     private CharacterSerializer characterSerializer;
-    private GlobalVars _globalVars;
     private MessagePost _messagePost;
     private PostHelper _postHelper;
     private RESTRequester _restRequester;
@@ -36,7 +35,6 @@ public class NewPostController : MonoBehaviour
     {
         this._userSerializer = UserSerializer.Instance;
         this.characterSerializer = CharacterSerializer.Instance;
-        this._globalVars = GlobalVars.Instance;
         this._messagePost = MessagePost.Instance;
         this._postHelper = new PostHelper();
         this._restRequester = new RESTRequester();
@@ -165,6 +163,15 @@ public class NewPostController : MonoBehaviour
             bulldog.scale = 0.45f;
             this._items.Add(bulldog);
         }
+        if (this._userSerializer.HasCat)
+        {
+            var cat = new PictureItem();
+            cat.name = "Sylvester";
+            cat.location = new SerializableVector3(new Vector3(1.2f, -0.5f, 0.0f));
+            cat.rotation = 0;
+            cat.scale = 0.45f;
+            this._items.Add(cat);
+        }
         if (this._userSerializer.HasDrone)
         {
             var drone = new PictureItem();
@@ -252,7 +259,7 @@ public class NewPostController : MonoBehaviour
 
     private void CreateNewPost()
     {
-        this._userSerializer.NextPostTime = DateTime.Now.AddMinutes(20.0f);
+        this._userSerializer.NextPostTime = DateTime.Now.AddMinutes(10.0f);
 
         var newPost = this.CreateNewPostDataStructure();
 
@@ -267,7 +274,7 @@ public class NewPostController : MonoBehaviour
     private DelayGramPost CreateNewPostDataStructure()
     {
         var newPost = new DelayGramPost();
-        newPost.playerName = this._globalVars.PlayerName;
+        newPost.playerName = this._userSerializer.PlayerName;
         newPost.imageID = GetRandomImageID();
         newPost.backgroundName = this._currentBackground;
         newPost.avatarPosition = new SerializableVector3(this._avatar.transform.localPosition);

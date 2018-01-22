@@ -1,14 +1,15 @@
 fileFormatVersion: 2
 guid: 1977848ceff9813428a41d28ccde0a8e
-timeCreated: 1514997943
-licenseType: Pro
+timeCreated: 1449420176
+licenseType: Store
 TextureImporter:
   fileIDToRecycleName: {}
+  externalObjects: {}
   serializedVersion: 4
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
-    sRGBTexture: 0
+    sRGBTexture: 1
     linearTexture: 1
     fadeOut: 0
     borderMipMap: 0
@@ -30,7 +31,7 @@ TextureImporter:
   maxTextureSize: 16
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: -1
     wrapU: 1
@@ -56,13 +57,15 @@ TextureImporter:
   textureFormatSet: 0
   platformSettings:
   - buildTarget: DefaultTexturePlatform
-    maxTextureSize: 32
+    maxTextureSize: 16
+    resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    androidETC2FallbackOverride: 0
   spriteSheet:
     serializedVersion: 2
     sprites: []

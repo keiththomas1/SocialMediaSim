@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CroppingController : MonoBehaviour {
-    private ScrollController _scrollController;
-
     private List<GameObject> _movableObjects;
     private GameObject _currentObject = null;
-    // private bool _currentlySizing = false;
     private bool _currentlyDragging = false;
     private Vector3 _dragStartMouseDifference;
 
@@ -56,9 +53,9 @@ public class CroppingController : MonoBehaviour {
                 currentTouchCount++;
             }
         }
-        if (currentTouchCount == 2)
+        if (this._currentObject != null && currentTouchCount == 2)
         {
-            // this._currentlySizing = true;
+            this._currentlyDragging = false;
 
             // Store both touches.
             Touch touchOne = Input.GetTouch(0);
@@ -95,9 +92,7 @@ public class CroppingController : MonoBehaviour {
                 this._currentObject.transform.localScale.y + scaleAmount,
                 this._currentObject.transform.localScale.z);
             }   
-        }
-        // If left touch or tap
-        if (Input.GetMouseButtonDown(0))
+        } else if (Input.GetMouseButtonDown(0)) // If left touch or tap
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -153,25 +148,17 @@ public class CroppingController : MonoBehaviour {
                         this._currentlyDragging = true;
                         this._dragStartMouseDifference =
                             Camera.main.ScreenToWorldPoint(Input.mousePosition) - this._currentObject.transform.position;
-                        if (this._scrollController)
-                        {
-                            this._scrollController.CanScroll = false;
-                        }
 
                         break;
                     }
                 }
             }
         }
-        if (Input.GetMouseButtonUp(0))
+        if (currentTouchCount == 0 && Input.GetMouseButtonUp(0))
         {
             if (this._currentObject)
             {
                 this._currentlyDragging = false;
-                if (this._scrollController)
-                {
-                    this._scrollController.CanScroll = true;
-                }
                 var animators = this._currentObject.GetComponentsInChildren<Animator>();
                 if (animators.Length > 0)
                 {
@@ -230,10 +217,5 @@ public class CroppingController : MonoBehaviour {
     public void SetMovableItems(List<GameObject> items)
     {
         this._movableObjects = items;
-    }
-
-    public void SetScrollController(ScrollController scrollController)
-    {
-        this._scrollController = scrollController;
     }
 }

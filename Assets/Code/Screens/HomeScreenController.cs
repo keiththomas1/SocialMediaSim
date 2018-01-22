@@ -130,7 +130,7 @@ public class HomeScreenController : MonoBehaviour {
     private void PostFinishedShrinking(DelayGramPostObject postObject, bool showDetails)
     {
         this._imageCurrentlyShrinking = false;
-        this._postHelper.SetPostDetails(postObject.postObject, postObject.post, false);
+        this._postHelper.SetPostDetails(postObject.postObject, postObject.post, false, true);
     }
 
     public void DestroyPage()
