@@ -31,7 +31,7 @@ public class NewPostController : MonoBehaviour
     }
     private NewPostState _currentPostState;
 
-    void Awake()
+    void Start()
     {
         this._userSerializer = UserSerializer.Instance;
         this.characterSerializer = CharacterSerializer.Instance;
@@ -259,7 +259,7 @@ public class NewPostController : MonoBehaviour
 
     private void CreateNewPost()
     {
-        this._userSerializer.NextPostTime = DateTime.Now.AddMinutes(10.0f);
+        this._userSerializer.NextPostTime = DateTime.Now.AddMinutes(5.0f); // 10.0f);
 
         var newPost = this.CreateNewPostDataStructure();
 

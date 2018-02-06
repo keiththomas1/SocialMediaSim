@@ -58,73 +58,85 @@ public class CharacterRandomization {
         return newProperties;
     }
 
-    // private string GetRandomBodySprite()
-    // {
-    //     var bodySprites = this._characterCustomization.BodySprites;
-    //     return bodySprites[Random.Range(0, bodySprites.Count - 1)].name;
-    // }
-
     public string GetRandomMaleFaceSprite(string oldSprite = "")
     {
         var faceSprites = this._spriteCollection.MaleFaceSprites;
         var finalSprite = oldSprite;
-        while (finalSprite == oldSprite)
+        if (faceSprites.Count > 1)
         {
-            finalSprite = faceSprites[Random.Range(0, faceSprites.Count)].name;
+            while (finalSprite == oldSprite)
+            {
+                finalSprite = faceSprites[Random.Range(0, faceSprites.Count)].name;
+            }
         }
-        return finalSprite;
+        return faceSprites[0].name;
     }
     public string GetRandomFemaleFaceSprite(string oldSprite = "")
     {
         var faceSprites = this._spriteCollection.FemaleFaceSprites;
         var finalSprite = oldSprite;
-        while (finalSprite == oldSprite)
+        if (faceSprites.Count > 1)
         {
-            finalSprite = faceSprites[Random.Range(0, faceSprites.Count)].name;
+            while (finalSprite == oldSprite)
+            {
+                finalSprite = faceSprites[Random.Range(0, faceSprites.Count)].name;
+            }
         }
-        return finalSprite;
+        return faceSprites[0].name;
     }
 
     public string GetRandomMaleEyeSprite(string oldSprite = "")
     {
         var eyeSprites = this._spriteCollection.MaleEyeSprites;
         var finalSprite = oldSprite;
-        while (finalSprite == oldSprite)
+        if (eyeSprites.Count > 1)
         {
-            finalSprite = eyeSprites[Random.Range(0, eyeSprites.Count)];
+            while (finalSprite == oldSprite)
+            {
+                finalSprite = eyeSprites[Random.Range(0, eyeSprites.Count)];
+            }
         }
-        return finalSprite;
+        return eyeSprites[0];
     }
     public string GetRandomFemaleEyeSprite(string oldSprite = "")
     {
         var eyeSprites = this._spriteCollection.FemaleEyeSprites;
         var finalSprite = oldSprite;
-        while (finalSprite == oldSprite)
+        if (eyeSprites.Count > 1)
         {
-            finalSprite = eyeSprites[Random.Range(0, eyeSprites.Count)];
+            while (finalSprite == oldSprite)
+            {
+                finalSprite = eyeSprites[Random.Range(0, eyeSprites.Count)];
+            }
         }
-        return finalSprite;
+        return eyeSprites[0];
     }
 
     public string GetRandomMaleHairSprite(string oldSprite = "")
     {
         var hairSprites = this._spriteCollection.MaleHairSprites;
         var finalSprite = oldSprite;
-        while (finalSprite == oldSprite)
+        if (hairSprites.Count > 1)
         {
-            finalSprite = hairSprites[Random.Range(0, hairSprites.Count)].name;
+            while (finalSprite == oldSprite)
+            {
+                finalSprite = hairSprites[Random.Range(0, hairSprites.Count)].name;
+            }
         }
-        return finalSprite;
+        return hairSprites[0].name;
     }
     public string GetRandomFemaleHairSprite(string oldSprite = "")
     {
         var hairSprites = this._spriteCollection.FemaleHairSprites;
         var finalSprite = oldSprite;
-        while (finalSprite == oldSprite)
+        if (hairSprites.Count > 1)
         {
-            finalSprite = hairSprites[Random.Range(0, hairSprites.Count)].name;
+            while (finalSprite == oldSprite)
+            {
+                finalSprite = hairSprites[Random.Range(0, hairSprites.Count)].name;
+            }
         }
-        return finalSprite;
+        return hairSprites[0].name;
     }
 
     public string GetNextMaleHairSprite(string oldSprite = "")
@@ -158,9 +170,12 @@ public class CharacterRandomization {
     public Color GetRandomSkinColor(Color oldSkinColor)
     {
         var finalColor = oldSkinColor;
-        while (finalColor == oldSkinColor)
+        if (this._skinColors.Count > 1)
         {
-            finalColor = this._skinColors[Random.Range(0, this._skinColors.Count)];
+            while (finalColor == oldSkinColor)
+            {
+                finalColor = this._skinColors[Random.Range(0, this._skinColors.Count)];
+            }
         }
         return finalColor;
     }

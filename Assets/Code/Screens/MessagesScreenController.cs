@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
+using DG.Tweening;
 using System;
 using UnityEngine.UI;
 
@@ -28,9 +29,11 @@ public class MessagesScreenController : MonoBehaviour {
 
     private Queue<GameObject> _messageQueue;
     private List<GameObject> _messageObjects;
+    private const float TYPING_TIME = 1.5f;
     private bool _messageDotsVisible = false;
     private float _messageWritingTimer = 0.0f;
     private GameObject _currentTypingBubble;
+    private Tweener _currentTypingTween;
 
     private enum MessageScreenState
     {
@@ -65,8 +68,7 @@ public class MessagesScreenController : MonoBehaviour {
                 if (this._messageDotsVisible)
                 {
                     this._messageDotsVisible = false;
-                    var nextMessage = this._messageQueue.Dequeue();
-                    nextMessage.SetActive(true);
+                    this._messageQueue.Dequeue();
 
                     if (this._messageQueue.Count != 0)
                     {
@@ -81,18 +83,54 @@ public class MessagesScreenController : MonoBehaviour {
                 } else {
                     this._messageDotsVisible = true;
 
-                    GameObject nextMessage = this._messageQueue.Peek();
-                    if (nextMessage)
+                    GameObject nextMessage = null;
+                    try
                     {
-                        this._currentTypingBubble = GameObject.Instantiate(Resources.Load("Messages/TypingBubble") as GameObject);
-                        this._currentTypingBubble.transform.parent = this.pageScrollArea;
-                        Vector3 position = nextMessage.transform.position;
-                        this._currentTypingBubble.transform.position = position;
-                        var deathTimer = this._currentTypingBubble.AddComponent<DeathByTimer>();
-                        deathTimer.deathTimeInSeconds = 1.5f;
+                        nextMessage = this._messageQueue.Peek();
+                    }
+                    catch (Exception exception)
+                    {
+                        Debug.Log(exception);
                     }
 
-                    this._messageWritingTimer = 2.0f;
+                    if (nextMessage)
+                    {
+                        nextMessage.SetActive(true);
+
+                        Transform typingBackground = null;
+                        foreach (Transform childTransform in nextMessage.transform)
+                        {
+                            if (childTransform.name.Contains("MessageBox") && childTransform.gameObject.activeSelf)
+                            {
+                                childTransform.GetComponent<SpriteRenderer>().enabled = true;
+                                typingBackground = childTransform;
+                            }
+                        }
+
+                        if (typingBackground != null)
+                        {
+                            var scaleFactor = this.GetScaleFactorForMessageBackgrounds(typingBackground.name);
+                            typingBackground.localScale = new Vector3(scaleFactor.x, scaleFactor.y, 1.0f);
+                            this._currentTypingTween = typingBackground.DOScale(new Vector3(1.0f, 0.5f, 1.0f), 0.5f)
+                                .SetEase(Ease.OutSine)
+                                .SetDelay(TYPING_TIME)
+                                .OnComplete(() => {
+                                    nextMessage.transform.Find("MessageText").gameObject.SetActive(true);
+                                    nextMessage.transform.Find("ProfilePicBubble").gameObject.SetActive(true);
+                                });
+
+
+                            this._currentTypingBubble = GameObject.Instantiate(Resources.Load("Messages/TypingBubble") as GameObject);
+                            this._currentTypingBubble.transform.parent = this.pageScrollArea;
+                            var messagePosition = nextMessage.transform.localPosition;
+                            messagePosition.z -= 1.0f;
+                            this._currentTypingBubble.transform.localPosition = messagePosition;
+                            var deathTimer = this._currentTypingBubble.AddComponent<DeathByTimer>();
+                            deathTimer.deathTimeInSeconds = TYPING_TIME;
+                        }
+
+                        this._messageWritingTimer = 2.0f;
+                    }
                 }
             }
         }
@@ -106,6 +144,7 @@ public class MessagesScreenController : MonoBehaviour {
             if (this._currentTypingBubble)
             {
                 GameObject.Destroy(this._currentTypingBubble);
+                this._currentTypingTween.Goto(0.0f, true);
             }
         }
 
@@ -127,6 +166,9 @@ public class MessagesScreenController : MonoBehaviour {
                 break;
             case "Choice2":
                 this.MakeChoice(2);
+                break;
+            case "Choice3":
+                this.MakeChoice(3);
                 break;
         }
     }
@@ -169,6 +211,26 @@ public class MessagesScreenController : MonoBehaviour {
 
     /* Private methods */
 
+    private Vector2 GetScaleFactorForMessageBackgrounds(string backgroundName)
+    {
+        switch (backgroundName)
+        {
+            case "MessageBox1":
+                return new Vector2(0.26f, 0.61f);
+            case "MessageBox2":
+                return new Vector2(0.26f, 0.33f);
+            case "MessageBox3":
+                return new Vector2(0.26f, 0.21f);
+            case "MessageBox4":
+                return new Vector2(0.26f, 0.16f);
+            case "MessageBox5":
+                return new Vector2(0.26f, 0.12f);
+            default:
+                Debug.Log("Passed unexpected name for background");
+                return new Vector2(0.0f, 0.0f);
+        }
+    }
+
     private void MessageBackClicked()
     {
         this.DestroyPage();
@@ -191,7 +253,7 @@ public class MessagesScreenController : MonoBehaviour {
     private void MakeChoice(int choice)
     {
         var oldConversation = this._messagesSerializer.GetConversationByNPCName(this._currentConversation.npcName);
-        if (oldConversation != null)
+        if (oldConversation.HasValue)
         {
             var oldMessages = oldConversation.Value.messages;
             this._messagePost.ChoiceMade(this._currentConversation, choice);
@@ -326,6 +388,11 @@ public class MessagesScreenController : MonoBehaviour {
             }
         }
 
+        if (conversation.viewed)
+        {
+            this.scrollController.ScrollToPosition(yPosition * -1);
+        }
+
         if (!conversation.viewed)
         {
             this._messageWritingTimer = 0.1f;
@@ -400,7 +467,18 @@ public class MessagesScreenController : MonoBehaviour {
     {
         if (!conversation.viewed)
         {
+            var messageText = messageObject.transform.Find("MessageText");
+            if (messageText)
+            {
+                messageText.gameObject.SetActive(false);
+            }
+            var profilePicBubble = messageObject.transform.Find("ProfilePicBubble");
+            if (profilePicBubble)
+            {
+                profilePicBubble.gameObject.SetActive(false);
+            }
             messageObject.SetActive(false);
+
             this._messageQueue.Enqueue(messageObject);
         }
         this._messageObjects.Add(messageObject);

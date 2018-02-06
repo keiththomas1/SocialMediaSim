@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class TutorialScreenController : MonoBehaviour {
     private UIController _uiController;
+    private ProfileScreenController _profileController;
     private GameObject _introductionObject;
     private TextTypingAnimation _introTextAnimation;
 
@@ -19,6 +20,7 @@ public class TutorialScreenController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         this._uiController = GetComponent<UIController>();
+        this._profileController = GetComponent<ProfileScreenController>();
         this._introDialog = new List<string>();
         this._introDialog.Add("Hi! I made Delaygram.");
         this._introDialog.Add("...");
@@ -77,6 +79,7 @@ public class TutorialScreenController : MonoBehaviour {
     private void EndTutorial()
     {
         GameObject.Destroy(this._introductionObject);
-        this._uiController.TutorialFinished();
+        this._uiController.GoToProfilePage();
+        this._profileController.CreateEditAvatarScreen(false);
     }
 }

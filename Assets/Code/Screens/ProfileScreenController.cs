@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class ProfileScreenController : MonoBehaviour
 {
@@ -16,10 +17,13 @@ public class ProfileScreenController : MonoBehaviour
 
     private CharacterSerializer characterSerializer;
     private UserSerializer _userSerializer;
+    private UIController _uiController;
+    private GoalsController _goalsController;
+    private LevelingController _levelingController;
+
     private ScrollController scrollController;
     private RandomNameGenerator randomNameGenerator;
     private PostHelper _postHelper;
-    private GoalsController _goalsController;
 
     private GameObject page;
     private GameObject scrollArea;
@@ -31,9 +35,8 @@ public class ProfileScreenController : MonoBehaviour
     private GameObject _editScreen;
     private CharacterProperties _previousCharacterProperties;
 
-    private int _previousLevel;
-    private int _previousLevelExperience;
-    private int _previousNeededExperience;
+    private GoalInformation[] _previousGoals;
+    private float _tickGoalTimer = 0.0f;
 
     private enum ProfileScreenState
     {
@@ -51,12 +54,16 @@ public class ProfileScreenController : MonoBehaviour
     void Awake () {
         this.characterSerializer = CharacterSerializer.Instance;
         this._userSerializer = UserSerializer.Instance;
+        this._uiController = GetComponent<UIController>();
+        this._goalsController = this.GetComponent<GoalsController>();
+        this._levelingController = this.GetComponent<LevelingController>();
+
         this.randomNameGenerator = new RandomNameGenerator();
         this._postHelper = new PostHelper();
-        this._goalsController = this.GetComponent<GoalsController>();
 
         this._youPostObjects = new List<DelayGramPostObject>();
         this._firstPostNew = false;
+        this._previousGoals = new GoalInformation[] { null, null, null, null, null };
 
         this._chooseNameText = this._chooseNameBox.transform.Find("TextInput")
             .transform.Find("TextArea")
@@ -78,8 +85,24 @@ public class ProfileScreenController : MonoBehaviour
         // HACK for testing
         if (Input.GetKeyDown(KeyCode.L))
         {
-            this._previousLevelExperience += 10;
+            this._levelingController.AddExperience(10);
             this.UpdateLevelDisplay();
+        }
+
+        if (this._tickGoalTimer > 0.0f)
+        {
+            this._tickGoalTimer -= Time.deltaTime;
+            if (this._tickGoalTimer <= 0.0f)
+            {
+                if (this._goalsController.ChangeInWaitingGoals())
+                {
+                    this.SetupGoalSection();
+                }
+                else
+                {
+                    this.UpdateGoalTime();
+                }
+            }
         }
     }
 
@@ -107,7 +130,12 @@ public class ProfileScreenController : MonoBehaviour
                     this.DestroyEditScreen();
                     break;
                 case "DoneButton":
+                    this._editScreen.GetComponent<CharacterEditor>().FinalizeCharacter();
                     this.DestroyEditScreen();
+                    if (!this._userSerializer.CompletedTutorial)
+                    {
+                        this._userSerializer.CompletedTutorial = true;
+                    }
                     break;
                 default:
                     this._editScreen.GetComponent<CharacterEditor>().CheckClick(colliderName);
@@ -116,8 +144,21 @@ public class ProfileScreenController : MonoBehaviour
         } else {
             switch (colliderName)
             {
+                case "ExpButton":
+                    this._levelingController.AddExperience(20);
+                    this.UpdateLevelDisplay();
+                    break;
                 case "EditButton":
                     this.CreateEditAvatarScreen(true);
+                    break;
+                case "RewardButton1":
+                    this.CollectGoalReward(0);
+                    break;
+                case "RewardButton2":
+                    this.CollectGoalReward(1);
+                    break;
+                case "RewardButton3":
+                    this.CollectGoalReward(2);
                     break;
                 default:
                     foreach (DelayGramPostObject post in this._youPostObjects)
@@ -144,6 +185,8 @@ public class ProfileScreenController : MonoBehaviour
         this.page = GameObject.Instantiate(Resources.Load("Profile/DGProfilePage") as GameObject);
         this.page.transform.position = new Vector3(0.2f, 1.3f, 0.0f);
 
+        this._currentState = ProfileScreenState.ProfileDefault;
+
         this.scrollArea = page.transform.Find("ScrollArea").gameObject;
         // this.scrollController = scrollArea.AddComponent<ScrollController>();
         this.scrollController = scrollArea.GetComponent<ScrollController>();
@@ -154,16 +197,11 @@ public class ProfileScreenController : MonoBehaviour
         this.SetAvatar(this._spriteMask);
         this.SetupItems(this._spriteMask);
 
-        this._goalsController.UpdateGoals();
-        var goalSection = scrollArea.transform.Find("GoalSection").gameObject;
-        this.SetupGoalSection(goalSection);
+        this.SetupGoalSection();
 
         var statsSection = scrollArea.transform.Find("StatsSection").gameObject;
         this.SetupStatistics(statsSection);
 
-        this._previousLevel = this._userSerializer.PlayerLevel;
-        this._previousLevelExperience = this._userSerializer.LevelExperience;
-        this._previousNeededExperience = this._userSerializer.NeededLevelExperience;
         this.UpdateLevelDisplay();
 
         this.GenerateProfilePosts();
@@ -256,19 +294,9 @@ public class ProfileScreenController : MonoBehaviour
     private void UpdateLevelDisplay()
     {
         var characterSection = this.scrollArea.transform.Find("CharacterSection");
-        var levelBanner = characterSection.transform.Find("LevelBanner");
+        var levelInformation = characterSection.transform.Find("LevelInformation");
 
-        var levelNumberText = levelBanner.transform.Find("LevelNumberText");
-        levelNumberText.GetComponent<TextMeshPro>().text = this._previousLevel.ToString();
-
-        var levelExperienceText = characterSection.transform.Find("LevelExperienceText");
-        var experienceText = this._previousLevelExperience.ToString() + "/" + this._previousNeededExperience.ToString();
-        levelExperienceText.GetComponent<TextMeshPro>().text = experienceText;
-
-        var experienceBarFront = characterSection.transform.Find("LevelExperienceBar");
-        var experienceBarBack = experienceBarFront.transform.Find("ExperienceBar");
-        var experiencePercentage = (float)this._previousLevelExperience / (float)this._previousNeededExperience;
-        experienceBarBack.transform.localScale = new Vector3(experiencePercentage, 1.0f, 1.0f);
+        this._levelingController.UpdateLevelDisplay(levelInformation.gameObject);
     }
 
     private void SetupStatistics(GameObject parent)
@@ -333,8 +361,13 @@ public class ProfileScreenController : MonoBehaviour
         }
     }
 
-    private void SetupGoalSection(GameObject goalSection)
+    private void SetupGoalSection()
     {
+        if (!scrollArea)
+        {
+            return;
+        }
+        var goalSection = scrollArea.transform.Find("GoalSection").gameObject;
         var currentGoals = this._goalsController.GetCurrentGoals();
 
         for(int i=0; i<currentGoals.Length; i++)
@@ -346,42 +379,79 @@ public class ProfileScreenController : MonoBehaviour
                 continue;
             }
 
-            var currentGoal = currentGoals[i];
-            if (currentGoal != null)
+            foreach (Transform child in goalParent.transform)
             {
-                var timesText = (currentGoal.stepsNeeded == 1) ? "time" : "times";
-                string textDescription = "";
-                switch (currentGoal.goalType)
-                {
-                    case GoalType.Location:
-                        textDescription = String.Format("Post {0} {1} at the {2}",
-                            currentGoal.stepsNeeded, timesText, currentGoal.goalObject);
-                        break;
-                    case GoalType.Item:
-                        textDescription = String.Format("Post {0} {1} with your {2}",
-                            currentGoal.stepsNeeded, timesText, currentGoal.goalObject);
-                        break;
-                }
-                goalParent.transform.Find("GoalText").GetComponent<TextMeshPro>().text =
-                    String.Format("{0}) {1}", i + 1, textDescription);
+                child.gameObject.SetActive(false);
+            }
 
-                if (currentGoal.rewardType == GoalRewardType.ExperiencePoints)
+            var currentGoal = currentGoals[i];
+            if (currentGoal.status == GoalStatus.Active)
+            {
+                if (currentGoal.stepsCompleted >= currentGoal.stepsNeeded)  // If goal is finished
                 {
-                    goalParent.transform.Find("RewardText").GetComponent<TextMeshPro>().text =
-                        String.Format("Reward: {0} exp", currentGoal.reward);
-                }
+                    if (this._previousGoals[i] != null && (this._previousGoals[i].stepsCompleted < this._previousGoals[i].stepsNeeded))
+                    {   // Then the player has just achieved this goal, so show the 'accept reward' button
+                        goalParent.transform.Find("Background").gameObject.SetActive(true);
+                        goalParent.transform.Find("GoalText").gameObject.SetActive(true);
+                        goalParent.transform.Find("RewardText").gameObject.SetActive(true);
+                        goalParent.transform.Find("FinishText").gameObject.SetActive(true);
 
-                goalParent.transform.Find("ProgressText").GetComponent<TextMeshPro>().text = currentGoal.stepsCompleted.ToString();
-                goalParent.transform.Find("FinishText").GetComponent<TextMeshPro>().text = "/" + currentGoal.stepsNeeded.ToString();
-            } else {
-                goalParent.transform.Find("Background").gameObject.SetActive(false);
+                        var progressText = goalParent.transform.Find("ProgressText");
+                        progressText.gameObject.SetActive(true);
+                        var originalScale = progressText.localScale.x;
+                        var newScale = originalScale * 1.5f;
+
+                        progressText.DOPunchScale(new Vector3(newScale, newScale, 1.0f), 0.7f);
+                        goalParent.transform.Find("FinishText").DOPunchScale(new Vector3(newScale, newScale, 1.0f), 0.7f);
+                    }
+                    else
+                    {
+                        // Display accept reward button
+                        goalParent.transform.Find("Background").gameObject.SetActive(true);
+                        var rewardButtonName = String.Format("RewardButton{0}", i + 1);
+                        goalParent.transform.Find(rewardButtonName).gameObject.SetActive(true);
+                    }
+                } else {    // Goal is in progress
+                    goalParent.transform.Find("Background").gameObject.SetActive(true);
+                    goalParent.transform.Find("GoalText").gameObject.SetActive(true);
+                    goalParent.transform.Find("RewardText").gameObject.SetActive(true);
+                    goalParent.transform.Find("FinishText").gameObject.SetActive(true);
+                    goalParent.transform.Find("ProgressText").gameObject.SetActive(true);
+
+                    var timesText = (currentGoal.stepsNeeded == 1) ? "time" : "times";
+                    string textDescription = "";
+                    switch (currentGoal.goalType)
+                    {
+                        case GoalObjectType.Location:
+                            textDescription = String.Format("Post {0} {1} at the {2}",
+                                currentGoal.stepsNeeded, timesText, currentGoal.goalObject);
+                            break;
+                        case GoalObjectType.Item:
+                            textDescription = String.Format("Post {0} {1} with your {2}",
+                                currentGoal.stepsNeeded, timesText, currentGoal.goalObject);
+                            break;
+                    }
+                    goalParent.transform.Find("GoalText").GetComponent<TextMeshPro>().text =
+                        String.Format("{0}) {1}", i + 1, textDescription);
+
+                    if (currentGoal.rewardType == GoalRewardType.ExperiencePoints)
+                    {
+                        goalParent.transform.Find("RewardText").GetComponent<TextMeshPro>().text =
+                            String.Format("Reward: {0} exp", currentGoal.reward);
+                    }
+
+                    goalParent.transform.Find("ProgressText").GetComponent<TextMeshPro>().text = currentGoal.stepsCompleted.ToString();
+                    goalParent.transform.Find("FinishText").GetComponent<TextMeshPro>().text = "/" + currentGoal.stepsNeeded.ToString();
+                }
+            } else if (currentGoal.status == GoalStatus.Waiting) { // There's a countdown, so hide the background and show time remaining
                 goalParent.transform.Find("NextGoalText").gameObject.SetActive(true);
 
-                // Get next goal wait time
-                // Show seconds at 59 mins and put it on a timer so it shows the per-second countdown
-                goalParent.transform.Find("NextGoalText").GetComponent<TextMeshPro>().text = "Next goal in 24h";
+                this._tickGoalTimer = 0.1f;
+            } else {    // If status is 'Inactive', show nothing. Used for beginning of the game
             }
         }
+
+        this._previousGoals = currentGoals;
     }
 
     private void GenerateProfilePosts()
@@ -406,13 +476,64 @@ public class ProfileScreenController : MonoBehaviour
         }
     }
 
+    private void CollectGoalReward(int index)
+    {
+        var currentGoals = this._goalsController.GetCurrentGoals();
+        if (currentGoals[index].rewardType == GoalRewardType.ExperiencePoints)
+        {
+            try
+            {
+                var experienceGained = Convert.ToInt32(currentGoals[index].reward);
+                this._levelingController.AddExperience(experienceGained);
+                this.UpdateLevelDisplay();
+            }
+            catch (Exception exception)
+            {
+                Debug.Log(exception);
+            }
+        }
+
+        this._goalsController.FinishGoal(index);
+
+        this.SetupGoalSection();
+
+        // Animation of experience points going towards level (or eventually popup for new item)
+        // And then trigger animation of experience points being added (in meantime just do it immediately)
+    }
+
     private void CheckGoalProgress()
     {
         this._goalsController.CheckGoalProgress(this._latestPost);
-        this._goalsController.UpdateGoals();
 
-        var goalSection = scrollArea.transform.Find("GoalSection").gameObject;
-        this.SetupGoalSection(goalSection);
+        this.SetupGoalSection();
+    }
+
+    private void UpdateGoalTime()
+    {
+        if (scrollArea)
+        {
+            var goalSection = scrollArea.transform.Find("GoalSection").gameObject;
+            for (int i = 0; i < this._previousGoals.Length; i++)
+            {
+                if (this._previousGoals[i].status == GoalStatus.Waiting)
+                {
+                    var timeRemaining = this._previousGoals[i].nextGoalTime - DateTime.Now;
+                    var formattedTime = timeRemaining.ToString(@"mm\:ss");
+
+                    var goalParent = goalSection.transform.Find("Goal" + i.ToString()).gameObject;
+                    if (!goalParent)
+                    {
+                        Debug.Log("Error finding goal section " + i.ToString());
+                        continue;
+                    }
+
+                    goalParent.transform.Find("NextGoalText").GetComponent<TextMeshPro>().text =
+                        String.Format("Next goal in {0}", formattedTime);
+
+                    this._tickGoalTimer = 1.0f;
+                }
+            }
+        }
     }
 
     private void EnlargePost(DelayGramPostObject post)

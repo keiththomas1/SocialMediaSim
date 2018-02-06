@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class IOController : MonoBehaviour
 {
+    private CharacterSerializer _characterSerializer;
     private UIController _uiController;
-
     private HomeScreenController _homeController;
     private ProfileScreenController _profileController;
     private NewPostController _newPostController;
@@ -14,13 +15,14 @@ public class IOController : MonoBehaviour
     private TutorialScreenController _tutorialController;
 
     private GameObject _currentObject;
-    private const float CLICK_THRESHHOLD = 0.3f;
-    private float _clickTimer = 0.0f;
     private Vector3 _clickPosition;
+
+    private EventSystem _eventSystem;
 
     // Use this for initialization
     void Start ()
     {
+        this._characterSerializer = CharacterSerializer.Instance;
         this._uiController = GetComponent<UIController>();
         this._homeController = GetComponent<HomeScreenController>();
         this._profileController = GetComponent<ProfileScreenController>();
@@ -28,6 +30,8 @@ public class IOController : MonoBehaviour
         this._exploreController = GetComponent<ExploreScreenController>();
         this._messagesController = GetComponent<MessagesScreenController>();
         this._tutorialController = GetComponent<TutorialScreenController>();
+
+        this._eventSystem = EventSystem.current;
     }
 
     // Update is called once per frame
@@ -40,7 +44,6 @@ public class IOController : MonoBehaviour
             if (Physics.Raycast(ray, out hit))
             {
                 this._currentObject = hit.collider.gameObject;
-                this._clickTimer = CLICK_THRESHHOLD;
                 this._clickPosition = Input.mousePosition;
             }
         }
@@ -52,13 +55,10 @@ public class IOController : MonoBehaviour
             {
                 if (hit.collider.gameObject == this._currentObject)
                 {
-                    if (this._clickTimer >= 0.0f)
+                    var newClickPosition = Input.mousePosition;
+                    if (Vector3.Distance(this._clickPosition, newClickPosition) < 20)
                     {
-                        var newClickPosition = Input.mousePosition;
-                        if (Vector3.Distance(this._clickPosition, newClickPosition) < 20)
-                        {
-                            this.CheckPageMouseClick(hit.collider);
-                        }
+                        this.CheckPageMouseClick(hit.collider);
                     }
                 }
             }
@@ -67,38 +67,58 @@ public class IOController : MonoBehaviour
                 this.CheckPageMouseClick(null);
             }
         }
-
-        if (this._clickTimer > 0.0f)
-        {
-            this._clickTimer -= Time.deltaTime;
-        }
     }
 
     private void CheckPageMouseClick(Collider collider)
     {
         var colliderName = (collider == null) ? "" : collider.name;
-        switch (this._uiController.GetCurrentPage())
-        {
-            case Page.Home:
-                this._homeController.CheckClick(colliderName);
-                break;
-            case Page.Profile:
-                this._profileController.CheckClick(colliderName);
-                break;
-            case Page.Post:
-                this._newPostController.CheckClick(colliderName);
-                break;
-            case Page.Explore:
-                this._exploreController.CheckClick(colliderName);
-                break;
-            case Page.Messages:
-                this._messagesController.CheckClick(colliderName);
-                break;
-            case Page.Tutorial:
-                this._tutorialController.CheckClick(colliderName);
-                break;
-            default:
-                break;
+        if (this._uiController.LevelPopupVisible())
+        {   // Handle clicks on level popup
+            switch (colliderName)
+            {
+                case "HappinessBlock":
+                    this._characterSerializer.HappinessLevel++;
+                    this._uiController.DestroyLevelPopup();
+                    break;
+                case "FitnessBlock":
+                    this._characterSerializer.FitnessLevel++;
+                    this._uiController.DestroyLevelPopup();
+                    break;
+                case "StyleBlock":
+                    this._characterSerializer.StyleLevel++;
+                    this._uiController.DestroyLevelPopup();
+                    break;
+                case "NothingBlock":
+                    this._uiController.DestroyLevelPopup();
+                    break;
+            }
+        } else {
+            if (!this._eventSystem.IsPointerOverGameObject())
+            {   // Make sure you aren't hovering over a UI element
+                switch (this._uiController.GetCurrentPage())
+                {
+                    case Page.Home:
+                        this._homeController.CheckClick(colliderName);
+                        break;
+                    case Page.Profile:
+                        this._profileController.CheckClick(colliderName);
+                        break;
+                    case Page.Post:
+                        this._newPostController.CheckClick(colliderName);
+                        break;
+                    case Page.Explore:
+                        this._exploreController.CheckClick(colliderName);
+                        break;
+                    case Page.Messages:
+                        this._messagesController.CheckClick(colliderName);
+                        break;
+                    case Page.Tutorial:
+                        this._tutorialController.CheckClick(colliderName);
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 }

@@ -48,30 +48,28 @@ public class UserSerializer
 
     public int PlayerLevel
     {
-        get { return this.currentSave.playerLevel; }
+        get { return this.currentSave.experienceProperties.playerLevel; }
         set
         {
-            this.currentSave.playerLevel = value;
+            this.currentSave.experienceProperties.playerLevel = value;
             this.SaveFile();
         }
     }
-
     public int LevelExperience
     {
-        get { return this.currentSave.levelExperience; }
+        get { return this.currentSave.experienceProperties.levelExperience; }
         set
         {
-            this.currentSave.levelExperience = value;
+            this.currentSave.experienceProperties.levelExperience = value;
             this.SaveFile();
         }
     }
-
     public int NeededLevelExperience
     {
-        get { return this.currentSave.neededLevelExperience; }
+        get { return this.currentSave.experienceProperties.neededLevelExperience; }
         set
         {
-            this.currentSave.neededLevelExperience = value;
+            this.currentSave.experienceProperties.neededLevelExperience = value;
             this.SaveFile();
         }
     }
@@ -230,9 +228,10 @@ public class UserSerializer
             this.currentSave.totalTimePlayed = new TimeSpan(0);
             this.currentSave.lastUpdate = DateTime.Now;
 
-            this.currentSave.playerLevel = 1;
-            this.currentSave.levelExperience = 0;
-            this.currentSave.neededLevelExperience = 100;
+            this.currentSave.experienceProperties = new ExperienceProperties();
+            this.currentSave.experienceProperties.playerLevel = 1;
+            this.currentSave.experienceProperties.levelExperience = 0;
+            this.currentSave.experienceProperties.neededLevelExperience = 100;
 
             this.currentSave.storyProperties = new StoryProperties();
             this.currentSave.storyProperties.hasBulldog = false;
@@ -295,6 +294,14 @@ public class StoryProperties
     public bool hasDrone;
 }
 
+[Serializable]
+public class ExperienceProperties
+{
+    public int playerLevel;
+    public int levelExperience;
+    public int neededLevelExperience;
+}
+
 // Can speed up in the future by turning bought items into a bool array.
 [Serializable]
 class UserSaveVariables
@@ -303,9 +310,7 @@ class UserSaveVariables
     public string playerName;
     public TimeSpan totalTimePlayed;
 
-    public int playerLevel;
-    public int levelExperience;
-    public int neededLevelExperience;
+    public ExperienceProperties experienceProperties;
 
     public StoryProperties storyProperties;
     public bool completedTutorial;

@@ -83,20 +83,18 @@ public class MessagePost
         switch (conversation.npcName)
         {
             case MessageCollection.LOST_DOG_NPC_NAME:
-                if (conversation.choicesMade.Count == 1)
+                if (choice == 1)
                 {
-                    if (choice == 1)
-                    {
-                        this._userSerializer.HasCat = true;
-                    }
-                    else if (choice == 2)
-                    {
-                        this._userSerializer.HasCat = true;
-                    }
+                    this._userSerializer.HasCat = true;
+                }
+                else if (choice == 2)
+                {
+                    this._userSerializer.HasBulldog = true;
                 }
                 newConversation = this._messageCollection.CreateLostDogConversation(choices);
                 break;
         }
+        newConversation.choicesMade = choices;
         this._messageSerializer.UpdateConversation(newConversation);
     }
 

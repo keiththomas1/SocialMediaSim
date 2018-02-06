@@ -148,6 +148,33 @@ public class CharacterSerializer
             this.SaveFile();
         }
     }
+    public int HappinessLevel
+    {
+        get { return this._currentSave.properties.happinessLevel; }
+        set
+        {
+            this._currentSave.properties.happinessLevel = value;
+            this.SaveFile();
+        }
+    }
+    public int FitnessLevel
+    {
+        get { return this._currentSave.properties.fitnessLevel; }
+        set
+        {
+            this._currentSave.properties.fitnessLevel = value;
+            this.SaveFile();
+        }
+    }
+    public int StyleLevel
+    {
+        get { return this._currentSave.properties.styleLevel; }
+        set
+        {
+            this._currentSave.properties.styleLevel = value;
+            this.SaveFile();
+        }
+    }
     public CharacterProperties CurrentCharacterProperties
     {
         get
@@ -295,6 +322,9 @@ public class CharacterProperties
     public SerializableColor hairColor;
     public SerializableColor shirtColor;
     public SerializableColor pantsColor;
+    public int happinessLevel;
+    public int fitnessLevel;
+    public int styleLevel;
 
     public CharacterProperties()
     {
@@ -306,6 +336,9 @@ public class CharacterProperties
         hairColor = new SerializableColor(255, 255, 255);
         shirtColor = new SerializableColor(255, 255, 255);
         pantsColor = new SerializableColor(255, 255, 255);
+        happinessLevel = 1;
+        fitnessLevel = 1;
+        styleLevel = 1;
     }
     public CharacterProperties(CharacterProperties other)
     {
@@ -318,6 +351,9 @@ public class CharacterProperties
         hairColor = other.hairColor;
         shirtColor = other.shirtColor;
         pantsColor = other.pantsColor;
+        happinessLevel = other.happinessLevel;
+        fitnessLevel = other.fitnessLevel;
+        styleLevel = other.styleLevel;
     }
 }
 

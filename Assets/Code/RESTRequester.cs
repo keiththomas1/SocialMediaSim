@@ -45,9 +45,10 @@ public class PictureModelJsonSend
     public SerializableColor pantsColor;
     public string gender;
     public string hairSprite;
-    public string faceSprite;
     public string eyeSprite;
-    public string bodySprite;
+    public int happinessLevel;
+    public int fitnessLevel;
+    public int styleLevel;
     public string backgroundName;
     public List<PictureItem> items;
 }
@@ -68,9 +69,10 @@ public class PictureModelJsonReceive
     public SerializableColor pantsColor;
     public string gender;
     public string hairSprite;
-    public string faceSprite;
     public string eyeSprite;
-    public string bodySprite;
+    public int happinessLevel;
+    public int fitnessLevel;
+    public int styleLevel;
     public string backgroundName;
     public List<PictureItem> items;
 }
@@ -94,9 +96,10 @@ public class RESTRequester
         newPicture.avatarScale = post.avatarScale;
         newPicture.playerName = post.playerName;
         newPicture.hairSprite = post.characterProperties.hairSprite;
-        newPicture.faceSprite = post.characterProperties.faceSprite;
         newPicture.eyeSprite = post.characterProperties.eyeSprite;
-        newPicture.bodySprite = post.characterProperties.bodySprite;
+        newPicture.happinessLevel = post.characterProperties.happinessLevel;
+        newPicture.fitnessLevel = post.characterProperties.fitnessLevel;
+        newPicture.styleLevel = post.characterProperties.styleLevel;
         newPicture.skinColor = post.characterProperties.skinColor;
         newPicture.hairColor = post.characterProperties.hairColor;
         newPicture.shirtColor = post.characterProperties.shirtColor;
@@ -194,9 +197,10 @@ public class RESTRequester
         newPost.characterProperties = new CharacterProperties();
         newPost.characterProperties.gender = (Gender)Enum.Parse(typeof(Gender), picture.gender);
         newPost.characterProperties.hairSprite = picture.hairSprite;
-        newPost.characterProperties.faceSprite = picture.faceSprite;
         newPost.characterProperties.eyeSprite = picture.eyeSprite;
-        newPost.characterProperties.bodySprite = picture.bodySprite;
+        newPost.characterProperties.happinessLevel = picture.happinessLevel;
+        newPost.characterProperties.fitnessLevel = picture.fitnessLevel;
+        newPost.characterProperties.styleLevel = picture.styleLevel;
         newPost.characterProperties.skinColor = picture.skinColor;
         newPost.characterProperties.hairColor = picture.hairColor;
         newPost.characterProperties.shirtColor = picture.shirtColor;

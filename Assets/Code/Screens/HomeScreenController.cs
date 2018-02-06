@@ -59,6 +59,7 @@ public class HomeScreenController : MonoBehaviour {
         this._worldScrollArea = this._postPage.transform.Find("WorldScrollArea").gameObject;
         this._errorText = this._worldScrollArea.transform.Find("ErrorText").gameObject;
 
+        this._currentState = HomeScreenState.WorldFeed;
         this.EnterWorldSection();
     }
 

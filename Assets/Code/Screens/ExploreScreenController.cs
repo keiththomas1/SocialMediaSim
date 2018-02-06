@@ -230,11 +230,11 @@ public class ExploreScreenController : MonoBehaviour
     }
     private void ShowDislikeBar()
     {
-        this._dislikeBorder.transform.DOLocalMoveX(-1.7f, 0.5f).SetEase(Ease.OutSine);
+        this._dislikeBorder.transform.DOLocalMoveX(-1.7f, 0.3f).SetEase(Ease.OutSine);
     }
     private void ShowLikeBar()
     {
-        this._likeBorder.transform.DOLocalMoveX(1.74f, 0.5f).SetEase(Ease.OutSine);
+        this._likeBorder.transform.DOLocalMoveX(1.74f, 0.3f).SetEase(Ease.OutSine);
     }
 
     private void DisableCurrentDragObject(PictureRotateAway.RotateDirection rotateDirection)

@@ -4,6 +4,11 @@ public class CharacterEditor : MonoBehaviour {
     private CharacterSerializer _characterSerializer;
     private CharacterRandomization _characterRandomization;
 
+    private CharacterCustomization _femaleCustomization;
+    private CharacterCustomization _maleCustomization;
+
+    private CharacterProperties _currentProperties;
+
     // Use this for initialization
     void Start ()
     {
@@ -13,6 +18,16 @@ public class CharacterEditor : MonoBehaviour {
             this._characterSerializer.LoadGame();
         }
         this._characterRandomization = CharacterRandomization.Instance;
+
+        var maleAvatar = this.transform.Find("MaleAvatar");
+        var femaleAvatar = this.transform.Find("FemaleAvatar");
+        if (maleAvatar && femaleAvatar)
+        {
+            this._maleCustomization = maleAvatar.GetComponent<CharacterCustomization>();
+            this._femaleCustomization = femaleAvatar.GetComponent<CharacterCustomization>();
+        }
+
+        this._currentProperties = new CharacterProperties(this._characterSerializer.CurrentCharacterProperties);
     }
 	
 	// Update is called once per frame
@@ -25,121 +40,124 @@ public class CharacterEditor : MonoBehaviour {
         switch (colliderName)
         {
             case "MaleButton":
-                this._characterSerializer.Gender = Gender.Male;
-                this.UpdateAvatarGender();
-                this.RandomizeCharacter();
+                if (this._currentProperties.gender != Gender.Male)
+                {
+                    this._currentProperties.gender = Gender.Male;
+                    this.UpdateAvatarGender();
+                }
                 break;
             case "FemaleButton":
-                this._characterSerializer.Gender = Gender.Female;
-                this.UpdateAvatarGender();
-                this.RandomizeCharacter();
+                if (this._currentProperties.gender != Gender.Female)
+                {
+                    this._currentProperties.gender = Gender.Female;
+                    this.UpdateAvatarGender();
+                }
                 break;
             case "RandomEverythingButton":
                 this.RandomizeCharacter();
                 break;
             case "ColorHairButton":
                 var hairColor = this._characterRandomization.GetRandomColor();
-                this._characterSerializer.HairColor = hairColor;
+                this._currentProperties.hairColor = new SerializableColor(hairColor);
                 break;
             case "RandomHairButton":
-                switch (this._characterSerializer.Gender)
-                {
-                    case Gender.Male:
-                        this._characterSerializer.HairSprite = this._characterRandomization.GetNextMaleHairSprite(
-                            this._characterSerializer.HairSprite);
-                        break;
-                    case Gender.Female:
-                        this._characterSerializer.HairSprite = this._characterRandomization.GetNextFemaleHairSprite(
-                            this._characterSerializer.HairSprite);
-                        break;
-                }
+                this.RandomizeHair();
                 break;
             case "RandomFaceButton":
-                switch (this._characterSerializer.Gender)
-                {
-                    case Gender.Male:
-                        this._characterSerializer.FaceSprite = this._characterRandomization.GetRandomMaleFaceSprite(
-                            this._characterSerializer.FaceSprite);
-                        this._characterSerializer.EyeSprite = this._characterRandomization.GetRandomMaleEyeSprite(
-                            this._characterSerializer.EyeSprite);
-                        break;
-                    case Gender.Female:
-                        this._characterSerializer.FaceSprite = this._characterRandomization.GetRandomFemaleFaceSprite(
-                            this._characterSerializer.FaceSprite);
-                        this._characterSerializer.EyeSprite = this._characterRandomization.GetRandomFemaleEyeSprite(
-                            this._characterSerializer.EyeSprite);
-                        break;
-                }
+                this.RandomizeFace();
                 break;
             case "ColorSkinButton":
                 var skinColor = this._characterRandomization.GetNextSkinColor(
                     this._characterSerializer.SkinColor);
-                this._characterSerializer.SkinColor = skinColor;
+                this._currentProperties.skinColor = new SerializableColor(skinColor);
                 break;
             case "ColorShirtButton":
                 var shirtColor = this._characterRandomization.GetRandomColor();
-                this._characterSerializer.ShirtColor = shirtColor;
+                this._currentProperties.shirtColor = new SerializableColor(shirtColor);
                 break;
             case "ColorPantsButton":
                 var pantsColor = this._characterRandomization.GetRandomColor();
-                this._characterSerializer.PantsColor = pantsColor;
+                this._currentProperties.pantsColor = new SerializableColor(pantsColor);
+                break;
+        }
+
+        this.UpdateAvatars();
+    }
+
+    public void FinalizeCharacter()
+    {
+        this._characterSerializer.CurrentCharacterProperties = this._currentProperties;
+    }
+
+    private void RandomizeCharacter()
+    {
+        this.RandomizeFace();
+        this.RandomizeHair();
+        this._currentProperties.hairColor = new SerializableColor(this._characterRandomization.GetRandomColor());
+        this._currentProperties.shirtColor = new SerializableColor(this._characterRandomization.GetRandomColor());
+        this._currentProperties.skinColor = new SerializableColor(this._characterRandomization.GetRandomSkinColor(Color.cyan));
+        this._currentProperties.pantsColor = new SerializableColor(this._characterRandomization.GetRandomColor());
+    }
+
+    private void RandomizeHair()
+    {
+        switch (this._currentProperties.gender)
+        {
+            case Gender.Male:
+                this._currentProperties.hairSprite = this._characterRandomization.GetNextMaleHairSprite(
+                    this._currentProperties.hairSprite);
+                break;
+            case Gender.Female:
+                this._currentProperties.hairSprite = this._characterRandomization.GetNextFemaleHairSprite(
+                    this._currentProperties.hairSprite);
                 break;
         }
     }
 
-    public void RandomizeCharacter()
+    private void RandomizeFace()
     {
-        // var bodySprite = GetRandomBodySprite();
-        // this._characterCustomization.SetBodySprite(bodySprite);
-        // this._characterSerializer.BodySprite = bodySprite;
+        switch (this._currentProperties.gender)
+        {
+            case Gender.Male:
+                this._currentProperties.faceSprite = this._characterRandomization.GetRandomMaleFaceSprite(
+                    this._currentProperties.faceSprite);
+                this._currentProperties.eyeSprite = this._characterRandomization.GetRandomMaleEyeSprite(
+                    this._currentProperties.eyeSprite);
+                break;
+            case Gender.Female:
+                this._currentProperties.faceSprite = this._characterRandomization.GetRandomFemaleFaceSprite(
+                    this._currentProperties.faceSprite);
+                this._currentProperties.eyeSprite = this._characterRandomization.GetRandomFemaleEyeSprite(
+                    this._currentProperties.eyeSprite);
+                break;
+        }
+    }
 
-        var characterProperties = this._characterSerializer.CurrentCharacterProperties;
-        switch (this._characterSerializer.Gender)
+    private void UpdateAvatars()
+    {
+        if (this._maleCustomization)
         {
-            case Gender.Male:
-                characterProperties.faceSprite = this._characterRandomization.GetRandomMaleFaceSprite();
-                characterProperties.eyeSprite = this._characterRandomization.GetRandomMaleEyeSprite();
-                break;
-            case Gender.Female:
-                characterProperties.faceSprite = this._characterRandomization.GetRandomFemaleFaceSprite();
-                characterProperties.eyeSprite = this._characterRandomization.GetRandomFemaleEyeSprite();
-                break;
+            this._maleCustomization.SetCharacterLook(this._currentProperties);
         }
-        switch (this._characterSerializer.Gender)
+        if (this._femaleCustomization)
         {
-            case Gender.Male:
-                characterProperties.hairSprite = this._characterRandomization.GetRandomMaleHairSprite();
-                break;
-            case Gender.Female:
-                characterProperties.hairSprite = this._characterRandomization.GetRandomFemaleHairSprite();
-                break;
+            this._femaleCustomization.SetCharacterLook(this._currentProperties);
         }
-        characterProperties.hairColor = new SerializableColor(this._characterRandomization.GetRandomColor());
-        characterProperties.shirtColor = new SerializableColor(this._characterRandomization.GetRandomColor());
-        characterProperties.skinColor = new SerializableColor(this._characterRandomization.GetRandomSkinColor(Color.cyan));
-        characterProperties.pantsColor = new SerializableColor(this._characterRandomization.GetRandomColor());
-        this._characterSerializer.CurrentCharacterProperties = characterProperties;
     }
 
     private void UpdateAvatarGender()
     {
+        
         var maleAvatar = this.transform.Find("MaleAvatar");
         var femaleAvatar = this.transform.Find("FemaleAvatar");
         if (!maleAvatar || !femaleAvatar)
         {
             return;
         }
-        var gender = this._characterSerializer.Gender;
-        switch (gender)
-        {
-            case Gender.Female:
-                femaleAvatar.gameObject.SetActive(true);
-                maleAvatar.gameObject.SetActive(false);
-                break;
-            case Gender.Male:
-                maleAvatar.gameObject.SetActive(true);
-                femaleAvatar.gameObject.SetActive(false);
-                break;
-        }
+
+        femaleAvatar.gameObject.SetActive(this._currentProperties.gender == Gender.Female);
+        maleAvatar.gameObject.SetActive(this._currentProperties.gender == Gender.Male);
+        this.RandomizeHair();
+        this.RandomizeFace();
     }
 }

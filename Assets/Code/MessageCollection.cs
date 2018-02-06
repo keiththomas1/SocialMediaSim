@@ -72,54 +72,83 @@ public class MessageCollection
         newMessage6.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage6);
 
-        var newMessage7 = new Message();
-        if (choices.Count == 0)
+        bool messageLoop = true;
+        int choiceIndex = 0;
+        while (messageLoop)
         {
-            newMessage7.type = DelaygramMessageType.Choice;
-            newMessage7.choices = new List<string>();
-            newMessage7.choices.Add("Cat!");
-            newMessage7.choices.Add("Dog!");
-            newMessage7.choices.Add("A mixture of both!");
-            newMessage7.timeSent = DateTime.Now;
-            newConversation.messages.Add(newMessage7);
-        }
-        else if (choices[0] == 1)
-        {
-            newMessage7.text = "Cat!";
-            newMessage7.type = DelaygramMessageType.Player;
-            newMessage7.timeSent = DateTime.Now;
-            newConversation.messages.Add(newMessage7);
+            var newMessage7 = new Message();
+            if (choices.Count == choiceIndex)
+            {   // At the point where user hasn't made a choice at this index
+                newMessage7.type = DelaygramMessageType.Choice;
+                newMessage7.choices = new List<string>();
+                newMessage7.choices.Add("Cat!");
+                newMessage7.choices.Add("Dog!");
+                if (choices.Count == 0)
+                {   // Only show this the first time
+                    newMessage7.choices.Add("A mixture of both!");
+                }
+                newMessage7.timeSent = DateTime.Now;
+                newConversation.messages.Add(newMessage7);
 
-            var newMessage8a = new Message();
-            newMessage8a.text = "Great! I'll bring her over right now! Send me your address.";
-            newMessage8a.type = DelaygramMessageType.NPC;
-            newMessage8a.timeSent = DateTime.Now;
-            newConversation.messages.Add(newMessage8a);
+                messageLoop = false;
+            }
+            else if (choices[choiceIndex] == 1)
+            {
+                newMessage7.text = "Cat!";
+                newMessage7.type = DelaygramMessageType.Player;
+                newMessage7.timeSent = DateTime.Now;
+                newConversation.messages.Add(newMessage7);
 
-            var newMessage9a = new Message();
-            newMessage9a.text = "Cat";
-            newMessage9a.type = DelaygramMessageType.Result;
-            newMessage9a.timeSent = DateTime.Now;
-            newConversation.messages.Add(newMessage9a);
-        }
-        else if (choices[0] == 2)
-        {
-            newMessage7.text = "Dog!";
-            newMessage7.type = DelaygramMessageType.Player;
-            newMessage7.timeSent = DateTime.Now;
-            newConversation.messages.Add(newMessage7);
+                var newMessage8a = new Message();
+                newMessage8a.text = "Great! I'll bring her over right now! Send me your address.";
+                newMessage8a.type = DelaygramMessageType.NPC;
+                newMessage8a.timeSent = DateTime.Now;
+                newConversation.messages.Add(newMessage8a);
 
-            var newMessage8a = new Message();
-            newMessage8a.text = "Great! I'll bring him over right now! Send me your address.";
-            newMessage8a.type = DelaygramMessageType.NPC;
-            newMessage8a.timeSent = DateTime.Now;
-            newConversation.messages.Add(newMessage8a);
+                var newMessage9a = new Message();
+                newMessage9a.text = "Cat";
+                newMessage9a.type = DelaygramMessageType.Result;
+                newMessage9a.timeSent = DateTime.Now;
+                newConversation.messages.Add(newMessage9a);
 
-            var newMessage9a = new Message();
-            newMessage9a.text = "Dog";
-            newMessage9a.type = DelaygramMessageType.Result;
-            newMessage9a.timeSent = DateTime.Now;
-            newConversation.messages.Add(newMessage9a);
+                messageLoop = false;
+            }
+            else if (choices[choiceIndex] == 2)
+            {
+                newMessage7.text = "Dog!";
+                newMessage7.type = DelaygramMessageType.Player;
+                newMessage7.timeSent = DateTime.Now;
+                newConversation.messages.Add(newMessage7);
+
+                var newMessage8a = new Message();
+                newMessage8a.text = "Great! I'll bring him over right now! Send me your address.";
+                newMessage8a.type = DelaygramMessageType.NPC;
+                newMessage8a.timeSent = DateTime.Now;
+                newConversation.messages.Add(newMessage8a);
+
+                var newMessage9a = new Message();
+                newMessage9a.text = "Dog";
+                newMessage9a.type = DelaygramMessageType.Result;
+                newMessage9a.timeSent = DateTime.Now;
+                newConversation.messages.Add(newMessage9a);
+
+                messageLoop = false;
+            }
+            else if (choices[choiceIndex] == 3)
+            {
+                newMessage7.text = "A mixture of both!";
+                newMessage7.type = DelaygramMessageType.Player;
+                newMessage7.timeSent = DateTime.Now;
+                newConversation.messages.Add(newMessage7);
+
+                var newMessage8a = new Message();
+                newMessage8a.text = "Okay dude, this isn't a 90's TV show .. can you just pick an actual animal please?";
+                newMessage8a.type = DelaygramMessageType.NPC;
+                newMessage8a.timeSent = DateTime.Now;
+                newConversation.messages.Add(newMessage8a);
+            }
+
+            choiceIndex++;
         }
 
         return newConversation;

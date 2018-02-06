@@ -350,6 +350,7 @@
     <Compile Include="Assets\Code\FPS.cs" />
     <Compile Include="Assets\Code\GoalsController.cs" />
     <Compile Include="Assets\Code\IOController.cs" />
+    <Compile Include="Assets\Code\LevelingController.cs" />
     <Compile Include="Assets\Code\LoadController.cs" />
     <Compile Include="Assets\Code\MessageCollection.cs" />
     <Compile Include="Assets\Code\MessagePost.cs" />

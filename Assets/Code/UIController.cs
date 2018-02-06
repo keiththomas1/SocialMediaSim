@@ -50,6 +50,8 @@ public class UIController : MonoBehaviour {
     [SerializeField]
     private Sprite _messagesButtonSelected;
 
+    private UserSerializer _userSerializer;
+
     private HomeScreenController _homeController;
     private ProfileScreenController _profileController;
     private NewPostController _newPostController;
@@ -57,7 +59,7 @@ public class UIController : MonoBehaviour {
     private MessagesScreenController _messagesController;
     private TutorialScreenController _tutorialController;
     private NotificationController _notificationController;
-    private UserSerializer _userSerializer;
+    private GoalsController _goalsController;
 
     private Page _currentPage;
     private List<Page> _lastPages;
@@ -67,6 +69,8 @@ public class UIController : MonoBehaviour {
 
     private GameObject _nextPostText;
     private GameObject _postTimeText;
+
+    private GameObject _levelUpPopup = null;
 
     // Use this for initialization
     void Start () {
@@ -80,6 +84,7 @@ public class UIController : MonoBehaviour {
         this._exploreButton.GetComponent<Button>().onClick.AddListener(this.OnExploreClick);
         this._messagesButton.GetComponent<Button>().onClick.AddListener(this.OnMessagesClick);
 
+        this._userSerializer = UserSerializer.Instance;
         this._homeController = GetComponent<HomeScreenController>();
         this._profileController = GetComponent<ProfileScreenController>();
         this._newPostController = GetComponent<NewPostController>();
@@ -87,15 +92,15 @@ public class UIController : MonoBehaviour {
         this._messagesController = GetComponent<MessagesScreenController>();
         this._tutorialController = GetComponent<TutorialScreenController>();
         this._notificationController = GetComponent<NotificationController>();
-        this._userSerializer = UserSerializer.Instance;
+        this._goalsController = GetComponent<GoalsController>();
 
         this._lastPages = new List<Page>();
 
         if (!this._userSerializer.CompletedTutorial)
         {
+            this._goalsController.SetFirstGoal();
             this.GoToTutorialPage();
-        } else
-        {
+        } else {
             this.GoToProfilePage();
         }
 
@@ -144,11 +149,21 @@ public class UIController : MonoBehaviour {
         return this._currentPage;
     }
 
-    public void TutorialFinished()
+    public void CreateLevelUpPopup()
     {
-        this._userSerializer.CompletedTutorial = true;
-        this.GoToProfilePage();
-        this._profileController.CreateEditAvatarScreen(false);
+        this._levelUpPopup = GameObject.Instantiate(Resources.Load("UI/LevelUpPopup") as GameObject);
+        this._levelUpPopup.transform.position = new Vector3(0.0f, -0.06f, -5.0f);
+    }
+
+    public void DestroyLevelPopup()
+    {
+        GameObject.Destroy(this._levelUpPopup);
+        this._levelUpPopup = null;
+    }
+
+    public bool LevelPopupVisible()
+    {
+        return (this._levelUpPopup != null);
     }
 
     /* Private methods */
@@ -217,10 +232,13 @@ public class UIController : MonoBehaviour {
 
     private void OnHomeClick()
     {
-        this.UpdateLastVisited();
-        this.GoToHomePage();
+        if (this._userSerializer.CompletedTutorial)
+        {
+            this.UpdateLastVisited();
+            this.GoToHomePage();
+        }
     }
-    private void GoToHomePage()
+    public void GoToHomePage()
     {
         GenerateHomePage();
         UpdateButtonState();
@@ -238,10 +256,13 @@ public class UIController : MonoBehaviour {
 
     private void OnProfileClick()
     {
-        this.UpdateLastVisited();
-        this.GoToProfilePage();
+        if (this._userSerializer.CompletedTutorial)
+        {
+            this.UpdateLastVisited();
+            this.GoToProfilePage();
+        }
     }
-    private void GoToProfilePage()
+    public void GoToProfilePage()
     {
         GenerateProfilePage();
         UpdateButtonState();
@@ -259,10 +280,13 @@ public class UIController : MonoBehaviour {
 
     private void OnPostClick()
     {
-        this.UpdateLastVisited();
-        this.GoToPostPage();
+        if (this._userSerializer.CompletedTutorial)
+        {
+            this.UpdateLastVisited();
+            this.GoToPostPage();
+        }
     }
-    private void GoToPostPage()
+    public void GoToPostPage()
     {
         GeneratePostPage();
         UpdateButtonState();
@@ -280,10 +304,13 @@ public class UIController : MonoBehaviour {
 
     private void OnExploreClick()
     {
-        this.UpdateLastVisited();
-        this.GoToExplorePage();
+        if (this._userSerializer.CompletedTutorial)
+        {
+            this.UpdateLastVisited();
+            this.GoToExplorePage();
+        }
     }
-    private void GoToExplorePage()
+    public void GoToExplorePage()
     {
         GenerateExplorePage();
         UpdateButtonState();
@@ -301,10 +328,13 @@ public class UIController : MonoBehaviour {
 
     private void OnMessagesClick()
     {
-        this.UpdateLastVisited();
-        this.GoToMessagesPage();
+        if (this._userSerializer.CompletedTutorial)
+        {
+            this.UpdateLastVisited();
+            this.GoToMessagesPage();
+        }
     }
-    private void GoToMessagesPage()
+    public void GoToMessagesPage()
     {
         GenerateMessagesPage();
         UpdateButtonState();
@@ -313,12 +343,9 @@ public class UIController : MonoBehaviour {
     private void GenerateMessagesPage()
     {
         // Even if we are currently in messages, destroy and refresh inbox
-        // if (this._currentPage != Page.Messages)
-        // {
-            DestroyPage(this._currentPage);
-            this._messagesController.EnterScreen();
-            this._currentPage = Page.Messages;
-        // }
+        DestroyPage(this._currentPage);
+        this._messagesController.EnterScreen();
+        this._currentPage = Page.Messages;
     }
 
     private void GoToTutorialPage()

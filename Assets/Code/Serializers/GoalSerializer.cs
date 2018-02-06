@@ -26,7 +26,7 @@ public class GoalSerializer
 
     private GoalSerializer()
     {
-        this._savePath = Application.persistentDataPath + "/GoalInfo.dat";
+        this._savePath = Application.persistentDataPath + "/GoalsInfo.dat";
     }
 
     public GoalInformation[] CurrentGoals
@@ -92,6 +92,9 @@ public class GoalSerializer
             this._currentSave = new GoalSaveVariables();
             this._currentSave.lastUpdate = DateTime.Now;
             this._currentSave.currentGoals = new GoalInformation[3];
+            this._currentSave.currentGoals[0] = new GoalInformation(GoalStatus.Inactive);
+            this._currentSave.currentGoals[1] = new GoalInformation(GoalStatus.Inactive);
+            this._currentSave.currentGoals[2] = new GoalInformation(GoalStatus.Inactive);
             this.SaveGame();
         }
 
@@ -103,12 +106,21 @@ public class GoalSerializer
 [Serializable]
 public class GoalInformation
 {
-    public GoalType goalType;
+    public DateTime nextGoalTime;
+    public GoalStatus status;
+    public GoalObjectType goalType;
     public string goalObject;
     public GoalRewardType rewardType;
     public string reward; // "30" for exp, "dog" for item
     public int stepsCompleted;
     public int stepsNeeded;
+
+    public GoalInformation() { }
+
+    public GoalInformation(GoalStatus _status)
+    {
+        status = _status;
+    }
 }
 
 [Serializable]

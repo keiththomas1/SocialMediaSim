@@ -39,40 +39,16 @@ public class CharacterCustomization : MonoBehaviour
 
     public void SetCharacterLook(CharacterProperties properties)
     {
-        this.SetBodySprite(properties.gender, properties.bodySprite);
-        this.SetFaceSprite(properties.gender, properties.faceSprite);
         this.SetEyeSprite(properties.gender, properties.eyeSprite);
         this.SetHairSprite(properties.gender, properties.hairSprite);
         this.SetSkinColor(properties.skinColor.GetColor());
         this.SetHairColor(properties.hairColor.GetColor());
         this.SetShirtColor(properties.shirtColor.GetColor());
         this.SetPantsColor(properties.pantsColor.GetColor());
+        this.SetFitnessLevel(properties.gender, properties.fitnessLevel);
+        this.SetHappinessLevel(properties.gender, properties.happinessLevel);
     }
-
-    public void SetBodySprite(Gender gender, string spriteName)
-    {
-        if (this._spriteController)
-        {
-            List<Sprite> bodySprites = new List<Sprite>();
-            switch (gender)
-            {
-                case Gender.Female:
-                    bodySprites = this._spriteController.FemaleBodySprites;
-                    break;
-                case Gender.Male:
-                    bodySprites = this._spriteController.MaleBodySprites;
-                    break;
-            }
-            foreach (Sprite sprite in bodySprites)
-            {
-                if (sprite.name == spriteName)
-                {
-                    this.transform.Find("Body").GetComponent<SpriteRenderer>().sprite = sprite;
-                    return;
-                }
-            }
-        }
-    }
+    
     public void SetLeftArmSprite(Gender gender, string spriteName)
     {
         if (this._spriteController)
@@ -121,7 +97,7 @@ public class CharacterCustomization : MonoBehaviour
             }
         }
     }
-    public void SetFaceSprite(Gender gender, string spriteName)
+    public void SetHappinessLevel(Gender gender, int happinessLevel)
     {
         if (this._spriteController)
         {
@@ -135,14 +111,48 @@ public class CharacterCustomization : MonoBehaviour
                     faceSprites = this._spriteController.MaleFaceSprites;
                     break;
             }
-            foreach (Sprite sprite in faceSprites)
+
+            var head = this.transform.Find("Head");
+            if (faceSprites.Count < happinessLevel)
             {
-                if (sprite.name == spriteName)
-                {
-                    var head = this.transform.Find("Head");
-                    head.Find("Face").GetComponent<SpriteRenderer>().sprite = sprite;
-                    return;
-                }
+                head.Find("Face").GetComponent<SpriteRenderer>().sprite = faceSprites[faceSprites.Count - 1];
+            }
+            else if (happinessLevel < 1)
+            {
+                head.Find("Face").GetComponent<SpriteRenderer>().sprite = faceSprites[0];
+            }
+            else
+            {
+                head.Find("Face").GetComponent<SpriteRenderer>().sprite = faceSprites[happinessLevel - 1];
+            }
+        }
+    }
+    public void SetFitnessLevel(Gender gender, int fitnessLevel)
+    {
+        if (this._spriteController)
+        {
+            List<Sprite> bodySprites = new List<Sprite>();
+            switch (gender)
+            {
+                case Gender.Female:
+                    bodySprites = this._spriteController.FemaleBodySprites;
+                    break;
+                case Gender.Male:
+                    bodySprites = this._spriteController.MaleBodySprites;
+                    break;
+            }
+
+            if (bodySprites.Count < fitnessLevel)
+            {
+                this.transform.Find("Body").GetComponent<SpriteRenderer>().sprite = bodySprites[bodySprites.Count - 1];
+            }
+            else if (fitnessLevel < 1)
+            {
+                this.transform.Find("Body").GetComponent<SpriteRenderer>().sprite = bodySprites[0];
+            }
+            else
+            {
+                this.transform.Find("Body").GetComponent<SpriteRenderer>().sprite = bodySprites[fitnessLevel - 1];
             }
         }
     }
@@ -201,8 +211,12 @@ public class CharacterCustomization : MonoBehaviour
     public void SetSkinColor(Color color)
     {
         this.transform.Find("Head").GetComponent<SpriteRenderer>().color = color;
-        this.transform.Find("LeftArm").GetComponent<SpriteRenderer>().color = color;
-        this.transform.Find("RightArm").GetComponent<SpriteRenderer>().color = color;
+        var leftArm = this.transform.Find("LeftArmTop");
+        leftArm.GetComponent<SpriteRenderer>().color = color;
+        leftArm.transform.Find("LeftArmBottom").GetComponent<SpriteRenderer>().color = color;
+        var rightArm = this.transform.Find("RightArmTop");
+        rightArm.GetComponent<SpriteRenderer>().color = color;
+        rightArm.transform.Find("RightArmBottom").GetComponent<SpriteRenderer>().color = color;
     }
     public void SetHairColor(Color color)
     {
@@ -214,7 +228,11 @@ public class CharacterCustomization : MonoBehaviour
     }
     public void SetPantsColor(Color color)
     {
-        this.transform.Find("LeftLeg").GetComponent<SpriteRenderer>().color = color;
-        this.transform.Find("RightLeg").GetComponent<SpriteRenderer>().color = color;
+        var leftLeg = this.transform.Find("LeftLegTop");
+        leftLeg.GetComponent<SpriteRenderer>().color = color;
+        leftLeg.transform.Find("LeftLegBottom").GetComponent<SpriteRenderer>().color = color;
+        var rightLeg = this.transform.Find("RightLegTop");
+        rightLeg.GetComponent<SpriteRenderer>().color = color;
+        rightLeg.transform.Find("RightLegBottom").GetComponent<SpriteRenderer>().color = color;
     }
 }
