@@ -197,7 +197,10 @@ public class PostHelper {
         return itemObjects;
     }
 
-    public void GeneratePostFeed(
+    // Create a two-photo-width feed within the given scrollArea
+    // Fill postObjects with the created posts, given data from posts
+    // Returns the length of the feed
+    public float GeneratePostFeed(
         GameObject scrollArea,
         List<DelayGramPost> posts,
         List<DelayGramPostObject> postObjects,
@@ -205,7 +208,7 @@ public class PostHelper {
         float postYOffset)
     {
         var currentX = postXOffset;
-        var currentY = scrollArea.transform.localPosition.y + postYOffset;
+        var currentY = postYOffset;
         foreach (DelayGramPost post in posts)
         {
             var newPost = SetupPostPrefab(post, currentX, currentY, scrollArea, false);
@@ -222,9 +225,7 @@ public class PostHelper {
             postObjects.Add(new DelayGramPostObject(newPost, post));
         }
 
-        var scrollController = scrollArea.GetComponent<ScrollController>();
-        // var scrollController = scrollArea.AddComponent<ScrollController>();
-        scrollController.UpdateScrollArea(scrollArea, scrollArea.transform.localPosition.y, -currentY);
+        return postYOffset - currentY;
     }
 
     public string GetMessageTimeFromDateTime(DateTime postTime)

@@ -21,13 +21,9 @@ public class CharacterSpriteCollection : MonoBehaviour
     [SerializeField]
     private List<GameObject> _femaleEyePrefabs;
     [SerializeField]
-    private List<Sprite> _maleLeftArmSprites;
+    private List<Sprite> _maleArmSprites;
     [SerializeField]
-    private List<Sprite> _femaleLeftArmSprites;
-    [SerializeField]
-    private List<Sprite> _maleRightArmSprites;
-    [SerializeField]
-    private List<Sprite> _femaleRightArmSprites;
+    private List<Sprite> _femaleArmSprites;
 
     // Use this for initialization
     void Start () {
@@ -89,21 +85,12 @@ public class CharacterSpriteCollection : MonoBehaviour
         get { return this._femaleBodySprites; }
     }
 
-    public List<Sprite> MaleLeftArmSprites
+    public List<Sprite> MaleArmSprites
     {
-        get { return this._maleLeftArmSprites; }
+        get { return this._maleArmSprites; }
     }
-    public List<Sprite> FemaleLeftArmSprites
+    public List<Sprite> FemaleArmSprites
     {
-        get { return this._femaleLeftArmSprites; }
-    }
-
-    public List<Sprite> MaleRightArmSprites
-    {
-        get { return this._maleRightArmSprites; }
-    }
-    public List<Sprite> FemaleRightArmSprites
-    {
-        get { return this._femaleRightArmSprites; }
+        get { return this._femaleArmSprites; }
     }
 }

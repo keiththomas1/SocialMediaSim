@@ -74,22 +74,26 @@ public class IOController : MonoBehaviour
         var colliderName = (collider == null) ? "" : collider.name;
         if (this._uiController.LevelPopupVisible())
         {   // Handle clicks on level popup
+            var previousProperties = new CharacterProperties(this._characterSerializer.CurrentCharacterProperties);
             switch (colliderName)
             {
                 case "HappinessBlock":
                     this._characterSerializer.HappinessLevel++;
-                    this._uiController.DestroyLevelPopup();
+                    this._uiController.DestroyLevelPopup(previousProperties);
                     break;
                 case "FitnessBlock":
                     this._characterSerializer.FitnessLevel++;
-                    this._uiController.DestroyLevelPopup();
+                    this._uiController.DestroyLevelPopup(previousProperties);
                     break;
                 case "StyleBlock":
                     this._characterSerializer.StyleLevel++;
-                    this._uiController.DestroyLevelPopup();
+                    this._uiController.DestroyLevelPopup(previousProperties);
                     break;
                 case "NothingBlock":
-                    this._uiController.DestroyLevelPopup();
+                    this._uiController.DestroyLevelPopup(previousProperties);
+                    break;
+                case "OkayButton":
+                    this._uiController.DestroyAvatarTransitionPopup();
                     break;
             }
         } else {

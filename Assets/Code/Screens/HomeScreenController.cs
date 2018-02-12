@@ -206,7 +206,9 @@ public class HomeScreenController : MonoBehaviour {
 
             posts.Add(newPost);
         }
-        this._postHelper.GeneratePostFeed(
+        var feedLength = this._postHelper.GeneratePostFeed(
             this._worldScrollArea, posts, this._worldPostObjects, POST_X_OFFSET, POST_Y_OFFSET);
+        var scrollController = this._worldScrollArea.GetComponent<ScrollController>();
+        scrollController.UpdateScrollArea(feedLength);
     }
 }

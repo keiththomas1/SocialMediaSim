@@ -1,18 +1,19 @@
 using DG.Tweening;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ScrollController : MonoBehaviour
 {
-    private GameObject scrollObject;
-    private float scrollAreaTop;
-    private float scrollAreaBottom;
-    private bool scrollInitialized = false;
-    private bool canScroll = true;
+    private const float SCREEN_SIZE = 5.0f;
+    private float _scrollAreaBottom;
+    private float _scrollAreaHeight;
+    private bool _scrollInitialized = false;
+    private bool _canScroll = true;
 
-    private bool isScrolling;
     private const float SCROLL_DELAY = 0.2f;
-    private float currentScrollSpeed;
+    private bool _isScrolling;
+    private float _currentScrollSpeed;
 
     // For mouse position handling
     private float _previousMouseY;
@@ -20,31 +21,53 @@ public class ScrollController : MonoBehaviour
 
     public delegate void ScrollCallback();
 
-	// Use this for initialization
-	void Start () {
-	}
-
-    public void UpdateScrollArea(GameObject scrollArea, float top, float bottom)
+    // Use this for initialization
+    private void Start()
     {
-        scrollObject = scrollArea;
-        scrollAreaTop = top;
-        scrollAreaBottom = bottom;
+        // The current position is the "bottom" because we have to move in
+        // the opposite direction to view the content
+        this._scrollAreaBottom = this.transform.localPosition.y;
+    }
 
-        scrollInitialized = true;
+    public void UpdateScrollArea(float height)
+    {
+        // We only want to scroll if the scroll height is larger than the screen size
+        if (height <= SCREEN_SIZE)
+        {
+            this._scrollAreaHeight = 0.1f;
+        }
+        else
+        {
+            this._scrollAreaHeight = height - SCREEN_SIZE;
+        }
+
+        this._scrollInitialized = true;
     }
 
     public void ScrollToPosition(float yPosition, ScrollCallback callback = null)
     {
+        // Since we scroll the parent object we have to scroll it to the opposite of the
+        // content position to get to it.
+        var scrollPosition = yPosition * -1;
         transform
-            .DOLocalMoveY(yPosition, 0.8f)
+            .DOLocalMoveY(scrollPosition, 0.8f)
             .SetEase(Ease.OutSine)
             .OnComplete(() => { callback(); });
     }
-	
-	// Update is called once per frame
+
+    public void ScrollToBottom(ScrollCallback callback = null)
+    {
+        var scrollPosition = this._scrollAreaBottom + this._scrollAreaHeight;
+        transform
+            .DOLocalMoveY(scrollPosition, 0.8f)
+            .SetEase(Ease.OutSine)
+            .OnComplete(() => { callback(); });
+    }
+
+    // Update is called once per frame
     void Update()
     {
-        if (scrollInitialized && canScroll)
+        if (this._scrollInitialized && this._canScroll)
         {
             this._previousMouseY = this._currentMouseY;
             this._currentMouseY = Input.mousePosition.y;
@@ -55,61 +78,68 @@ public class ScrollController : MonoBehaviour
                 this._previousMouseY = this._currentMouseY;
             }
 
-            if (!isScrolling && Input.GetMouseButton(0))
+            if (!this._isScrolling && Input.GetMouseButton(0))
             {
-                isScrolling = true;
+                this._isScrolling = true;
             }
 
             if (Input.GetMouseButtonUp(0))
             {
-                isScrolling = false;
+                this._isScrolling = false;
             }
 
             // Only for development use
             if (Input.GetAxis("Mouse ScrollWheel") > 0) // Scroll up
             {
-                scrollObject.transform.Translate(new Vector2(0.0f, -20.0f * Time.deltaTime));
+                this.transform.Translate(new Vector2(0.0f, -20.0f * Time.deltaTime));
             }
             if (Input.GetAxis("Mouse ScrollWheel") < 0) // Scroll down
             {
-                scrollObject.transform.Translate(new Vector2(0.0f, 20.0f * Time.deltaTime));
+                this.transform.Translate(new Vector2(0.0f, 20.0f * Time.deltaTime));
             }
 
-            if (isScrolling) {
+            if (this._isScrolling) {
                 var mouseDistance = this._previousMouseY - this._currentMouseY;
                 var relativeMouseDistance = mouseDistance / Screen.height;
-                this.currentScrollSpeed = relativeMouseDistance * 80.0f;
+                this._currentScrollSpeed = relativeMouseDistance * 80.0f;
             } else { // Slow down the scroll speed incrementally
-                this.currentScrollSpeed = this.currentScrollSpeed * 0.93f;
+                if (!Mathf.Approximately(this._currentScrollSpeed, 0.00f))
+                {
+                    this._currentScrollSpeed = this._currentScrollSpeed * 0.93f;
+                }
             }
 
-            var finalScrollSpeed = -1 * Time.deltaTime * currentScrollSpeed;
-            // If at the borders of the scroll range, reset, else continue scrolling
-            if (this.currentScrollSpeed <= 0.0f && (transform.localPosition.y + finalScrollSpeed) > scrollAreaBottom)
-            {
+            var finalScrollSpeed = -1 * Time.deltaTime * this._currentScrollSpeed;
+            var upcomingPosition = transform.localPosition.y + finalScrollSpeed;
+            // The "top" is not original position of scrollController because we
+            // are scrolling it in the opposite direction to get to view the content
+            var scrollAreaTop = this._scrollAreaBottom + this._scrollAreaHeight;
+
+            if (finalScrollSpeed < 0.0f && (upcomingPosition < this._scrollAreaBottom))
+            {   // If we are scrolling and would scroll past the BOTTOM of the page, hard-set position
                 var newPosition = transform.localPosition;
-                newPosition.y = scrollAreaBottom;
+                newPosition.y = this._scrollAreaBottom;
                 this.transform.localPosition = newPosition;
-                this.currentScrollSpeed = 0.0f;
+                this._currentScrollSpeed = 0.0f;
             }
-            else if (this.currentScrollSpeed >= 0.0f && (transform.localPosition.y + finalScrollSpeed) < scrollAreaTop)
-            {
+            else if (finalScrollSpeed > 0.0f && (upcomingPosition > scrollAreaTop))
+            {   // If we are scrolling and would scroll past the TOP of the page, hard-set position
                 var newPosition = transform.localPosition;
                 newPosition.y = scrollAreaTop;
                 this.transform.localPosition = newPosition;
-                this.currentScrollSpeed = 0.0f;
+                this._currentScrollSpeed = 0.0f;
             }
             else
             {
-                scrollObject.transform.Translate(0.0f, finalScrollSpeed, 0.0f);
+                this.transform.Translate(0.0f, finalScrollSpeed, 0.0f);
             }
         }
 	}
 
     public bool CanScroll
     {
-        get { return this.canScroll; }
-        set { this.canScroll = value; }
+        get { return this._canScroll; }
+        set { this._canScroll = value; }
     }
    
 }

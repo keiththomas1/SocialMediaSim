@@ -71,6 +71,7 @@ public class UIController : MonoBehaviour {
     private GameObject _postTimeText;
 
     private GameObject _levelUpPopup = null;
+    private GameObject _avatarTransitionPopup = null;
 
     // Use this for initialization
     void Start () {
@@ -155,15 +156,24 @@ public class UIController : MonoBehaviour {
         this._levelUpPopup.transform.position = new Vector3(0.0f, -0.06f, -5.0f);
     }
 
-    public void DestroyLevelPopup()
+    public void DestroyLevelPopup(CharacterProperties previousCharacterProperties = null)
     {
         GameObject.Destroy(this._levelUpPopup);
         this._levelUpPopup = null;
+        if (previousCharacterProperties != null)
+        {
+            this.CreateAvatarTransitionPopup(previousCharacterProperties);
+        }
+    }
+    public void DestroyAvatarTransitionPopup()
+    {
+        GameObject.Destroy(this._avatarTransitionPopup);
+        this._avatarTransitionPopup = null;
     }
 
     public bool LevelPopupVisible()
     {
-        return (this._levelUpPopup != null);
+        return (this._levelUpPopup != null || this._avatarTransitionPopup != null);
     }
 
     /* Private methods */
@@ -227,6 +237,36 @@ public class UIController : MonoBehaviour {
                     this.GoToMessagesPage();
                     break;
             }
+        }
+    }
+
+    private void CreateAvatarTransitionPopup(CharacterProperties previousCharacterProperties)
+    {
+        this._avatarTransitionPopup = GameObject.Instantiate(Resources.Load("UI/AvatarTransitionPopup") as GameObject);
+        this._avatarTransitionPopup.transform.position = new Vector3(0.0f, -0.06f, -5.0f);
+
+        var avatarSection = this._avatarTransitionPopup.transform.Find("AvatarTransition");
+        var spriteMask = avatarSection.transform.Find("SpriteMask");
+        var oldFemaleAvatar = spriteMask.transform.Find("OldFemaleAvatar");
+        var oldMaleAvatar = spriteMask.transform.Find("OldMaleAvatar");
+
+        var gender = previousCharacterProperties.gender;
+        switch(gender)
+        {
+            case Gender.Female:
+                oldFemaleAvatar.GetComponent<CharacterCustomization>().SetCharacterLook(previousCharacterProperties);
+
+                oldMaleAvatar.gameObject.SetActive(false);
+                var newMaleAvatar = spriteMask.transform.Find("NewMaleAvatar");
+                newMaleAvatar.gameObject.SetActive(false);
+                break;
+            case Gender.Male:
+                oldMaleAvatar.GetComponent<CharacterCustomization>().SetCharacterLook(previousCharacterProperties);
+
+                oldFemaleAvatar.gameObject.SetActive(false);
+                var newFemaleAvatar = spriteMask.transform.Find("NewFemaleAvatar");
+                newFemaleAvatar.gameObject.SetActive(false);
+                break;
         }
     }
 

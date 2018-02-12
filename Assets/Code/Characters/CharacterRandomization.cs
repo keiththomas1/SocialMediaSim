@@ -39,14 +39,12 @@ public class CharacterRandomization {
         var newProperties = oldProperties;
         if (Random.Range(0, 2) == 0)
         {
-            newProperties.faceSprite = this.GetRandomMaleFaceSprite();
             newProperties.eyeSprite = this.GetRandomMaleEyeSprite();
             newProperties.hairSprite = this.GetRandomMaleHairSprite();
             newProperties.gender = Gender.Male;
         }
         else
         {
-            newProperties.faceSprite = this.GetRandomFemaleFaceSprite();
             newProperties.eyeSprite = this.GetRandomFemaleEyeSprite();
             newProperties.hairSprite = this.GetRandomFemaleHairSprite();
             newProperties.gender = Gender.Female;

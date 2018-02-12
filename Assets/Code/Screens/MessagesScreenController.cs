@@ -17,13 +17,15 @@ public class MessagesScreenController : MonoBehaviour {
     private MessageCollection _messageCollection;
     private PostHelper _postHelper;
 
-    private GameObject page;
-    private Transform pageScrollArea;
-    private ScrollController scrollController;
+    private GameObject _messagePage;
+    private Transform _pageScrollArea;
+    private ScrollController _scrollController;
 
     private List<Conversation> activeConversations;
     private List<GameObject> createdStubs;
     private Conversation _currentConversation;
+    private float _currentConversationLength = 0.0f;
+    private const float DEFAULT_MESSAGE_SIZE = 0.65f;
     private const float STUB_STARTING_X = 0.0f;
     private const float STUB_STARTING_Y = -.2f;
 
@@ -60,6 +62,7 @@ public class MessagesScreenController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        // TODO: This section is too large to understand, refactor it into methods
 	    if (this._messageWritingTimer > 0.0f)
         {
             this._messageWritingTimer -= Time.deltaTime;
@@ -81,56 +84,7 @@ public class MessagesScreenController : MonoBehaviour {
                         }
                     }
                 } else {
-                    this._messageDotsVisible = true;
-
-                    GameObject nextMessage = null;
-                    try
-                    {
-                        nextMessage = this._messageQueue.Peek();
-                    }
-                    catch (Exception exception)
-                    {
-                        Debug.Log(exception);
-                    }
-
-                    if (nextMessage)
-                    {
-                        nextMessage.SetActive(true);
-
-                        Transform typingBackground = null;
-                        foreach (Transform childTransform in nextMessage.transform)
-                        {
-                            if (childTransform.name.Contains("MessageBox") && childTransform.gameObject.activeSelf)
-                            {
-                                childTransform.GetComponent<SpriteRenderer>().enabled = true;
-                                typingBackground = childTransform;
-                            }
-                        }
-
-                        if (typingBackground != null)
-                        {
-                            var scaleFactor = this.GetScaleFactorForMessageBackgrounds(typingBackground.name);
-                            typingBackground.localScale = new Vector3(scaleFactor.x, scaleFactor.y, 1.0f);
-                            this._currentTypingTween = typingBackground.DOScale(new Vector3(1.0f, 0.5f, 1.0f), 0.5f)
-                                .SetEase(Ease.OutSine)
-                                .SetDelay(TYPING_TIME)
-                                .OnComplete(() => {
-                                    nextMessage.transform.Find("MessageText").gameObject.SetActive(true);
-                                    nextMessage.transform.Find("ProfilePicBubble").gameObject.SetActive(true);
-                                });
-
-
-                            this._currentTypingBubble = GameObject.Instantiate(Resources.Load("Messages/TypingBubble") as GameObject);
-                            this._currentTypingBubble.transform.parent = this.pageScrollArea;
-                            var messagePosition = nextMessage.transform.localPosition;
-                            messagePosition.z -= 1.0f;
-                            this._currentTypingBubble.transform.localPosition = messagePosition;
-                            var deathTimer = this._currentTypingBubble.AddComponent<DeathByTimer>();
-                            deathTimer.deathTimeInSeconds = TYPING_TIME;
-                        }
-
-                        this._messageWritingTimer = 2.0f;
-                    }
+                    this.StartNextMessageAnimation();
                 }
             }
         }
@@ -155,9 +109,19 @@ public class MessagesScreenController : MonoBehaviour {
                 {
                     if (colliderName == conversation.npcName)
                     {
-                        GenerateConversation(conversation, conversation.messages, 0.0f);
+                        this._currentConversationLength = GenerateConversation(conversation, conversation.messages, 0.0f);
+
+                        this._scrollController.UpdateScrollArea(this._currentConversationLength);
+                        if (conversation.viewed)
+                        {
+                            // Since we want to scroll down, that is going in the negative direction so assuming
+                            // that we start at zero Y, it should be negative conversationLength downwards
+                            this._scrollController.ScrollToBottom();
+                        }
+
                         ShowMessageUI(conversation.npcName);
                         this._currentState = MessageScreenState.InMessage;
+                        break;
                     }
                 }
                 break;
@@ -175,11 +139,10 @@ public class MessagesScreenController : MonoBehaviour {
 
     public void EnterScreen()
     {
-        this.page = GameObject.Instantiate(Resources.Load("Messages/DGMessagesPage") as GameObject);
-        this.page.transform.position = new Vector3(0.0f, 0.0f, 0.0f);
-        this.pageScrollArea = this.page.transform.Find("ScrollArea");
-        scrollController = this.pageScrollArea.gameObject.AddComponent<ScrollController>();
-        scrollController.UpdateScrollArea(this.pageScrollArea.gameObject, this.pageScrollArea.localPosition.y, 7.0f);
+        this._messagePage = GameObject.Instantiate(Resources.Load("Messages/DGMessagesPage") as GameObject);
+        this._messagePage.transform.position = new Vector3(0.0f, 0.0f, 0.0f);
+        this._pageScrollArea = this._messagePage.transform.Find("ScrollArea");
+        this._scrollController = this._pageScrollArea.GetComponent<ScrollController>();
 
         this.activeConversations = new List<Conversation>(this._messagesSerializer.ActiveConversations);
         this.activeConversations.Reverse();
@@ -202,14 +165,79 @@ public class MessagesScreenController : MonoBehaviour {
 
     public void DestroyPage()
     {
-        if (this.page)
+        if (this._messagePage)
         {
-            GameObject.Destroy(page);
+            GameObject.Destroy(_messagePage);
         }
         this.HideMessageUI();
     }
 
     /* Private methods */
+
+    private void StartNextMessageAnimation()
+    {
+        GameObject nextMessage = null;
+        try
+        {
+            nextMessage = this._messageQueue.Peek();
+        }
+        catch (Exception exception)
+        {
+            Debug.Log(exception);
+            return;
+        }
+
+        this._messageDotsVisible = true;
+        if (nextMessage)
+        {
+            nextMessage.SetActive(true);
+
+            this.CreateTypingBackground(nextMessage);
+
+            this._messageWritingTimer = 2.0f;
+        }
+    }
+
+    private void CreateTypingBackground(GameObject nextMessage)
+    {
+        Transform typingBackground = null;
+        foreach (Transform childTransform in nextMessage.transform)
+        {
+            if (childTransform.name.Contains("MessageBox") && childTransform.gameObject.activeSelf)
+            {
+                childTransform.GetComponent<SpriteRenderer>().enabled = true;
+                typingBackground = childTransform;
+            }
+        }
+
+        if (typingBackground != null)
+        {
+            var scaleFactor = this.GetScaleFactorForMessageBackgrounds(typingBackground.name);
+            var previousScale = typingBackground.localScale;
+            typingBackground.localScale = new Vector3(scaleFactor.x, scaleFactor.y, 1.0f);
+
+            this._currentTypingTween = typingBackground.DOScale(previousScale, 0.5f)
+                .SetEase(Ease.OutSine)
+                .SetDelay(TYPING_TIME)
+                .OnComplete(() => {
+                    nextMessage.transform.Find("MessageText").gameObject.SetActive(true);
+                    nextMessage.transform.Find("ProfilePicBubble").gameObject.SetActive(true);
+                });
+
+            this.CreateTypingBubble(nextMessage);
+        }
+    }
+
+    private void CreateTypingBubble(GameObject nextMessage)
+    {
+        this._currentTypingBubble = GameObject.Instantiate(Resources.Load("Messages/TypingBubble") as GameObject);
+        this._currentTypingBubble.transform.parent = this._pageScrollArea;
+        var messagePosition = nextMessage.transform.localPosition;
+        messagePosition.z -= 1.0f;
+        this._currentTypingBubble.transform.localPosition = messagePosition;
+        var deathTimer = this._currentTypingBubble.AddComponent<DeathByTimer>();
+        deathTimer.deathTimeInSeconds = TYPING_TIME;
+    }
 
     private Vector2 GetScaleFactorForMessageBackgrounds(string backgroundName)
     {
@@ -225,6 +253,8 @@ public class MessagesScreenController : MonoBehaviour {
                 return new Vector2(0.26f, 0.16f);
             case "MessageBox5":
                 return new Vector2(0.26f, 0.12f);
+            case "ResultMessageBox":
+                return new Vector2(0.25f, 0.12f);
             default:
                 Debug.Log("Passed unexpected name for background");
                 return new Vector2(0.0f, 0.0f);
@@ -259,13 +289,16 @@ public class MessagesScreenController : MonoBehaviour {
             this._messagePost.ChoiceMade(this._currentConversation, choice);
 
             var messageCount = this._messageObjects.Count;
-            var yLocation = this._messageObjects[messageCount - 1].transform.localPosition.y;
+            var choicesCount = this._currentConversation.choiceCount;
+            var yLocation = this._messageObjects[messageCount - choicesCount].transform.localPosition.y;
 
             // Hard-coded to destroy the last two messages (choices)
-            GameObject.Destroy(this._messageObjects[messageCount - 1]);
-            GameObject.Destroy(this._messageObjects[messageCount - 2]);
-            this._messageObjects.RemoveAt(messageCount - 1);
-            this._messageObjects.RemoveAt(messageCount - 2);
+            for (int i=1; i<=this._currentConversation.choiceCount; i++)
+            {
+                messageCount = this._messageObjects.Count;
+                GameObject.Destroy(this._messageObjects[messageCount - 1]);
+                this._messageObjects.RemoveAt(messageCount - 1);
+            }
 
             var newConvo = this._messagesSerializer.GetConversationByNPCName(this._currentConversation.npcName);
             if (newConvo != null)
@@ -283,7 +316,10 @@ public class MessagesScreenController : MonoBehaviour {
                 {
                     newMessages.Remove(message);
                 }
-                this.GenerateConversation(newConvo.Value, newMessages, yLocation);
+                var newConversationLength = this.GenerateConversation(newConvo.Value, newMessages, yLocation);
+                this._currentConversationLength += newConversationLength;
+
+                this._scrollController.UpdateScrollArea(this._currentConversationLength);
             }
         }
     }
@@ -305,18 +341,22 @@ public class MessagesScreenController : MonoBehaviour {
 
         if (this.activeConversations.Count == 0)
         {
-            var noMessagesText1 = this.pageScrollArea.Find("NoMessagesText1");
+            var noMessagesText1 = this._pageScrollArea.Find("NoMessagesText1");
             noMessagesText1.gameObject.SetActive(true);
-            var noMessagesText2 = this.pageScrollArea.Find("NoMessagesText2");
+            var noMessagesText2 = this._pageScrollArea.Find("NoMessagesText2");
             noMessagesText2.gameObject.SetActive(true);
         }
+
+        // TODO: Set this based on how many messages there are
+        // TODO: Do this again when you are within a chat on the fly to make in-message the right length
+        this._scrollController.UpdateScrollArea(STUB_STARTING_Y - currentYPosition);
     }
 
     private void CreateMessageStub(Conversation conversation, Message message, float yPosition)
     {
         var messageStub = GameObject.Instantiate(Resources.Load("Messages/MessageStub") as GameObject);
         messageStub.name = conversation.npcName;
-        messageStub.transform.parent = pageScrollArea;
+        messageStub.transform.parent = _pageScrollArea;
         messageStub.transform.localPosition = new Vector3(STUB_STARTING_X, yPosition, 0.0f);
         messageStub.transform.localScale = new Vector3(.95f, .95f, 1.0f);
 
@@ -357,10 +397,11 @@ public class MessagesScreenController : MonoBehaviour {
         this.createdStubs.Clear();
     }
 
-    private void GenerateConversation(Conversation conversation, List<Message> messages, float yPosition)
+    private float GenerateConversation(Conversation conversation, List<Message> messages, float yPosition)
     {
         this.DestroyMessageStubs();
         this.SetTypeText("Choice", true);
+        var currentYPosition = yPosition;
 
         this._messageQueue = new Queue<GameObject>();
         foreach (Message message in messages)
@@ -368,29 +409,24 @@ public class MessagesScreenController : MonoBehaviour {
             switch (message.type)
             {
                 case DelaygramMessageType.NPC:
-                    yPosition -= this.AddNPCMessageObject(conversation, message, true, yPosition);
+                    currentYPosition -= this.AddNPCMessageObject(conversation, message, true, currentYPosition);
                     break;
                 case DelaygramMessageType.Choice:
                     int choiceCount = 1;
                     foreach(string choice in message.choices)
                     {
-                        yPosition -= this.AddPlayerChoiceObject(conversation, choice, "Choice" + choiceCount.ToString(), yPosition);
+                        currentYPosition -= this.AddPlayerChoiceObject(conversation, choice, "Choice" + choiceCount.ToString(), currentYPosition);
                         choiceCount++;
                     }
                     break;
                 case DelaygramMessageType.Player:
-                    yPosition -= this.AddPlayerMessageObject(conversation, message, yPosition);
+                    currentYPosition -= this.AddPlayerMessageObject(conversation, message, currentYPosition);
                     break;
                 case DelaygramMessageType.Result:
                     var prefabName = this._messageCollection.GetResultPrefabName(message.text);
-                    yPosition -= this.AddResultMessageObject(conversation, prefabName, yPosition);
+                    currentYPosition -= this.AddResultMessageObject(conversation, prefabName, currentYPosition);
                     break;
             }
-        }
-
-        if (conversation.viewed)
-        {
-            this.scrollController.ScrollToPosition(yPosition * -1);
         }
 
         if (!conversation.viewed)
@@ -401,11 +437,13 @@ public class MessagesScreenController : MonoBehaviour {
 
         this._currentConversation = conversation;
         conversation.viewed = true;
+
+        return (yPosition - currentYPosition);
     }
 
     private void SetTypeText(string text, bool visible)
     {
-        var typeText = this.pageScrollArea.Find("TypeText");
+        var typeText = this._pageScrollArea.Find("TypeText");
         typeText.GetComponent<TextMeshPro>().text = text;
         typeText.gameObject.SetActive(visible);
     }
@@ -413,23 +451,22 @@ public class MessagesScreenController : MonoBehaviour {
     private float AddPlayerMessageObject(Conversation conversation, Message message, float yPosition)
     {
         var popupMessage = GameObject.Instantiate(Resources.Load("Messages/PlayerMessage") as GameObject);
-        popupMessage.transform.parent = this.pageScrollArea;
+        popupMessage.transform.parent = this._pageScrollArea;
         popupMessage.transform.localPosition = new Vector3(0.0f, yPosition, 0.0f);
 
         var profileBubble = popupMessage.transform.Find("ProfilePicBubble");
         this._postHelper.SetupProfilePicBubble(profileBubble.gameObject, this._characterSerializer.CurrentCharacterProperties);
 
-
         var textHeight = this.SetupText(popupMessage, message.text);
         this.StoreMessageObject(conversation, popupMessage);
-        return 0.75f + textHeight;
+        return DEFAULT_MESSAGE_SIZE + textHeight;
     }
 
     private float AddPlayerChoiceObject(Conversation conversation, string choiceText, string nameText, float yPosition)
     {
         var popupMessage = GameObject.Instantiate(Resources.Load("Messages/PlayerChoice") as GameObject);
         popupMessage.name = nameText;
-        popupMessage.transform.parent = this.pageScrollArea;
+        popupMessage.transform.parent = this._pageScrollArea;
         popupMessage.transform.localPosition = new Vector3(0.0f, yPosition, 0.0f);
 
         var textHeight = this.SetupText(popupMessage, choiceText);
@@ -440,7 +477,7 @@ public class MessagesScreenController : MonoBehaviour {
     private float AddNPCMessageObject(Conversation conversation, Message message, bool showPortrait, float yPosition)
     {
         var popupMessage = GameObject.Instantiate(Resources.Load("Messages/NPCMessage") as GameObject);
-        popupMessage.transform.parent = this.pageScrollArea;
+        popupMessage.transform.parent = this._pageScrollArea;
         popupMessage.transform.localPosition = new Vector3(0.0f, yPosition, 0.0f);
 
         var profileBubble = popupMessage.transform.Find("ProfilePicBubble");
@@ -449,18 +486,20 @@ public class MessagesScreenController : MonoBehaviour {
         var textHeight = this.SetupText(popupMessage, message.text);
         this.StoreMessageObject(conversation, popupMessage);
 
-        var messageHeight = 0.75f + textHeight; // One and two liners are 0.75f tall. Every line after is 0.05f.
+        var messageHeight = DEFAULT_MESSAGE_SIZE + textHeight;
         return messageHeight;
     }
 
     private float AddResultMessageObject(Conversation conversation, string prefabName, float yPosition)
     {
         var popupMessage = GameObject.Instantiate(Resources.Load(prefabName) as GameObject);
-        popupMessage.transform.parent = this.pageScrollArea;
+        popupMessage.transform.parent = this._pageScrollArea;
         popupMessage.transform.localPosition = new Vector3(0.0f, yPosition, 0.0f);
 
         this.StoreMessageObject(conversation, popupMessage);
-        return 0.75f;
+
+        // TODO: Figure out the size dynamically somehow, or just make all the results the same height
+        return 1.6f;
     }
 
     private void StoreMessageObject(Conversation conversation, GameObject messageObject)
@@ -489,8 +528,11 @@ public class MessagesScreenController : MonoBehaviour {
         var messageText = popupMessage.transform.Find("MessageText");
         messageText.GetComponent<TextMeshPro>().text = text;
         messageText.GetComponent<TextMeshPro>().ForceMeshUpdate();
+
         var renderedHeight = messageText.GetComponent<TextMeshPro>().renderedHeight;
         var lineCount = messageText.GetComponent<TextMeshPro>().textInfo.lineCount;
+
+        this.SetupMessageCollider(popupMessage, lineCount);
 
         switch (lineCount)
         {
@@ -512,6 +554,41 @@ public class MessagesScreenController : MonoBehaviour {
                 break;
         }
 
-        return (lineCount > 2) ? (lineCount - 1) * 0.1f : 0.0f;
+        return ((lineCount - 1) * 0.15f);
+    }
+
+    private void SetupMessageCollider(GameObject message, int lineCount)
+    {
+        // For now this is just for the choices but it's possible in the future the messages
+        // may have colliders so i'm leaving it generic
+        if (message.GetComponent<BoxCollider>())
+        {
+            var newColliderSize = message.GetComponent<BoxCollider>().size;
+            newColliderSize.y = lineCount * 0.18f;
+            message.GetComponent<BoxCollider>().size = newColliderSize;
+
+            var newColliderCenter = message.GetComponent<BoxCollider>().center;
+            switch (lineCount)
+            {
+                case 1:
+                    newColliderCenter.y = .04f;
+                    break;
+                case 2:
+                    newColliderCenter.y = -.06f;
+                    break;
+                case 3:
+                    newColliderCenter.y = -.13f;
+                    break;
+                case 4:
+                    newColliderCenter.y = -.22f;
+                    break;
+                case 5:
+                    newColliderCenter.y = -.30f;
+                    break;
+                default:
+                    break;
+            }
+            message.GetComponent<BoxCollider>().center = newColliderCenter;
+        }
     }
 }

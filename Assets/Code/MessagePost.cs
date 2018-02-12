@@ -91,7 +91,7 @@ public class MessagePost
                 {
                     this._userSerializer.HasBulldog = true;
                 }
-                newConversation = this._messageCollection.CreateLostDogConversation(choices);
+                newConversation = this._messageCollection.CreateLostDogConversation(choices, conversation.npcProperties);
                 break;
         }
         newConversation.choicesMade = choices;

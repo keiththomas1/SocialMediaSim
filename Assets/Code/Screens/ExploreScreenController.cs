@@ -149,13 +149,25 @@ public class ExploreScreenController : MonoBehaviour
 
         if (success)
         {
-            this._currentPictures = new Queue<PictureModelJsonReceive>();
-            foreach (PictureModelJsonReceive picture in pictures.pictureModels)
+            if (pictures.pictureModels.Length > 0)
             {
-                this._currentPictures.Enqueue(picture);
+                this._currentPictures = new Queue<PictureModelJsonReceive>();
+                foreach (PictureModelJsonReceive picture in pictures.pictureModels)
+                {
+                    this._currentPictures.Enqueue(picture);
+                }
+                this._loadingPictures = false;
+                this.CreateNewExplorePost();
+            } else
+            {
+                var errorText = this._explorePage.transform.Find("ErrorText");
+                if (errorText)
+                {
+                    errorText.gameObject.SetActive(true);
+                    errorText.GetComponent<TextMeshPro>().color = new Color(.98f, 0.86f, 0.07f);
+                    errorText.GetComponent<TextMeshPro>().text = "No more pictures to swipe. Please check back later!";
+                }
             }
-            this._loadingPictures = false;
-            this.CreateNewExplorePost();
         } else {
             if (this._explorePage)
             {
@@ -163,6 +175,7 @@ public class ExploreScreenController : MonoBehaviour
                 if (errorText)
                 {
                     errorText.gameObject.SetActive(true);
+                    errorText.GetComponent<TextMeshPro>().color = new Color(1.0f, 0.43f, 0.43f);
                     errorText.GetComponent<TextMeshPro>().text = "No internet connection.";
                 }
             }

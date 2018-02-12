@@ -52,30 +52,6 @@ public class CharacterSerializer
             this.SaveFile();
         }
     }
-    public string BodySprite
-    {
-        get
-        {
-            return this._currentSave.properties.bodySprite;
-        }
-        set
-        {
-            this._currentSave.properties.bodySprite = value;
-            this.SaveFile();
-        }
-    }
-    public string FaceSprite
-    {
-        get
-        {
-            return this._currentSave.properties.faceSprite;
-        }
-        set
-        {
-            this._currentSave.properties.faceSprite = value;
-            this.SaveFile();
-        }
-    }
     public string EyeSprite
     {
         get
@@ -313,11 +289,7 @@ public class CharacterProperties
 {
     public Gender gender;
     public string hairSprite;
-    public string faceSprite;
     public string eyeSprite;
-    public string bodySprite;
-    public string leftArmSprite;
-    public string rightArmSprite;
     public SerializableColor skinColor;
     public SerializableColor hairColor;
     public SerializableColor shirtColor;
@@ -329,9 +301,6 @@ public class CharacterProperties
     public CharacterProperties()
     {
         gender = Gender.Female;
-        bodySprite = "DefaultBody";
-        leftArmSprite = "LeftArm";
-        rightArmSprite = "RightArm";
         skinColor = new SerializableColor(255, 255, 255);
         hairColor = new SerializableColor(255, 255, 255);
         shirtColor = new SerializableColor(255, 255, 255);
@@ -343,8 +312,6 @@ public class CharacterProperties
     public CharacterProperties(CharacterProperties other)
     {
         gender = other.gender;
-        bodySprite = other.bodySprite;
-        faceSprite = other.faceSprite;
         eyeSprite = other.eyeSprite;
         hairSprite = other.hairSprite;
         skinColor = other.skinColor;

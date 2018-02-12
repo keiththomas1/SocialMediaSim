@@ -30,11 +30,13 @@ public class MessageCollection
         }
     }
 
-    public Conversation CreateLostDogConversation(List<int> choices)
+    public Conversation CreateLostDogConversation(List<int> choices, CharacterProperties npcProperties = null)
     {
         var newConversation = this.CreateEmptyConversation();
         newConversation.npcName = LOST_DOG_NPC_NAME;
-        newConversation.npcProperties = this._characterRandomization.GetFullRandomCharacter();
+        newConversation.npcProperties =
+            (npcProperties == null) ? this._characterRandomization.GetFullRandomCharacter() : npcProperties;
+        newConversation.choiceCount = 3;
 
         var newMessage1 = new Message();
         newMessage1.text = "Hi, " + this._userSerializer.PlayerName + "! I saw your post and noticed a severe lack of fluffy friends in it.";

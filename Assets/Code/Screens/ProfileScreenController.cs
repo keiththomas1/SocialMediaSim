@@ -13,7 +13,8 @@ public class ProfileScreenController : MonoBehaviour
     private TextMeshProUGUI _chooseNameText;
 
     private const float POST_X_OFFSET = -1.06f;
-    private const float POST_Y_OFFSET = -3.3f;
+    private const float POST_Y_OFFSET = -5.45f;
+    private const float NEW_POST_SCROLL_POSITION = -4.1f;
 
     private CharacterSerializer characterSerializer;
     private UserSerializer _userSerializer;
@@ -188,9 +189,7 @@ public class ProfileScreenController : MonoBehaviour
         this._currentState = ProfileScreenState.ProfileDefault;
 
         this.scrollArea = page.transform.Find("ScrollArea").gameObject;
-        // this.scrollController = scrollArea.AddComponent<ScrollController>();
         this.scrollController = scrollArea.GetComponent<ScrollController>();
-        this.scrollController.UpdateScrollArea(scrollArea, scrollArea.transform.localPosition.y, 4.0f);
 
         var characterSection = scrollArea.transform.Find("CharacterSection").gameObject;
         this._spriteMask = characterSection.transform.Find("SpriteMask").gameObject;
@@ -458,12 +457,15 @@ public class ProfileScreenController : MonoBehaviour
     {
         var posts = this._userSerializer.GetReverseChronologicalPosts();
         posts.Sort((a, b) => b.dateTime.CompareTo(a.dateTime));
-        this._postHelper.GeneratePostFeed(
+        var feedLength = this._postHelper.GeneratePostFeed(
             this.scrollArea, posts, this._youPostObjects, POST_X_OFFSET, POST_Y_OFFSET);
+        var scrollController = this.scrollArea.GetComponent<ScrollController>();
+        var sizeBeforeFeed = POST_Y_OFFSET * -1;
+        scrollController.UpdateScrollArea(sizeBeforeFeed + feedLength);
 
         if (this._firstPostNew)
         {
-            this.scrollController.ScrollToPosition(1.8f, this.CheckGoalProgress);
+            this.scrollController.ScrollToPosition(NEW_POST_SCROLL_POSITION, this.CheckGoalProgress);
 
             var postAnimation = GameObject.Instantiate(Resources.Load("Posts/NewPostAnimation") as GameObject);
             var animationPosition = this._youPostObjects[0].postObject.transform.position;

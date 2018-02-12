@@ -15,17 +15,7 @@ exports.readPicture = function(request, response) {
     response.json(picture);
   });
 };
-exports.listAllPictures = function(request, response) {
-  Picture.find({}, function(error, picture) {
-    if (error) {
-		console.error("listAllPictures error with: ", picture);
-		response.send(error);
-	}
-	console.log("listAllPictures request. response:", picture);
-    response.json(picture);
-  });
-};
-exports.listLastTenPictures = function(request, response) {
+exports.listPicturesByTime = function(request, response) {
   Picture.find({}, function(error, picture) {
     if (error) {
 		console.error("listLastTenPictures error with: ", picture);
@@ -33,9 +23,22 @@ exports.listLastTenPictures = function(request, response) {
 	}
 	console.log("listLastTenPictures request. response:", picture);
     response.json(picture);
-  }).
-  sort({ createdDate: 'desc' }).
-  limit(10);
+  })
+  .where('createdDate').lt(request.params.timestamp)
+  .sort({ createdDate: 'desc' })
+  .limit(request.params.count);
+};
+exports.listPictures = function(request, response) {
+  Picture.find({}, function(error, picture) {
+    if (error) {
+		console.error("listLastTenPictures error with: ", picture);
+		response.send(error);
+	}
+	console.log("listLastTenPictures request. response:", picture);
+    response.json(picture);
+  })
+  .sort({ createdDate: 'desc' })
+  .limit(parseInt(request.params.count, 10));
 };
 
 // POST

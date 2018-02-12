@@ -143,6 +143,7 @@ public struct Conversation
     public string npcName;
     public CharacterProperties npcProperties;
     public List<Message> messages;
+    public int choiceCount; // How many choices available (only supports one choice per convo right now)
     public List<int> choicesMade;
     public bool viewed;
 }

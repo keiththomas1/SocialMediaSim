@@ -19,32 +19,38 @@ let PictureItem = new Schema({
 	scale: Number
 });
 
-let PictureSchema = new Schema({
-	playerName: {
-		type: String
-	},
-	backgroundName: {
-		type: String
-	},
-	createdDate: {
-		type: Date,
-		default: Date.now
-	},
-	avatarPosition: {
-		type: Vector3
-		//required: 'Missing the avatar position'
-	},
-	avatarRotation: Number,
-	avatarScale: Number,
+let CharacterColorProperties = new Schema({
 	skinColor: Color3,
 	hairColor: Color3,
 	shirtColor: Color3,
-	pantsColor: Color3,
-	gender: String,
+	pantsColor: Color3
+});
+
+let CharacterSpriteProperties = new Schema({
 	hairSprite: String,
-	faceSprite: String,
-	eyeSprite: String,
-	bodySprite: String,
+	eyeSprite: String
+});
+
+let CharacterLevelProperties = new Schema({
+	happinessLevel: Number,
+	fitnessLevel: Number,
+	styleLevel: Number
+});
+
+let CharacterProperties = new Schema({
+	gender: String,
+	position: Vector3,
+	rotation: Number,
+	scale: Number,
+	spriteProperties: CharacterSpriteProperties,
+	colorProperties: CharacterColorProperties,
+	levelProperties: CharacterLevelProperties
+});
+
+let PictureSchema = new Schema({
+	playerName: String,
+	backgroundName: String,
+	characterProperties: CharacterProperties,
 	likes: {
 		type: Number,
 		default: 0
@@ -53,7 +59,11 @@ let PictureSchema = new Schema({
 		type: Number,
 		default: 0
 	},
-	items: [PictureItem]
+	items: [PictureItem],
+	createdDate: {
+		type: Date,
+		default: Date.now
+	},
 });
 
 module.exports = mongoose.model('Pictures', PictureSchema);

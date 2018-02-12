@@ -75,7 +75,7 @@ public class NewPostController : MonoBehaviour
         this._avatar.SetActive(true);
 
         this._itemObjects = this.SetupItemsInPost(picture.gameObject);
-        var movableObjects = this._itemObjects;
+        var movableObjects = new List<GameObject>(this._itemObjects);
         movableObjects.Add(this._avatar);
 
         var croppingController = picture.GetComponent<CroppingController>();

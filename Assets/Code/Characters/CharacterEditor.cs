@@ -64,7 +64,7 @@ public class CharacterEditor : MonoBehaviour {
                 this.RandomizeHair();
                 break;
             case "RandomFaceButton":
-                this.RandomizeFace();
+                this.RandomizeEyes();
                 break;
             case "ColorSkinButton":
                 var skinColor = this._characterRandomization.GetNextSkinColor(
@@ -91,7 +91,7 @@ public class CharacterEditor : MonoBehaviour {
 
     private void RandomizeCharacter()
     {
-        this.RandomizeFace();
+        this.RandomizeEyes();
         this.RandomizeHair();
         this._currentProperties.hairColor = new SerializableColor(this._characterRandomization.GetRandomColor());
         this._currentProperties.shirtColor = new SerializableColor(this._characterRandomization.GetRandomColor());
@@ -114,19 +114,15 @@ public class CharacterEditor : MonoBehaviour {
         }
     }
 
-    private void RandomizeFace()
+    private void RandomizeEyes()
     {
         switch (this._currentProperties.gender)
         {
             case Gender.Male:
-                this._currentProperties.faceSprite = this._characterRandomization.GetRandomMaleFaceSprite(
-                    this._currentProperties.faceSprite);
                 this._currentProperties.eyeSprite = this._characterRandomization.GetRandomMaleEyeSprite(
                     this._currentProperties.eyeSprite);
                 break;
             case Gender.Female:
-                this._currentProperties.faceSprite = this._characterRandomization.GetRandomFemaleFaceSprite(
-                    this._currentProperties.faceSprite);
                 this._currentProperties.eyeSprite = this._characterRandomization.GetRandomFemaleEyeSprite(
                     this._currentProperties.eyeSprite);
                 break;
@@ -158,6 +154,6 @@ public class CharacterEditor : MonoBehaviour {
         femaleAvatar.gameObject.SetActive(this._currentProperties.gender == Gender.Female);
         maleAvatar.gameObject.SetActive(this._currentProperties.gender == Gender.Male);
         this.RandomizeHair();
-        this.RandomizeFace();
+        this.RandomizeEyes();
     }
 }
