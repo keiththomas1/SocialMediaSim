@@ -98,7 +98,6 @@ public class PostHelper {
         }
 
         var likeDislikeArea = post.transform.Find("LikeDislikeArea");
-        var likesText = likeDislikeArea.transform.Find("LikeText");
         float likesPercentage = 100.0f;
         float dislikePercentage = 0.0f;
         if (data.likes + data.dislikes > 0)
@@ -106,10 +105,8 @@ public class PostHelper {
             likesPercentage = Mathf.Floor(((float)data.likes) / ((float)(data.likes + data.dislikes)) * 100.0f);
             dislikePercentage = Mathf.Ceil(((float)data.dislikes) / ((float)(data.likes + data.dislikes)) * 100.0f);
         }
-        likesText.GetComponent<TextMeshPro>().text = likesPercentage.ToString() + "%";
 
-        var likeDislikeBar = likeDislikeArea.transform.Find("LikeDislikeBar");
-        var likeBar = likeDislikeBar.transform.Find("LikeBar");
+        var likeBar = likeDislikeArea.Find("LikeBar");
         if (likeBar)
         {
             likeBar.transform.localScale = new Vector3(
@@ -117,7 +114,7 @@ public class PostHelper {
                 likeBar.transform.localScale.y,
                 likeBar.transform.localScale.z);
         }
-        var dislikeBar = likeDislikeBar.transform.Find("DislikeBar");
+        var dislikeBar = likeDislikeArea.transform.Find("DislikeBar");
         if (dislikeBar)
         {
             dislikeBar.transform.localScale = new Vector3(
@@ -275,17 +272,31 @@ public class PostHelper {
 
     public void SetPostDetails(GameObject postObject, DelayGramPost post, bool showDetails, bool showPostShadow)
     {
-        var nameText = postObject.transform.Find("NameText").gameObject;
+        var userHeader = postObject.transform.Find("UserHeader");
+        var userHeaderXPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.07f, 0.0f, 0.0f)).x;
+        // Position User Header at correct x position for different screen sizes
+        userHeader.position = new Vector3(
+            userHeaderXPosition,
+            userHeader.position.y,
+            userHeader.position.z);
+
+        var nameText = userHeader.transform.Find("NameText");
         if (nameText)
         {
-            nameText.SetActive(showDetails);
+            nameText.gameObject.SetActive(showDetails);
             nameText.GetComponent<TextMeshPro>().text = post.playerName;
         }
 
-        var timeText = postObject.transform.Find("TimeText").gameObject;
+        var userPageLink = postObject.transform.Find("UserPageLink");
+        if (userPageLink)
+        {
+            userPageLink.gameObject.SetActive(showDetails);
+        }
+
+        var timeText = postObject.transform.Find("TimeText");
         if (timeText)
         {
-            timeText.SetActive(showDetails);
+            timeText.gameObject.SetActive(showDetails);
             var timeTextXPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.86f, 0.0f, 0.0f)).x;
             timeText.transform.position = new Vector3(
                 timeTextXPosition,
@@ -296,16 +307,11 @@ public class PostHelper {
             // timeText.GetComponent<TextMeshPro>().text = this._restRequester.GetPostTimeFromDateTime(timeSincePost);
         }
 
-        var profilePicBubble = postObject.transform.Find("ProfilePicBubble").gameObject;
+        var profilePicBubble = userHeader.transform.Find("ProfilePicBubble");
         if (profilePicBubble)
         {
-            profilePicBubble.SetActive(showDetails);
-            var profileBubbleXPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.07f, 0.0f, 0.0f)).x;
-            profilePicBubble.transform.position = new Vector3(
-                profileBubbleXPosition,
-                profilePicBubble.transform.position.y,
-                profilePicBubble.transform.position.z);
-            this.SetupProfilePicBubble(profilePicBubble, post.characterProperties);
+            profilePicBubble.gameObject.SetActive(showDetails);
+            this.SetupProfilePicBubble(profilePicBubble.gameObject, post.characterProperties);
         }
 
         var likeDislikeArea = postObject.transform.Find("LikeDislikeArea").gameObject;

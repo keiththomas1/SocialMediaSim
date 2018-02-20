@@ -7,10 +7,10 @@
 // Uncomment the following line to use the automatic build processor. 
 //#define USE_BUILD_PROCESSOR
 
-#if UNITY_5_6 && !UNITY_CLOUD_BUILD && USE_BUILD_PROCESSOR
+#if( UNITY_5_6 || UNITY_2017 ) && !UNITY_CLOUD_BUILD && USE_BUILD_PROCESSOR
 using UnityEditor;
 using UnityEditor.Build;
-using VisualDesignCafe.Editor.Prefabs.Database;
+using VisualDesignCafe.Editor.Prefabs.Building;
 
 public class NestedPrefabsBuildProcessor : IPreprocessBuild, IPostprocessBuild
 {
@@ -32,7 +32,7 @@ public class NestedPrefabsBuildProcessor : IPreprocessBuild, IPostprocessBuild
     /// </summary>
     public void OnPostprocessBuild( BuildTarget target, string path )
     {
-        PrefabDatabaseUtility.PostprocessBuild();
+        BuildUtility.PostprocessBuild();
     }
 
     /// <summary>
@@ -41,7 +41,7 @@ public class NestedPrefabsBuildProcessor : IPreprocessBuild, IPostprocessBuild
     /// </summary>
     public void OnPreprocessBuild( BuildTarget target, string path )
     {
-        PrefabDatabaseUtility.PreprocessBuild();
+        BuildUtility.PreprocessBuild();
     }
 
 }

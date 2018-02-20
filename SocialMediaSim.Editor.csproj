@@ -335,6 +335,15 @@
     <Reference Include="TextMeshPro-1.0.55.2017.1.0b12-Editor">
       <HintPath>Assets\TextMesh Pro\Plugins\Editor\TextMeshPro-1.0.55.2017.1.0b12-Editor.dll</HintPath>
     </Reference>
+    <Reference Include="NestedPrefabs.Package">
+      <HintPath>Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.Package.dll</HintPath>
+    </Reference>
+    <Reference Include="VisualDesignCafe.Editor">
+      <HintPath>Assets\Plugins\Visual Design Cafe\Assemblies\VisualDesignCafe.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="VisualDesignCafe.Editor.Analytics">
+      <HintPath>Assets\Plugins\Visual Design Cafe\Assemblies\VisualDesignCafe.Editor.Analytics.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="SocialMediaSim.csproj">
@@ -375,6 +384,12 @@
     <None Include="Assets\Opencoding\Console\Plugins\Android\OpenCoding\AndroidManifest.xml" />
     <None Include="Assets\Opencoding\Console\Plugins\Android\OpenCoding\res\xml\file_paths.xml" />
     <None Include="Assets\Opencoding\Console\readme.txt" />
+    <None Include="Assets\Plugins\Visual Design Cafe\Assemblies\VisualDesignCafe.Editor.Analytics.xml" />
+    <None Include="Assets\Plugins\Visual Design Cafe\Assemblies\VisualDesignCafe.Editor.xml" />
+    <None Include="Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.Editor.xml" />
+    <None Include="Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.Package.xml" />
+    <None Include="Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.xml" />
+    <None Include="Assets\Plugins\Visual Design Cafe\Nested Prefabs\README.txt" />
     <None Include="Assets\TextMesh Pro\Fonts\Anton OFL.txt" />
     <None Include="Assets\TextMesh Pro\Fonts\Bangers - OFL.txt" />
     <None Include="Assets\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />

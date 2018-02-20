@@ -18,27 +18,54 @@ exports.readPicture = function(request, response) {
 exports.listPicturesByTime = function(request, response) {
   Picture.find({}, function(error, picture) {
     if (error) {
-		console.error("listLastTenPictures error with: ", picture);
+		console.error("listPicturesByTime error with: ", picture);
 		response.send(error);
 	}
-	console.log("listLastTenPictures request. response:", picture);
+	console.log("listPicturesByTime request. response:", picture);
     response.json(picture);
   })
   .where('createdDate').lt(request.params.timestamp)
   .sort({ createdDate: 'desc' })
   .limit(request.params.count);
 };
+exports.listPicturesByUser = function(request, response) {
+  Picture.find({}, function(error, picture) {
+    if (error) {
+		console.error("listPicturesByUser error with: ", picture);
+		response.send(error);
+	}
+	console.log("listPicturesByUser request with username "
+		+ request.params.username
+		+ ". response:",
+		picture);
+    response.json(picture);
+  })
+  .where('playerName').equals(request.params.username)
+  .sort({ createdDate: 'desc' });
+};
 exports.listPictures = function(request, response) {
   Picture.find({}, function(error, picture) {
     if (error) {
-		console.error("listLastTenPictures error with: ", picture);
+		console.error("listPictures error with: ", picture);
 		response.send(error);
 	}
-	console.log("listLastTenPictures request. response:", picture);
+	console.log("listPictures request. response:", picture);
     response.json(picture);
   })
   .sort({ createdDate: 'desc' })
-  .limit(parseInt(request.params.count, 10));
+  .limit(parseInt(request.params.count, 10)); // Base 10
+};
+exports.listFeedbackNeededPictures = function(request, response) {
+  Picture.find({}, function(error, picture) {
+    if (error) {
+		console.error("listFeedbackNeededPictures error with: ", picture);
+		response.send(error);
+	}
+	console.log("listFeedbackNeededPictures request. response:", picture);
+    response.json(picture);
+  })
+  .sort({ totalFeedback: 'asc' })
+  .limit(parseInt(request.params.count, 10)); // Base 10
 };
 
 // POST
@@ -66,14 +93,18 @@ exports.updatePicture = function(request, response) {
   });
 };
 exports.incrementLikes = function(request, response) {
-	Picture.findOneAndUpdate({_id: request.params.pictureID}, {$inc: {"likes": 1}}, function(error, picture) {
-		if (error) {
-			console.error("incrementLikes error with: ", picture);
-			response.send(error);
+	Picture.findOneAndUpdate(
+		{_id: request.params.pictureID},
+		{$inc: {"likes": 1, "totalFeedback": 1}},
+		function(error, picture) {
+			if (error) {
+				console.error("incrementLikes error with: ", picture);
+				response.send(error);
+			}
+			console.log("incrementLikes request with id=" + request.params.pictureID);
+			response.json(picture);
 		}
-		console.log("incrementLikes request with id=" + request.params.pictureID);
-		response.json(picture);
-	});
+	);
 };
 exports.incrementDislikes = function(request, response) {
 	Picture.findOneAndUpdate({_id: request.params.pictureID}, {$inc: {"dislikes": 1}}, function(error, picture) {

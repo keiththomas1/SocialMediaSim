@@ -59,6 +59,10 @@ let PictureSchema = new Schema({
 		type: Number,
 		default: 0
 	},
+	totalFeedback: {
+		type: Number,
+		default: 0
+	},
 	items: [PictureItem],
 	createdDate: {
 		type: Date,

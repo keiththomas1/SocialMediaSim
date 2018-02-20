@@ -70,11 +70,11 @@ public class ProfileScreenController : MonoBehaviour
             .transform.Find("TextArea")
             .transform.Find("Text")
             .GetComponent<TextMeshProUGUI>();
-        var exitButton = this._chooseNameBox.transform.Find("ExitButtonBack").GetComponent<Button>();
+        var exitButton = this._chooseNameBox.transform.Find("ExitButton").GetComponent<Button>();
         exitButton.onClick.AddListener(this.NameExitClicked);
-        var randomizeButton = this._chooseNameBox.transform.Find("RandomizeButtonBack").GetComponent<Button>();
+        var randomizeButton = this._chooseNameBox.transform.Find("RandomizeButton").GetComponent<Button>();
         randomizeButton.onClick.AddListener(this.NameRandomizeClicked);
-        var doneButton = this._chooseNameBox.transform.Find("DoneButtonBack").GetComponent<Button>();
+        var doneButton = this._chooseNameBox.transform.Find("DoneButton").GetComponent<Button>();
         doneButton.onClick.AddListener(this.NameDoneClicked);
     }
 
@@ -83,13 +83,6 @@ public class ProfileScreenController : MonoBehaviour
     }
     void Update()
     {
-        // HACK for testing
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            this._levelingController.AddExperience(10);
-            this.UpdateLevelDisplay();
-        }
-
         if (this._tickGoalTimer > 0.0f)
         {
             this._tickGoalTimer -= Time.deltaTime;
@@ -125,6 +118,8 @@ public class ProfileScreenController : MonoBehaviour
             {
                 case "ChooseNameTextBox":
                     this._chooseNameBox.SetActive(true);
+                    var chooseNameText = this._chooseNameBox.transform.Find("TextInput");
+                    chooseNameText.GetComponent<TMP_InputField>().text = this._userSerializer.PlayerName;
                     break;
                 case "BackButton":
                     this.ResetCharacterProperties();
@@ -264,7 +259,8 @@ public class ProfileScreenController : MonoBehaviour
     }
     private void NameDoneClicked()
     {
-        this._userSerializer.PlayerName = this._chooseNameText.text;
+        var nameText = this._chooseNameText.text;
+        this._userSerializer.PlayerName = nameText;
         this._chooseNameBox.SetActive(false);
         UpdateText(this._editScreen.transform.Find("ChooseNameTextBox").Find("NameText").gameObject);
     }
@@ -286,7 +282,7 @@ public class ProfileScreenController : MonoBehaviour
     {
         if (textObject)
         {
-            textObject.GetComponent<TextMeshPro>().text = _userSerializer.PlayerName;
+            textObject.GetComponent<TextMeshPro>().text = this._userSerializer.PlayerName;
         }
     }
 
@@ -567,6 +563,7 @@ public class ProfileScreenController : MonoBehaviour
         this._imageCurrentlyShrinking = true;
 
         // Scale post down and position where it used to be
+        this._postHelper.SetPostDetails(post.postObject, post.post, false, true);
         this._postHelper.ShrinkAndReturnPost(
             post,
             this._originalImageScale,
@@ -580,6 +577,5 @@ public class ProfileScreenController : MonoBehaviour
     private void PostFinishedShrinking(DelayGramPostObject postObject, bool showDetails)
     {
         this._imageCurrentlyShrinking = false;
-        this._postHelper.SetPostDetails(postObject.postObject, postObject.post, false, true);
     }
 }

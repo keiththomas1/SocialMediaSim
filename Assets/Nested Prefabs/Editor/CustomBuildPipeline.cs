@@ -1,14 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using UnityEngine;
+﻿using System.IO;
 using UnityEditor;
-using VisualDesignCafe.Editor.Prefabs.Database;
-
+using VisualDesignCafe.Editor.Prefabs.Building;
 
 public class CustomBuildPipeline
 {
-
     /// <summary>
     /// Example of a custom build pipeline with Nested Prefabs.
     /// </summary>
@@ -20,7 +15,7 @@ public class CustomBuildPipeline
             Directory.CreateDirectory( "Builds" );
 
         // Call PreprocessBuild before starting the build to remove all nested prefab data from the project.
-        PrefabDatabaseUtility.PreprocessBuild();
+        BuildUtility.PreprocessBuild();
         {
             // Create a build.
             BuildPipeline.BuildPlayer(
@@ -43,6 +38,6 @@ public class CustomBuildPipeline
                 BuildOptions.None );
         }
         // Call PostprocessBuild after building to restore all nested prefab data.
-        PrefabDatabaseUtility.PostprocessBuild();
+        BuildUtility.PostprocessBuild();
     }
 }

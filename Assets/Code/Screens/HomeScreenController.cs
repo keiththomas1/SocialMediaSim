@@ -11,6 +11,8 @@ public class HomeScreenController : MonoBehaviour {
 
     private const float POST_X_OFFSET = -0.87f;
     private const float POST_Y_OFFSET = 2.84f;
+    private const float PROFILE_POST_X_OFFSET = -1.1f;
+    private const float PROFILE_POST_Y_OFFSET = -3.07f;
     private GameObject _postPage;
     private GameObject _errorText;
 
@@ -22,15 +24,21 @@ public class HomeScreenController : MonoBehaviour {
     private GameObject _loadingIcon;
 
     // For handling of selecting an image and resizing/repositioning
-    private DelayGramPostObject _currentSelectedImage;
+    private DelayGramPostObject? _currentSelectedImage;
     private Vector3 _originalImageScale;
     private Vector3 _originalImagePosition;
     private bool _imageCurrentlyShrinking = false;
 
+    // User profile
+    private GameObject _userProfileScreen;
+    private GameObject _userProfileScrollArea;
+    private List<DelayGramPostObject> _userProfilePostObjects;
+
     private enum HomeScreenState
     {
         WorldFeed,
-        SinglePicture
+        SinglePicture,
+        UserProfile
     }
     private HomeScreenState _currentState = HomeScreenState.WorldFeed;
 
@@ -38,6 +46,7 @@ public class HomeScreenController : MonoBehaviour {
     private void Awake()
     {
         this._worldPostObjects = new List<DelayGramPostObject>();
+        this._userProfilePostObjects = new List<DelayGramPostObject>();
         this._restRequester = new RESTRequester();
         this._postHelper = new PostHelper();
 	}
@@ -70,18 +79,115 @@ public class HomeScreenController : MonoBehaviour {
 
     public void CheckClick(string colliderName)
     {
-        foreach(DelayGramPostObject post in this._worldPostObjects)
+        if (colliderName == "UserPageLink")
         {
-            if (post.postObject && colliderName == post.postObject.name)
+            this.ShowUserProfile();
+        }
+        else
+        {
+            foreach (DelayGramPostObject post in this._worldPostObjects)
             {
-                if (this._currentState == HomeScreenState.WorldFeed)
+                if (post.postObject && colliderName == post.postObject.name)
                 {
-                    this.EnlargePost(post);
-                } else {
-                    this.ShrinkPost(this._currentSelectedImage);
+                    if (this._currentState == HomeScreenState.WorldFeed)
+                    {
+                        this.EnlargePost(post);
+                    }
+                    else
+                    {
+                        this.ShrinkPost(this._currentSelectedImage.Value);
+                    }
+                }
+            }
+            foreach (DelayGramPostObject post in this._userProfilePostObjects)
+            {
+                if (post.postObject && colliderName == post.postObject.name)
+                {
+                    if (this._currentState == HomeScreenState.WorldFeed)
+                    {
+                        this.EnlargePost(post);
+                    }
+                    else
+                    {
+                        this.ShrinkPost(this._currentSelectedImage.Value);
+                    }
                 }
             }
         }
+    }
+
+    private void ShowUserProfile()
+    {
+        this._currentState = HomeScreenState.UserProfile;
+
+        this._postPage.SetActive(false);
+        this._currentSelectedImage.Value.postObject.SetActive(false);
+
+        this._userProfileScreen = GameObject.Instantiate(Resources.Load("Profile/UserProfile") as GameObject);
+        this._userProfileScreen.transform.position = new Vector3(0.2f, 1.3f, 0.0f);
+        this._userProfileScrollArea = this._userProfileScreen.transform.Find("ScrollArea").gameObject;
+
+        var topBackground = this._userProfileScrollArea.transform.Find("TopBackground");
+        var nameText = topBackground.Find("NameText");
+        var playerName = this._currentSelectedImage.Value.post.playerName;
+        nameText.GetComponent<TextMeshPro>().text = playerName;
+
+        var characterSection = this._userProfileScrollArea.transform.Find("CharacterSection");
+        var spriteMask = characterSection.Find("SpriteMask");
+        var femaleAvatar = spriteMask.Find("FemaleAvatar");
+        var maleAvatar = spriteMask.Find("MaleAvatar");
+
+        var characterProperties = this._currentSelectedImage.Value.post.characterProperties;
+        if (characterProperties.gender == Gender.Female)
+        {
+            femaleAvatar.GetComponent<CharacterCustomization>().SetCharacterLook(characterProperties);
+            maleAvatar.gameObject.SetActive(false);
+        }
+        else
+        {
+            maleAvatar.GetComponent<CharacterCustomization>().SetCharacterLook(characterProperties);
+            femaleAvatar.gameObject.SetActive(false);
+        }
+
+        this._loadingIcon = GameObject.Instantiate(Resources.Load("LoadingIcon") as GameObject);
+        this._loadingIcon.transform.position = new Vector3(0.0f, -1.35f, 0.0f);
+        this._loadingIcon.transform.parent = this._userProfileScrollArea.transform;
+
+        this._restRequester.RequestAllUserPosts(playerName, this.UpdateUserProfilePosts);
+        // Populate profile page (character, items, level)
+    }
+
+    private void UpdateUserProfilePosts(PictureArrayJson pictures, bool success)
+    {
+        if (this._loadingIcon)
+        {
+            GameObject.Destroy(this._loadingIcon);
+        }
+
+        if (success)
+        {
+            if (pictures.pictureModels.Length > 0)
+            {
+                this.GenerateUserProfilePostObjects(pictures);
+            }
+        }
+    }
+
+    private void GenerateUserProfilePostObjects(PictureArrayJson pictureArray)
+    {
+        var posts = new List<DelayGramPost>();
+        foreach (PictureModelJsonReceive picture in pictureArray.pictureModels)
+        {
+            // Create a picture with information from picture
+            var newPost = this._restRequester.ConvertJsonPictureIntoDelayGramPost(picture);
+
+            posts.Add(newPost);
+        }
+        var feedLength = this._postHelper.GeneratePostFeed(
+            this._userProfileScrollArea, posts, this._userProfilePostObjects, PROFILE_POST_X_OFFSET, PROFILE_POST_Y_OFFSET);
+        var scrollController = this._userProfileScrollArea.GetComponent<ScrollController>();
+        var topSectionHeight = PROFILE_POST_Y_OFFSET * -1;
+        scrollController.UpdateScrollArea(topSectionHeight + feedLength);
     }
 
     private void EnlargePost(DelayGramPostObject post)
@@ -98,7 +204,14 @@ public class HomeScreenController : MonoBehaviour {
 
         this._postHelper.EnlargeAndCenterPost(post);
 
-        foreach(DelayGramPostObject newPostObject in this._worldPostObjects)
+        foreach (DelayGramPostObject newPostObject in this._worldPostObjects)
+        {
+            if (newPostObject.postObject.name != post.postObject.name)
+            {
+                newPostObject.postObject.SetActive(false);
+            }
+        }
+        foreach (DelayGramPostObject newPostObject in this._userProfilePostObjects)
         {
             if (newPostObject.postObject.name != post.postObject.name)
             {
@@ -113,6 +226,7 @@ public class HomeScreenController : MonoBehaviour {
         this._imageCurrentlyShrinking = true;
 
         // Scale post down and position where it used to be
+        this._postHelper.SetPostDetails(post.postObject, post.post, false, true);
         this._postHelper.ShrinkAndReturnPost(
             post,
             this._originalImageScale,
@@ -126,12 +240,18 @@ public class HomeScreenController : MonoBehaviour {
                 newPostObject.postObject.SetActive(true);
             }
         }
+        foreach (DelayGramPostObject newPostObject in this._userProfilePostObjects)
+        {
+            if (newPostObject.postObject.name != post.postObject.name)
+            {
+                newPostObject.postObject.SetActive(true);
+            }
+        }
     }
 
     private void PostFinishedShrinking(DelayGramPostObject postObject, bool showDetails)
     {
         this._imageCurrentlyShrinking = false;
-        this._postHelper.SetPostDetails(postObject.postObject, postObject.post, false, true);
     }
 
     public void DestroyPage()
@@ -139,6 +259,18 @@ public class HomeScreenController : MonoBehaviour {
         DestroyPosts(this._worldPostObjects);
         this._worldPostObjects.Clear();
         GameObject.Destroy(this._postPage);
+
+        DestroyPosts(this._userProfilePostObjects);
+        this._userProfilePostObjects.Clear();
+
+        if (this._currentSelectedImage.HasValue)
+        {
+            GameObject.Destroy(this._currentSelectedImage.Value.postObject);
+        }
+        if (this._userProfileScreen)
+        {
+            GameObject.Destroy(this._userProfileScreen);
+        }
     }
 
     public bool BackOut()
@@ -146,16 +278,18 @@ public class HomeScreenController : MonoBehaviour {
         return true;
     }
 
-
     private void EnterWorldSection()
     {
         this._worldScrollArea.SetActive(true);
         DestroyPosts(this._worldPostObjects);
         this._worldPostObjects.Clear();
 
+        DestroyPosts(this._userProfilePostObjects);
+        this._userProfilePostObjects.Clear();
+
         this._loadingIcon = GameObject.Instantiate(Resources.Load("LoadingIcon") as GameObject);
 
-        this._restRequester.RequestLastTenPosts(this.UpdateWorldPosts);
+        this._restRequester.RequestRecentPosts(30, this.UpdateWorldPosts);
     }
 
     private void UpdateWorldPosts(PictureArrayJson pictures, bool success)

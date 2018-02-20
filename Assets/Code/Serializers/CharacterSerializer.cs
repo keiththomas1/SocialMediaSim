@@ -36,7 +36,10 @@ public class CharacterSerializer
 
     public void SetCharacterCustomization(CharacterCustomization characterCustomization)
     {
-        this._customizationListeners.Add(characterCustomization);
+        if (!this._customizationListeners.Contains(characterCustomization))
+        {
+            this._customizationListeners.Add(characterCustomization);
+        }
     }
 
     // Getters / Setters
@@ -232,7 +235,6 @@ public class CharacterSerializer
             }
         }
     }
-
 
     private void SaveGameThread()
     {

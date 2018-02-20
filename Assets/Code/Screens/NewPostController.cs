@@ -56,7 +56,8 @@ public class NewPostController : MonoBehaviour
         this.Initialize();
         this._postCallBack = callBack;
         this._postPopupWindow = GameObject.Instantiate(Resources.Load("Posts/NewPostPopup") as GameObject);
-        this._postPopupWindow.transform.position = new Vector3(2.24f, 0.55f, 0.0f);
+        this._postPopupWindow.transform.position = new Vector3(2.0f, 0.55f, 0.0f);
+        this._postPopupWindow.transform.localScale = new Vector3(0.92f, 0.92f, 1.0f);
 
         this._postPopupWindow.transform.Find("BackButton").gameObject.SetActive(false);
 

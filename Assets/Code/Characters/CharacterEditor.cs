@@ -143,7 +143,6 @@ public class CharacterEditor : MonoBehaviour {
 
     private void UpdateAvatarGender()
     {
-        
         var maleAvatar = this.transform.Find("MaleAvatar");
         var femaleAvatar = this.transform.Find("FemaleAvatar");
         if (!maleAvatar || !femaleAvatar)

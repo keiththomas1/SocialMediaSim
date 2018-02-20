@@ -13,24 +13,17 @@ public class CharacterCustomization : MonoBehaviour
     private void Awake()
     {
         this._spriteController = GameObject.Find("CONTROLLER").GetComponent<CharacterSpriteCollection>();
-
-        this._characterSerializer = CharacterSerializer.Instance;
-        if (this._loadFromSave)
-        {
-            this._characterSerializer.SetCharacterCustomization(this);
-        }
-        if (!this._characterSerializer.IsLoaded())
-        {
-            this._characterSerializer.LoadGame();
-        }
-        else
-        {
-            this._characterSerializer.UpdateAllCharacters();
-        }
     }
 
     // Use this for initialization
-    void Start () {
+    void Start ()
+    {
+        this._characterSerializer = CharacterSerializer.Instance;
+        if (this._loadFromSave && this._characterSerializer.IsLoaded())
+        {
+            this.SetCharacterLook(this._characterSerializer.CurrentCharacterProperties);
+            this._characterSerializer.SetCharacterCustomization(this);
+        }
     }
 
     // Update is called once per frame

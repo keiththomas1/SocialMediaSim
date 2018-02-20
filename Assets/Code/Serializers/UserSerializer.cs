@@ -307,7 +307,7 @@ public class ExperienceProperties
 class UserSaveVariables
 {
     public DateTime lastUpdate;
-    public string playerName;
+    public String playerName;
     public TimeSpan totalTimePlayed;
 
     public ExperienceProperties experienceProperties;

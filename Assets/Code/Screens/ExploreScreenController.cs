@@ -137,7 +137,7 @@ public class ExploreScreenController : MonoBehaviour
         this._loadingIcon.transform.position = new Vector3(0.0f, 0.65f, 0.0f);
 
         this._loadingPictures = true;
-        this._restRequester.RequestLastTenPosts(this.SetPhotos);
+        this._restRequester.RequestRecentPosts(10, this.SetPhotos);
     }
 
     public void SetPhotos(PictureArrayJson pictures, bool success)
@@ -267,7 +267,7 @@ public class ExploreScreenController : MonoBehaviour
         if (this._currentPictures.Count == 0)
         {
             this._loadingPictures = true;
-            this._restRequester.RequestLastTenPosts(this.SetPhotos);
+            this._restRequester.RequestRecentPosts(10, this.SetPhotos);
             // StartCoroutine(requestLastTen);
             return;
         }

@@ -85,16 +85,20 @@ public class PictureModelJsonReceive
 
     public int likes;
     public int dislikes;
+    public int totalFeedback;
     public List<PictureItem> items;
     public string createdDate;
 }
 
-public delegate void GetLastTenCallback(PictureArrayJson pictures, bool success);
+public delegate void GetPicturesCallback(PictureArrayJson pictures, bool success);
 
 public class RESTRequester
 {
-    private DateTime? _lastTenPostsRequest = null;
+    private DateTime? _lastTenPostsRequest;
     private PictureArrayJson _lastTenPosts;
+
+    private const string LOCAL_HOST = "http://localhost:3000";
+    private const string AWS_HOST = "http://13.59.159.27";
 
     public RESTRequester() {
     }
@@ -130,76 +134,109 @@ public class RESTRequester
         newPicture.items = post.items;
 
         var jsonifiedPicture = JsonUtility.ToJson(newPicture);
-        byte[] pictureData = Encoding.ASCII.GetBytes(jsonifiedPicture.ToCharArray());
+        byte[] pictureData = Encoding.UTF8.GetBytes(jsonifiedPicture.ToCharArray());
 
         var headers = new Dictionary<string, string>();
         headers.Add("Content-Type", "application/json");
-        var www = new WWW(@"http://13.59.159.27/pictures", pictureData, headers);
-        // var www = new WWW(@"http://localhost:3000/pictures", pictureData, headers);
+
+        // var route = String.Format(@"{0}/pictures", AWS_HOST);
+        var route = String.Format(@"{0}/pictures", LOCAL_HOST);
+        var www = new WWW(route, pictureData, headers);
         yield return www;
     }
 
-    public async void RequestLastTenPosts(GetLastTenCallback finishCallback)
+    public async void RequestRecentPosts(int count, GetPicturesCallback finishCallback)
     {
-        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(@"http://13.59.159.27/listPictures/10");
-        // HttpWebRequest request = (HttpWebRequest)WebRequest.Create(@"http://localhost:3000/listPictures/10");
-        if (this._lastTenPostsRequest == null || (DateTime.Now - this._lastTenPostsRequest) > TimeSpan.FromMinutes(1))
+        // var route = String.Format(@"{0}/listPictures/{1}", AWS_HOST, count);
+        var route = String.Format(@"{0}/listPictures/{1}", LOCAL_HOST, count);
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(route);
+
+        // TODO: Will need to forego this if looking for different timestamps
+        // If we have not requested yet OR it has been 30 seconds since last request
+        if (!this._lastTenPostsRequest.HasValue || ((DateTime.Now - this._lastTenPostsRequest.Value) > TimeSpan.FromMinutes(1)))
         {
-            HttpWebResponse response = null;
-            var sendRequest = new Action(()=> {
-                try
-                {
-                    response = (HttpWebResponse)request.GetResponse();
-                }
-                catch (Exception exception)
-                {
-                    Debug.Log("Bad/No response from server? Exception making web request:" + exception.ToString());
-                }
-            });
-            try
-            {
-                await Task.Run(sendRequest);
-            }
-            catch (Exception exception)
-            {
-                Debug.Log("No internet? Exception making web request:" + exception.ToString());
-            }
-
-            if (response != null && response.StatusCode == HttpStatusCode.OK)
-            {
-                try
-                {
-                    Stream stream = response.GetResponseStream();
-                    StreamReader reader = new StreamReader(stream);
-                    var responseBody = reader.ReadToEnd();
-
-                    string JSONToParse = "{\"pictureModels\":" + responseBody + "}";
-                    PictureArrayJson pictures = JsonUtility.FromJson<PictureArrayJson>(JSONToParse);
-                    this._lastTenPosts = pictures;
-                    this._lastTenPostsRequest = DateTime.Now;
-
-                    finishCallback(pictures, true);
-                }
-                catch (Exception exception)
-                {
-                    Debug.Log("Error reading/deserializing response stream: " + exception.ToString());
-                }
-            } else {
-                var blankArray = new PictureArrayJson();
-                blankArray.pictureModels = new PictureModelJsonReceive[0];
-                finishCallback(blankArray, false);
-            }
+            this._lastTenPostsRequest = DateTime.Now;
+            this._lastTenPosts = await this.MakePicturesRequest(request, finishCallback);
         } else {
             finishCallback(this._lastTenPosts, true);
         }
     }
 
+    public void RequestNeededFeedbackPosts(int count, GetPicturesCallback finishCallback)
+    {
+        // var route = String.Format(@"{0}/listUserPictures/{1}", AWS_HOST, username);
+        var route = String.Format(@"{0}/listFeedbackNeededPictures/{1}", LOCAL_HOST, count);
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(route);
+
+        this.MakePicturesRequest(request, finishCallback);
+    }
+
+    public void RequestAllUserPosts(string username, GetPicturesCallback finishCallback)
+    {
+        // var route = String.Format(@"{0}/listUserPictures/{1}", AWS_HOST, username);
+        var route = String.Format(@"{0}/listUserPictures/{1}", LOCAL_HOST, username);
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(route);
+
+        this.MakePicturesRequest(request, finishCallback);
+    }
+
+    private async Task<PictureArrayJson> MakePicturesRequest(HttpWebRequest request, GetPicturesCallback finishCallback)
+    {
+        HttpWebResponse response = null;
+        var sendRequest = new Action(() => {
+            try
+            {
+                response = (HttpWebResponse)request.GetResponse();
+            }
+            catch (Exception exception)
+            {
+                Debug.Log("Bad/No response from server? Exception making web request:" + exception.ToString());
+            }
+        });
+        try
+        {
+            await Task.Run(sendRequest);
+        }
+        catch (Exception exception)
+        {
+            Debug.Log("No internet? Exception making web request:" + exception.ToString());
+        }
+
+        if (response != null && response.StatusCode == HttpStatusCode.OK)
+        {
+            try
+            {
+                Stream stream = response.GetResponseStream();
+                StreamReader reader = new StreamReader(stream);
+                var responseBody = reader.ReadToEnd();
+
+                string JSONToParse = "{\"pictureModels\":" + responseBody + "}";
+                PictureArrayJson pictures = JsonUtility.FromJson<PictureArrayJson>(JSONToParse);
+
+                finishCallback(pictures, true);
+                return pictures;
+            }
+            catch (Exception exception)
+            {
+                Debug.Log("Error reading/deserializing response stream: " + exception.ToString());
+            }
+        }
+        else
+        {
+            var blankArray = new PictureArrayJson();
+            blankArray.pictureModels = new PictureModelJsonReceive[0];
+            finishCallback(blankArray, false);
+        }
+
+        return null;
+    }
+
     public IEnumerator AddLikeToPicture(string pictureID)
     {
-        UnityWebRequest www = UnityWebRequest.Put("http://13.59.159.27//liked//" + pictureID, "{}");
-        // UnityWebRequest www = UnityWebRequest.Put("localhost:3000/liked//" + pictureID, "{}");
+        // var route = String.Format(@"{0}/liked/{1}", AWS_HOST, pictureID);
+        var route = String.Format(@"{0}/liked/{1}", LOCAL_HOST, pictureID);
+        UnityWebRequest www = UnityWebRequest.Put(route, "{}");
         yield return www.SendWebRequest();
-        // yield return www.Send();
 
         if (www.isNetworkError)
         {
@@ -208,8 +245,9 @@ public class RESTRequester
     }
     public IEnumerator AddDislikeToPicture(string pictureID)
     {
-        UnityWebRequest www = UnityWebRequest.Put("http://13.59.159.27//disliked//" + pictureID, "{}");
-        // UnityWebRequest www = UnityWebRequest.Put("localhost:3000//disliked//" + pictureID);
+        // var route = String.Format(@"{0}/disliked/{1}", AWS_HOST, pictureID);
+        var route = String.Format(@"{0}/disliked/{1}", LOCAL_HOST, pictureID);
+        UnityWebRequest www = UnityWebRequest.Put(route, "{}");
         yield return www.SendWebRequest();
         // yield return www.Send();
 

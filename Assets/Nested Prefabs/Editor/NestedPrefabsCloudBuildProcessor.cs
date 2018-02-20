@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using VisualDesignCafe.Editor.Prefabs.Database;
+using VisualDesignCafe.Editor.Prefabs.Building;
 
 public static class NestedPrefabsCloudBuildProcessor
 {
@@ -13,7 +13,7 @@ public static class NestedPrefabsCloudBuildProcessor
     /// </summary>
     public static void PreExportMethod()
     {
-        PrefabDatabaseUtility.PreprocessCloudBuild();
+        BuildUtility.PreprocessCloudBuild();
     }
 }
 #endif
