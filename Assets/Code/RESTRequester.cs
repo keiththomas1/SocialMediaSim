@@ -97,8 +97,11 @@ public class RESTRequester
     private DateTime? _lastTenPostsRequest;
     private PictureArrayJson _lastTenPosts;
 
-    private const string LOCAL_HOST = "http://localhost:3000";
-    private const string AWS_HOST = "http://13.59.159.27";
+#if UNITY_EDITOR
+    private const string SERVER_URL = "http://localhost:3000";
+#else
+    private const string SERVER_URL = "http://13.59.159.27";
+#endif
 
     public RESTRequester() {
     }
@@ -139,16 +142,14 @@ public class RESTRequester
         var headers = new Dictionary<string, string>();
         headers.Add("Content-Type", "application/json");
 
-        // var route = String.Format(@"{0}/pictures", AWS_HOST);
-        var route = String.Format(@"{0}/pictures", LOCAL_HOST);
+        var route = String.Format(@"{0}/pictures", SERVER_URL);
         var www = new WWW(route, pictureData, headers);
         yield return www;
     }
 
     public async void RequestRecentPosts(int count, GetPicturesCallback finishCallback)
     {
-        // var route = String.Format(@"{0}/listPictures/{1}", AWS_HOST, count);
-        var route = String.Format(@"{0}/listPictures/{1}", LOCAL_HOST, count);
+        var route = String.Format(@"{0}/listPictures/{1}", SERVER_URL, count);
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(route);
 
         // TODO: Will need to forego this if looking for different timestamps
@@ -164,8 +165,7 @@ public class RESTRequester
 
     public void RequestNeededFeedbackPosts(int count, GetPicturesCallback finishCallback)
     {
-        // var route = String.Format(@"{0}/listUserPictures/{1}", AWS_HOST, username);
-        var route = String.Format(@"{0}/listFeedbackNeededPictures/{1}", LOCAL_HOST, count);
+        var route = String.Format(@"{0}/listFeedbackNeededPictures/{1}", SERVER_URL, count);
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(route);
 
         this.MakePicturesRequest(request, finishCallback);
@@ -173,8 +173,7 @@ public class RESTRequester
 
     public void RequestAllUserPosts(string username, GetPicturesCallback finishCallback)
     {
-        // var route = String.Format(@"{0}/listUserPictures/{1}", AWS_HOST, username);
-        var route = String.Format(@"{0}/listUserPictures/{1}", LOCAL_HOST, username);
+        var route = String.Format(@"{0}/listUserPictures/{1}", SERVER_URL, username);
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(route);
 
         this.MakePicturesRequest(request, finishCallback);
@@ -233,8 +232,7 @@ public class RESTRequester
 
     public IEnumerator AddLikeToPicture(string pictureID)
     {
-        // var route = String.Format(@"{0}/liked/{1}", AWS_HOST, pictureID);
-        var route = String.Format(@"{0}/liked/{1}", LOCAL_HOST, pictureID);
+        var route = String.Format(@"{0}/liked/{1}", SERVER_URL, pictureID);
         UnityWebRequest www = UnityWebRequest.Put(route, "{}");
         yield return www.SendWebRequest();
 
@@ -245,8 +243,7 @@ public class RESTRequester
     }
     public IEnumerator AddDislikeToPicture(string pictureID)
     {
-        // var route = String.Format(@"{0}/disliked/{1}", AWS_HOST, pictureID);
-        var route = String.Format(@"{0}/disliked/{1}", LOCAL_HOST, pictureID);
+        var route = String.Format(@"{0}/disliked/{1}", SERVER_URL, pictureID);
         UnityWebRequest www = UnityWebRequest.Put(route, "{}");
         yield return www.SendWebRequest();
         // yield return www.Send();

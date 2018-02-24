@@ -458,6 +458,7 @@ public class ProfileScreenController : MonoBehaviour
         var scrollController = this.scrollArea.GetComponent<ScrollController>();
         var sizeBeforeFeed = POST_Y_OFFSET * -1;
         scrollController.UpdateScrollArea(sizeBeforeFeed + feedLength);
+        Debug.Log(feedLength);
 
         if (this._firstPostNew)
         {

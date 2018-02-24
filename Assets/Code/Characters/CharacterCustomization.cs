@@ -9,6 +9,7 @@ public class CharacterCustomization : MonoBehaviour
 
     [SerializeField]
     private bool _loadFromSave;
+    private bool _customizationInitialized = false;
 
     private void Awake()
     {
@@ -19,7 +20,7 @@ public class CharacterCustomization : MonoBehaviour
     void Start ()
     {
         this._characterSerializer = CharacterSerializer.Instance;
-        if (this._loadFromSave && this._characterSerializer.IsLoaded())
+        if (this._loadFromSave && this._characterSerializer.IsLoaded() && !this._customizationInitialized)
         {
             this.SetCharacterLook(this._characterSerializer.CurrentCharacterProperties);
             this._characterSerializer.SetCharacterCustomization(this);
@@ -41,6 +42,8 @@ public class CharacterCustomization : MonoBehaviour
         this.SetShirtColor(properties.gender, properties.shirtColor.GetColor());
         this.SetPantsColor(properties.pantsColor.GetColor());
         this.SetHappinessLevel(properties.gender, properties.happinessLevel);
+
+        this._customizationInitialized = true;
     }
     
     public void SetArmSprites(Gender gender, int fitnessLevel)

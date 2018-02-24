@@ -7,10 +7,10 @@ public class IOController : MonoBehaviour
 {
     private CharacterSerializer _characterSerializer;
     private UIController _uiController;
-    private HomeScreenController _homeController;
+    private WorldScreenController _worldController;
     private ProfileScreenController _profileController;
     private NewPostController _newPostController;
-    private ExploreScreenController _exploreController;
+    private RatingScreenController _ratingController;
     private MessagesScreenController _messagesController;
     private TutorialScreenController _tutorialController;
 
@@ -24,10 +24,10 @@ public class IOController : MonoBehaviour
     {
         this._characterSerializer = CharacterSerializer.Instance;
         this._uiController = GetComponent<UIController>();
-        this._homeController = GetComponent<HomeScreenController>();
+        this._worldController = GetComponent<WorldScreenController>();
         this._profileController = GetComponent<ProfileScreenController>();
         this._newPostController = GetComponent<NewPostController>();
-        this._exploreController = GetComponent<ExploreScreenController>();
+        this._ratingController = GetComponent<RatingScreenController>();
         this._messagesController = GetComponent<MessagesScreenController>();
         this._tutorialController = GetComponent<TutorialScreenController>();
 
@@ -101,8 +101,8 @@ public class IOController : MonoBehaviour
             {   // Make sure you aren't hovering over a UI element
                 switch (this._uiController.GetCurrentPage())
                 {
-                    case Page.Home:
-                        this._homeController.CheckClick(colliderName);
+                    case Page.World:
+                        this._worldController.CheckClick(colliderName);
                         break;
                     case Page.Profile:
                         this._profileController.CheckClick(colliderName);
@@ -110,8 +110,8 @@ public class IOController : MonoBehaviour
                     case Page.Post:
                         this._newPostController.CheckClick(colliderName);
                         break;
-                    case Page.Explore:
-                        this._exploreController.CheckClick(colliderName);
+                    case Page.Rating:
+                        this._ratingController.CheckClick(colliderName);
                         break;
                     case Page.Messages:
                         this._messagesController.CheckClick(colliderName);

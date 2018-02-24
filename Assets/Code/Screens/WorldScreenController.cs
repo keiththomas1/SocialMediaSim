@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using DG.Tweening;
 
-public class HomeScreenController : MonoBehaviour {
+public class WorldScreenController : MonoBehaviour {
     [SerializeField]
     private Sprite _leftSideNav;
     [SerializeField]
@@ -297,6 +297,10 @@ public class HomeScreenController : MonoBehaviour {
         if (this._loadingIcon)
         {
             GameObject.Destroy(this._loadingIcon);
+        }
+        if (!this._postPage)
+        {
+            return;
         }
 
         if (!success)

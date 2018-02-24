@@ -222,7 +222,7 @@ public class PostHelper {
             postObjects.Add(new DelayGramPostObject(newPost, post));
         }
 
-        return postYOffset - currentY;
+        return postYOffset - currentY + HEIGHT_BETWEEN_THUMBNAILS;
     }
 
     public string GetMessageTimeFromDateTime(DateTime postTime)
