@@ -33,11 +33,10 @@ public class CharacterRandomization {
         }
     }
 
-    public CharacterProperties GetFullRandomCharacter(CharacterProperties oldProperties = null)
+	public CharacterProperties GetFullRandomCharacter(Gender gender = Gender.Male)
     {
-        oldProperties = (oldProperties == null) ? new CharacterProperties() : oldProperties;
-        var newProperties = oldProperties;
-        if (Random.Range(0, 2) == 0)
+		var newProperties = new CharacterProperties ();
+		if (gender == Gender.Male)
         {
             newProperties.eyeSprite = this.GetRandomMaleEyeSprite();
             newProperties.hairSprite = this.GetRandomMaleHairSprite();

@@ -290,6 +290,7 @@ public class MessagesScreenController : MonoBehaviour {
 
             var messageCount = this._messageObjects.Count;
             var choicesCount = this._currentConversation.choiceCount;
+			var lastNonChoiceMessage = this._messageObjects[messageCount - 1 - choicesCount];
             var yLocation = this._messageObjects[messageCount - choicesCount].transform.localPosition.y;
 
             // Hard-coded to destroy the last two messages (choices)

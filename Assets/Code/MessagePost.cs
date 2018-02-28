@@ -93,6 +93,9 @@ public class MessagePost
                 }
                 newConversation = this._messageCollection.CreateLostDogConversation(choices, conversation.npcProperties);
                 break;
+			case MessageCollection.SHIRT1_NPC_NAME:
+				newConversation = this._messageCollection.CreateShirtConversation (choices, conversation.npcProperties);
+				break;
         }
         newConversation.choicesMade = choices;
         this._messageSerializer.UpdateConversation(newConversation);

@@ -6,7 +6,7 @@ using UnityEngine;
 public class MessageCollection
 {
     public const string LOST_DOG_NPC_NAME = "Karen L";
-    public const string SHIRT1_NPC_NAME = "Gracie Giraffe";
+    public const string SHIRT1_NPC_NAME = "Gracie Reap";
 
     private UserSerializer _userSerializer;
     private CharacterRandomization _characterRandomization;
@@ -33,9 +33,13 @@ public class MessageCollection
     public Conversation CreateLostDogConversation(List<int> choices, CharacterProperties npcProperties = null)
     {
         var newConversation = this.CreateEmptyConversation();
+		newConversation.conversationType = DelaygramConversationType.Choice;
         newConversation.npcName = LOST_DOG_NPC_NAME;
         newConversation.npcProperties =
-            (npcProperties == null) ? this._characterRandomization.GetFullRandomCharacter() : npcProperties;
+            (npcProperties == null) ?
+				this._characterRandomization.GetFullRandomCharacter(Gender.Female) :
+				npcProperties;
+		newConversation.npcProperties.happinessLevel = 6;
         newConversation.choiceCount = 3;
 
         var newMessage1 = new Message();
@@ -55,6 +59,7 @@ public class MessageCollection
         newMessage3.type = DelaygramMessageType.NPC;
         newMessage3.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage3);
+		newConversation.npcProperties.happinessLevel = 6;
 
         var newMessage4 = new Message();
         newMessage4.text = "You can adopt for free one of our animals!";
@@ -156,20 +161,34 @@ public class MessageCollection
         return newConversation;
     }
 
-    public Conversation CreateShirtConversation(List<int> choices)
+	public Conversation CreateFemaleRomance1Conversation(LinkedList<int> choices) {
+		var newConversation = this.CreateEmptyConversation ();
+		newConversation.conversationType = DelaygramConversationType.Flirty;
+		newConversation.npcName = "Carmen Sandiego";
+		newConversation.npcProperties = this._characterRandomization.GetFullRandomCharacter(Gender.Female);
+		newConversation.npcProperties.happinessLevel = 6;
+
+		return newConversation;
+	}
+
+	public Conversation CreateShirtConversation(List<int> choices, CharacterProperties npcProperties = null)
     {
         var newConversation = this.CreateEmptyConversation();
+		newConversation.conversationType = DelaygramConversationType.Story;
         newConversation.npcName = SHIRT1_NPC_NAME;
-        newConversation.npcProperties = this._characterRandomization.GetFullRandomCharacter();
+		newConversation.npcProperties =
+			(npcProperties == null) ?
+			this._characterRandomization.GetFullRandomCharacter(Gender.Female) :
+			npcProperties;
 
         var newMessage1 = new Message();
-        newMessage1.text = "Hi! Totally loved your latest post, adorable dog! HAHAHA";
+        newMessage1.text = "Hi! Totally loved your latest post! I run a business called 'Reap What You Sew'.";
         newMessage1.type = DelaygramMessageType.NPC;
         newMessage1.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage1);
 
         var newMessage2 = new Message();
-        newMessage2.text = "So like, yeah, anyways. I design t-shirts and I'm totally full of shit.";
+        newMessage2.text = "I design t-shirts and I'm totally full of shit.";
         newMessage2.type = DelaygramMessageType.NPC;
         newMessage2.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage2);
@@ -216,7 +235,8 @@ public class MessageCollection
             newConversation.messages.Add(newMessage8a);
 
             var newMessage9a = new Message();
-            newMessage9a.type = DelaygramMessageType.Result;
+			newMessage9a.text = "It'll take me a little while to make. I'll get back to you.";
+			newMessage9a.type = DelaygramMessageType.NPC;
             newMessage9a.timeSent = DateTime.Now;
             newConversation.messages.Add(newMessage9a);
         }
@@ -228,7 +248,7 @@ public class MessageCollection
             newConversation.messages.Add(newMessage7);
 
             var newMessage8a = new Message();
-            newMessage8a.text = "Screw u! u don't deserve my clothes hunny, bye felicia";
+            newMessage8a.text = "Wow okay, screw you! u don't deserve my clothes hunny, bye bye";
             newMessage8a.type = DelaygramMessageType.NPC;
             newMessage8a.timeSent = DateTime.Now;
             newConversation.messages.Add(newMessage8a);

@@ -5,6 +5,13 @@ using System.Threading;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
+public enum DelaygramConversationType
+{
+	Story,
+	Choice,
+	Flirty
+}
+
 public enum DelaygramMessageType
 {
     NPC,
@@ -141,6 +148,7 @@ public struct MessageSaveVariables
 public struct Conversation
 {
     public string npcName;
+	public DelaygramConversationType conversationType;
     public CharacterProperties npcProperties;
     public List<Message> messages;
     public int choiceCount; // How many choices available (only supports one choice per convo right now)
