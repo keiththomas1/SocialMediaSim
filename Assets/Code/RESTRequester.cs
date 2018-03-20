@@ -10,9 +10,8 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 [Serializable]
-public class PictureItem
+public struct PictureItem
 {
-    public PictureItem() {}
     public PictureItem(string _name, SerializableVector3 _location, float _rotation, float _scale)
     {
         name = _name;
@@ -33,16 +32,17 @@ public class PictureArrayJson
     public PictureModelJsonReceive[] pictureModels;
 }
 [Serializable]
-public class CharacterPropertiesModelJson
+public struct CharacterPropertiesModelJson
 {
     [Serializable]
-    public class SpriteProperties
+    public struct SpriteProperties
     {
         public string hairSprite;
         public string eyeSprite;
+        public string birthmark;
     }
     [Serializable]
-    public class ColorProperties
+    public struct ColorProperties
     {
         public SerializableColor skinColor;
         public SerializableColor hairColor;
@@ -50,8 +50,9 @@ public class CharacterPropertiesModelJson
         public SerializableColor pantsColor;
     }
     [Serializable]
-    public class LevelProperties
+    public struct LevelProperties
     {
+        public int avatarLevel;
         public int happinessLevel;
         public int fitnessLevel;
         public int styleLevel;
@@ -65,7 +66,7 @@ public class CharacterPropertiesModelJson
     public LevelProperties levelProperties;
 }
 [Serializable]
-public class PictureModelJsonSend
+public struct PictureModelJsonSend
 {
     public string playerName;
     public string backgroundName;
@@ -75,7 +76,7 @@ public class PictureModelJsonSend
     public List<PictureItem> items;
 }
 [Serializable]
-public class PictureModelJsonReceive
+public struct PictureModelJsonReceive
 {
     public string _id;
     public string playerName;
@@ -122,6 +123,7 @@ public class RESTRequester
         newPicture.characterProperties.spriteProperties = new CharacterPropertiesModelJson.SpriteProperties();
         newPicture.characterProperties.spriteProperties.hairSprite = post.characterProperties.hairSprite;
         newPicture.characterProperties.spriteProperties.eyeSprite = post.characterProperties.eyeSprite;
+        newPicture.characterProperties.spriteProperties.birthmark = post.characterProperties.birthmark.ToString();
 
         newPicture.characterProperties.levelProperties = new CharacterPropertiesModelJson.LevelProperties();
         newPicture.characterProperties.levelProperties.happinessLevel = post.characterProperties.happinessLevel;
@@ -263,14 +265,30 @@ public class RESTRequester
         newPost.backgroundName = picture.backgroundName;
 
         newPost.characterProperties = new CharacterProperties();
-        newPost.characterProperties.gender =
-            (Gender)Enum.Parse(typeof(Gender), picture.characterProperties.gender);
+        try
+        {
+            newPost.characterProperties.gender =
+                (Gender)Enum.Parse(typeof(Gender), picture.characterProperties.gender);
+        }
+        catch (Exception e)
+        {
+            newPost.characterProperties.gender = Gender.Female;
+        }
         newPost.avatarPosition = picture.characterProperties.position;
         newPost.avatarRotation = picture.characterProperties.rotation;
         newPost.avatarScale = picture.characterProperties.scale;
 
         newPost.characterProperties.hairSprite = picture.characterProperties.spriteProperties.hairSprite;
         newPost.characterProperties.eyeSprite = picture.characterProperties.spriteProperties.eyeSprite;
+        try
+        {
+            newPost.characterProperties.birthmark =
+                (BirthMarkType)Enum.Parse(typeof(BirthMarkType), picture.characterProperties.spriteProperties.birthmark);
+        }
+        catch (Exception e)
+        {
+            newPost.characterProperties.birthmark = BirthMarkType.None;
+        }
 
         newPost.characterProperties.happinessLevel = picture.characterProperties.levelProperties.happinessLevel;
         newPost.characterProperties.fitnessLevel = picture.characterProperties.levelProperties.fitnessLevel;

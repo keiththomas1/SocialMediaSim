@@ -40,21 +40,6 @@ public class UserSerializer
         }
     }
 
-    public TimeSpan GetTotalTimePlayed()
-    {
-        var timePlayedThisSession = DateTime.Now - currentSave.lastUpdate;
-        return currentSave.totalTimePlayed + timePlayedThisSession;
-    }
-
-    public int PlayerLevel
-    {
-        get { return this.currentSave.experienceProperties.playerLevel; }
-        set
-        {
-            this.currentSave.experienceProperties.playerLevel = value;
-            this.SaveFile();
-        }
-    }
     public int LevelExperience
     {
         get { return this.currentSave.experienceProperties.levelExperience; }
@@ -74,6 +59,10 @@ public class UserSerializer
         }
     }
 
+    public DateTime LastUpdate
+    {
+        get { return this.currentSave.lastUpdate; }
+    }
     public DateTime NextPostTime
     {
         get { return this.currentSave.nextPostTime; }
@@ -84,12 +73,30 @@ public class UserSerializer
         }
     }
 
-    public bool CompletedTutorial
+    public bool CreatedCharacter
     {
-        get { return this.currentSave.completedTutorial; }
+        get { return this.currentSave.storyProperties.createdCharacter; }
         set
         {
-            this.currentSave.completedTutorial = value;
+            this.currentSave.storyProperties.createdCharacter = value;
+            this.SaveFile();
+        }
+    }
+    public bool PostedPhoto
+    {
+        get { return this.currentSave.storyProperties.postedPhoto; }
+        set
+        {
+            this.currentSave.storyProperties.postedPhoto = value;
+            this.SaveFile();
+        }
+    }
+    public bool CompletedTutorial
+    {
+        get { return this.currentSave.storyProperties.completedTutorial; }
+        set
+        {
+            this.currentSave.storyProperties.completedTutorial = value;
             this.SaveFile();
         }
     }
@@ -225,19 +232,19 @@ public class UserSerializer
         {
             this.currentSave = new UserSaveVariables();
             this.currentSave.playerName = "Temp.Name";
-            this.currentSave.totalTimePlayed = new TimeSpan(0);
             this.currentSave.lastUpdate = DateTime.Now;
 
             this.currentSave.experienceProperties = new ExperienceProperties();
-            this.currentSave.experienceProperties.playerLevel = 1;
             this.currentSave.experienceProperties.levelExperience = 0;
             this.currentSave.experienceProperties.neededLevelExperience = 100;
 
             this.currentSave.storyProperties = new StoryProperties();
+            this.currentSave.storyProperties.createdCharacter = false;
+            this.currentSave.storyProperties.postedPhoto = false;
+            this.currentSave.storyProperties.completedTutorial = false;
             this.currentSave.storyProperties.hasBulldog = false;
             this.currentSave.storyProperties.hasCat = false;
             this.currentSave.storyProperties.hasDrone = false;
-            this.currentSave.completedTutorial = false;
 
             this.currentSave.posts = new List<DelayGramPost>();
             this.currentSave.notifications = new List<DelayGramNotification>();
@@ -289,6 +296,9 @@ public class DelayGramNotification
 [Serializable]
 public class StoryProperties
 {
+    public bool createdCharacter;
+    public bool postedPhoto;
+    public bool completedTutorial;
     public bool hasBulldog;
     public bool hasCat;
     public bool hasDrone;
@@ -297,7 +307,6 @@ public class StoryProperties
 [Serializable]
 public class ExperienceProperties
 {
-    public int playerLevel;
     public int levelExperience;
     public int neededLevelExperience;
 }
@@ -308,12 +317,10 @@ class UserSaveVariables
 {
     public DateTime lastUpdate;
     public String playerName;
-    public TimeSpan totalTimePlayed;
 
     public ExperienceProperties experienceProperties;
 
     public StoryProperties storyProperties;
-    public bool completedTutorial;
 
     public List<DelayGramPost> posts;
     public List<DelayGramNotification> notifications;

@@ -16,28 +16,34 @@ public class ProfileScreenController : MonoBehaviour
     private const float POST_Y_OFFSET = -5.45f;
     private const float NEW_POST_SCROLL_POSITION = -4.1f;
 
-    private CharacterSerializer characterSerializer;
-    private UserSerializer _userSerializer;
-    private UIController _uiController;
-    private GoalsController _goalsController;
-    private LevelingController _levelingController;
+    private CharacterSerializer _characterSerializer = null;
+    private UserSerializer _userSerializer = null;
+    private GoalsController _goalsController = null;
+    private LevelingController _levelingController = null;
+    private TutorialScreenController _tutorialController = null;
 
-    private ScrollController scrollController;
-    private RandomNameGenerator randomNameGenerator;
-    private PostHelper _postHelper;
+    private ScrollController _scrollController = null;
+    private RandomNameGenerator _randomNameGenerator = null;
+    private PostHelper _postHelper = null;
 
-    private GameObject page;
-    private GameObject scrollArea;
-    private GameObject _spriteMask;
+    private GameObject _page = null;
+    private GameObject _scrollArea = null;
+    private GameObject _spriteMask = null;
     private List<DelayGramPostObject> _youPostObjects;
     private bool _firstPostNew;
     private DelayGramPost _latestPost;
 
-    private GameObject _editScreen;
+    private GameObject _currentAvatar = null;
+    private GameObject _editScreen = null;
     private CharacterProperties _previousCharacterProperties;
+    private Transform _levelInformation = null;
 
     private GoalInformation[] _previousGoals;
     private float _tickGoalTimer = 0.0f;
+
+    private float _randomSpeechBubbleTimer = 0.0f;
+    private float _checkingPhoneTimer = 0.0f;
+    private float _cleaningUpTimer = 0.0f;
 
     private enum ProfileScreenState
     {
@@ -51,15 +57,16 @@ public class ProfileScreenController : MonoBehaviour
     private Vector3 _originalImageScale;
     private Vector3 _originalImagePosition;
     private bool _imageCurrentlyShrinking = false;
+    private GameObject _userStub = null;
 
     void Awake () {
-        this.characterSerializer = CharacterSerializer.Instance;
+        this._characterSerializer = CharacterSerializer.Instance;
         this._userSerializer = UserSerializer.Instance;
-        this._uiController = GetComponent<UIController>();
         this._goalsController = this.GetComponent<GoalsController>();
         this._levelingController = this.GetComponent<LevelingController>();
+        this._tutorialController = this.GetComponent<TutorialScreenController>();
 
-        this.randomNameGenerator = new RandomNameGenerator();
+        this._randomNameGenerator = new RandomNameGenerator();
         this._postHelper = new PostHelper();
 
         this._youPostObjects = new List<DelayGramPostObject>();
@@ -98,6 +105,56 @@ public class ProfileScreenController : MonoBehaviour
                 }
             }
         }
+        if (this._randomSpeechBubbleTimer > 0.0f && !this._editScreen)
+        {
+            this._randomSpeechBubbleTimer -= Time.deltaTime;
+            if (this._randomSpeechBubbleTimer <= 0.0f)
+            {
+                if (_scrollArea)
+                {
+                    var speechBubble = GameObject.Instantiate(Resources.Load("Profile/SpeechBubble") as GameObject);
+                    speechBubble.transform.parent = this._scrollArea.transform;
+                    speechBubble.transform.localPosition = new Vector3(-0.3f, -1.2f, -3.0f);
+                    this._randomSpeechBubbleTimer = UnityEngine.Random.Range(15.0f, 25.0f);
+                }
+            }
+        }
+        if (this._checkingPhoneTimer > 0.0f && !this._editScreen)
+        {
+            this._checkingPhoneTimer -= Time.deltaTime;
+            if (this._checkingPhoneTimer <= 0.0f)
+            {
+                if (this._currentAvatar)
+                {
+                    this._currentAvatar.GetComponent<Animator>().Play("CheckingPhone");
+                    this._checkingPhoneTimer = UnityEngine.Random.Range(10.0f, 20.0f);
+                }
+            }
+        }
+        if (this._cleaningUpTimer > 0.0f && this._scrollArea != null)
+        {   // If scroll area is null, the screen is disabled or deleted
+            this._cleaningUpTimer -= Time.deltaTime;
+
+            var cleanText = this._scrollArea.transform.Find("CleanText");
+            if (this._cleaningUpTimer <= 0.0f)
+            {
+                if (this._characterSerializer.CleanUpTime > DateTime.Now)
+                {
+                    var timeTillClean = this._characterSerializer.CleanUpTime - DateTime.Now;
+                    var formattedTime = timeTillClean.ToString(@"mm\:ss");
+
+                    cleanText.gameObject.SetActive(true);
+                    cleanText.GetComponent<TextMeshPro>().text = String.Format("Clean in {0}", formattedTime);
+
+                    this._cleaningUpTimer = 1.0f;
+                }
+                else
+                {
+                    cleanText.gameObject.SetActive(false);
+                    this._characterSerializer.Smelly = false;
+                }
+            }
+        }
     }
 
     public void FinishedCreatingPicture(DelayGramPost post)
@@ -106,7 +163,7 @@ public class ProfileScreenController : MonoBehaviour
         this._latestPost = post;
     }
 
-    public void CheckClick(string colliderName)
+    public void HandleClick(string colliderName)
     {
         if (this._chooseNameBox.activeSelf)
         {
@@ -128,21 +185,23 @@ public class ProfileScreenController : MonoBehaviour
                 case "DoneButton":
                     this._editScreen.GetComponent<CharacterEditor>().FinalizeCharacter();
                     this.DestroyEditScreen();
-                    if (!this._userSerializer.CompletedTutorial)
+                    this._randomSpeechBubbleTimer = UnityEngine.Random.Range(15.0f, 25.0f);
+                    this._checkingPhoneTimer = UnityEngine.Random.Range(10.0f, 20.0f);
+                    if (!this._userSerializer.CreatedCharacter)
                     {
-                        this._userSerializer.CompletedTutorial = true;
+                        this._userSerializer.CreatedCharacter = true;
+                        this._tutorialController.ShowGoToPostScreenPopup();
                     }
                     break;
                 default:
-                    this._editScreen.GetComponent<CharacterEditor>().CheckClick(colliderName);
+                    this._editScreen.GetComponent<CharacterEditor>().HandleClick(colliderName);
                     break;
             }
         } else {
             switch (colliderName)
             {
                 case "ExpButton":
-                    this._levelingController.AddExperience(20);
-                    this.UpdateLevelDisplay();
+                    this._levelingController.AddExperience(20, this._levelInformation.gameObject);
                     break;
                 case "EditButton":
                     this.CreateEditAvatarScreen(true);
@@ -155,6 +214,12 @@ public class ProfileScreenController : MonoBehaviour
                     break;
                 case "RewardButton3":
                     this.CollectGoalReward(2);
+                    break;
+                case "CleanButton":
+                    var cleanButton = this._scrollArea.transform.Find("CleanButton");
+                    cleanButton.gameObject.SetActive(false);
+                    this._characterSerializer.CleanUpTime = DateTime.Now + TimeSpan.FromMinutes(10f);
+                    this._cleaningUpTimer = 0.1f;
                     break;
                 default:
                     foreach (DelayGramPostObject post in this._youPostObjects)
@@ -178,25 +243,55 @@ public class ProfileScreenController : MonoBehaviour
 
     public void EnterScreen()
     {
-        this.page = GameObject.Instantiate(Resources.Load("Profile/DGProfilePage") as GameObject);
-        this.page.transform.position = new Vector3(0.2f, 1.3f, 0.0f);
+        this._page = GameObject.Instantiate(Resources.Load("Profile/DGProfilePage") as GameObject);
+        this._page.transform.position = new Vector3(0.2f, 1.3f, 0.0f);
 
         this._currentState = ProfileScreenState.ProfileDefault;
+        this._randomSpeechBubbleTimer = UnityEngine.Random.Range(15.0f, 25.0f);
+        this._checkingPhoneTimer = UnityEngine.Random.Range(10.0f, 20.0f);
 
-        this.scrollArea = page.transform.Find("ScrollArea").gameObject;
-        this.scrollController = scrollArea.GetComponent<ScrollController>();
+        this._scrollArea = _page.transform.Find("ScrollArea").gameObject;
+        this._scrollController = _scrollArea.GetComponent<ScrollController>();
 
-        var characterSection = scrollArea.transform.Find("CharacterSection").gameObject;
+        var characterSection = _scrollArea.transform.Find("CharacterSection").gameObject;
+        this._levelInformation = characterSection.transform.Find("LevelInformation");
         this._spriteMask = characterSection.transform.Find("SpriteMask").gameObject;
         this.SetAvatar(this._spriteMask);
         this.SetupItems(this._spriteMask);
 
+        if (this._characterSerializer.Smelly)
+        {
+            if (this._characterSerializer.CleanUpTime < DateTime.Now)
+            {
+                if (this._characterSerializer.CleaningUp)
+                {
+                    Debug.Log("First block");
+                    this._characterSerializer.Smelly = false;
+                }
+                else
+                {
+                    Debug.Log("Second block");
+                    var cleanButton = this._scrollArea.transform.Find("CleanButton");
+                    cleanButton.gameObject.SetActive(true);
+                }
+            }
+            else
+            {
+                this._cleaningUpTimer = 0.1f;
+            }
+        }
+
         this.SetupGoalSection();
 
-        var statsSection = scrollArea.transform.Find("StatsSection").gameObject;
+        var statsSection = _scrollArea.transform.Find("StatsSection").gameObject;
         this.SetupStatistics(statsSection);
 
-        this.UpdateLevelDisplay();
+        if (this._userSerializer.CreatedCharacter && !this._userSerializer.PostedPhoto)
+        {
+            this._tutorialController.ShowGoToPostScreenPopup();
+        }
+
+        this._levelingController.UpdateLevelDisplay(this._levelInformation.gameObject);
 
         this.GenerateProfilePosts();
     }
@@ -230,7 +325,12 @@ public class ProfileScreenController : MonoBehaviour
             GameObject.Destroy(this._editScreen);
         }
 
-        GameObject.Destroy(page);
+        if (this._userStub != null)
+        {
+            GameObject.Destroy(this._userStub);
+        }
+
+        GameObject.Destroy(_page);
     }
 
     public void CreateEditAvatarScreen(bool backButtonEnabled)
@@ -238,14 +338,14 @@ public class ProfileScreenController : MonoBehaviour
         this._editScreen = GameObject.Instantiate(Resources.Load("Profile/CreateCharacterPopup") as GameObject);
         this._editScreen.transform.position = new Vector3(0.3f, 1.55f, 0.0f);
         this.SetAvatar(this._editScreen);
-        this.page.SetActive(false);
+        this._page.SetActive(false);
 
         var backButton = this._editScreen.transform.Find("BackButton");
         backButton.gameObject.SetActive(backButtonEnabled);
 
         UpdateText(this._editScreen.transform.Find("ChooseNameTextBox").Find("NameText").gameObject);
 
-        this._previousCharacterProperties = new CharacterProperties(this.characterSerializer.CurrentCharacterProperties);
+        this._previousCharacterProperties = new CharacterProperties(this._characterSerializer.CurrentCharacterProperties);
     }
 
     private void NameExitClicked()
@@ -254,7 +354,7 @@ public class ProfileScreenController : MonoBehaviour
     }
     private void NameRandomizeClicked()
     {
-        var randomName = this.randomNameGenerator.GenerateRandomName();
+        var randomName = this._randomNameGenerator.GenerateRandomName();
         this._chooseNameText.text = randomName;
     }
     private void NameDoneClicked()
@@ -268,14 +368,14 @@ public class ProfileScreenController : MonoBehaviour
     private void DestroyEditScreen()
     {
         GameObject.Destroy(this._editScreen);
-        this.page.SetActive(true);
-        this.characterSerializer.UpdateAllCharacters();
+        this._page.SetActive(true);
+        this._characterSerializer.UpdateAllCharacters();
         this.SetAvatar(this._spriteMask);
     }
 
     private void ResetCharacterProperties()
     {
-        this.characterSerializer.CurrentCharacterProperties = this._previousCharacterProperties;
+        this._characterSerializer.CurrentCharacterProperties = this._previousCharacterProperties;
     }
 
     private void UpdateText(GameObject textObject)
@@ -284,14 +384,6 @@ public class ProfileScreenController : MonoBehaviour
         {
             textObject.GetComponent<TextMeshPro>().text = this._userSerializer.PlayerName;
         }
-    }
-
-    private void UpdateLevelDisplay()
-    {
-        var characterSection = this.scrollArea.transform.Find("CharacterSection");
-        var levelInformation = characterSection.transform.Find("LevelInformation");
-
-        this._levelingController.UpdateLevelDisplay(levelInformation.gameObject);
     }
 
     private void SetupStatistics(GameObject parent)
@@ -314,18 +406,20 @@ public class ProfileScreenController : MonoBehaviour
 
     private void SetAvatar(GameObject parent)
     {
-        var gender = this.characterSerializer.Gender;
+        var gender = this._characterSerializer.Gender;
         switch (gender)
         {
             case Gender.Female:
-                parent.transform.Find("FemaleAvatar").gameObject.SetActive(true);
+                this._currentAvatar = parent.transform.Find("FemaleAvatar").gameObject;
                 parent.transform.Find("MaleAvatar").gameObject.SetActive(false);
                 break;
             case Gender.Male:
-                parent.transform.Find("MaleAvatar").gameObject.SetActive(true);
+                this._currentAvatar = parent.transform.Find("MaleAvatar").gameObject;
                 parent.transform.Find("FemaleAvatar").gameObject.SetActive(false);
                 break;
         }
+
+        this._currentAvatar.SetActive(true);
     }
 
     private void SetupItems(GameObject parent)
@@ -358,11 +452,11 @@ public class ProfileScreenController : MonoBehaviour
 
     private void SetupGoalSection()
     {
-        if (!scrollArea)
+        if (!_scrollArea)
         {
             return;
         }
-        var goalSection = scrollArea.transform.Find("GoalSection").gameObject;
+        var goalSection = _scrollArea.transform.Find("GoalSection").gameObject;
         var currentGoals = this._goalsController.GetCurrentGoals();
 
         for(int i=0; i<currentGoals.Length; i++)
@@ -454,22 +548,25 @@ public class ProfileScreenController : MonoBehaviour
         var posts = this._userSerializer.GetReverseChronologicalPosts();
         posts.Sort((a, b) => b.dateTime.CompareTo(a.dateTime));
         var feedLength = this._postHelper.GeneratePostFeed(
-            this.scrollArea, posts, this._youPostObjects, POST_X_OFFSET, POST_Y_OFFSET);
-        var scrollController = this.scrollArea.GetComponent<ScrollController>();
+            this._scrollArea, posts, this._youPostObjects, POST_X_OFFSET, POST_Y_OFFSET);
+        var scrollController = this._scrollArea.GetComponent<ScrollController>();
         var sizeBeforeFeed = POST_Y_OFFSET * -1;
         scrollController.UpdateScrollArea(sizeBeforeFeed + feedLength);
-        Debug.Log(feedLength);
 
         if (this._firstPostNew)
         {
-            this.scrollController.ScrollToPosition(NEW_POST_SCROLL_POSITION, this.CheckGoalProgress);
+            this._scrollController.ScrollToPosition(
+                NEW_POST_SCROLL_POSITION,
+                () => {
+                    this._levelingController.AddExperience(10, this._levelInformation.gameObject);
+                    this.CheckGoalProgress(); });
 
             var postAnimation = GameObject.Instantiate(Resources.Load("Posts/NewPostAnimation") as GameObject);
             var animationPosition = this._youPostObjects[0].postObject.transform.position;
             animationPosition.z += 1;
             postAnimation.transform.position = animationPosition;
             postAnimation.transform.localScale = new Vector3(0.5f, 0.5f, 1.0f);
-            postAnimation.transform.parent = this.scrollArea.transform;
+            postAnimation.transform.parent = this._scrollArea.transform;
 
             this._firstPostNew = false;
         }
@@ -483,8 +580,7 @@ public class ProfileScreenController : MonoBehaviour
             try
             {
                 var experienceGained = Convert.ToInt32(currentGoals[index].reward);
-                this._levelingController.AddExperience(experienceGained);
-                this.UpdateLevelDisplay();
+                this._levelingController.AddExperience(experienceGained, this._levelInformation.gameObject);
             }
             catch (Exception exception)
             {
@@ -509,9 +605,9 @@ public class ProfileScreenController : MonoBehaviour
 
     private void UpdateGoalTime()
     {
-        if (scrollArea)
+        if (_scrollArea)
         {
-            var goalSection = scrollArea.transform.Find("GoalSection").gameObject;
+            var goalSection = _scrollArea.transform.Find("GoalSection").gameObject;
             for (int i = 0; i < this._previousGoals.Length; i++)
             {
                 if (this._previousGoals[i].status == GoalStatus.Waiting)
@@ -547,10 +643,10 @@ public class ProfileScreenController : MonoBehaviour
         this._originalImageScale = post.postObject.transform.localScale;
         this._originalImagePosition = post.postObject.transform.localPosition;
 
-        this._postHelper.EnlargeAndCenterPost(post);
+        this._userStub = this._postHelper.EnlargeAndCenterPost(post);
 
         post.postObject.transform.parent = null;
-        this.page.SetActive(false);
+        this._page.SetActive(false);
     }
 
     private void ShrinkPost(DelayGramPostObject post)
@@ -571,8 +667,13 @@ public class ProfileScreenController : MonoBehaviour
             this._originalImagePosition,
             () => this.PostFinishedShrinking(post, false));
 
-        this.page.SetActive(true);
-        post.postObject.transform.parent = this.scrollArea.transform;
+        this._page.SetActive(true);
+        post.postObject.transform.parent = this._scrollArea.transform;
+
+        if (this._userStub != null)
+        {
+            GameObject.Destroy(this._userStub);
+        }
     }
 
     private void PostFinishedShrinking(DelayGramPostObject postObject, bool showDetails)

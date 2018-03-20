@@ -9,6 +9,7 @@ public class NewPostController : MonoBehaviour
 {
     private UserSerializer _userSerializer;
     private CharacterSerializer characterSerializer;
+    private TutorialScreenController _tutorialController;
     private MessagePost _messagePost;
     private PostHelper _postHelper;
     private RESTRequester _restRequester;
@@ -35,6 +36,7 @@ public class NewPostController : MonoBehaviour
     {
         this._userSerializer = UserSerializer.Instance;
         this.characterSerializer = CharacterSerializer.Instance;
+        this._tutorialController = this.GetComponent<TutorialScreenController>();
         this._messagePost = MessagePost.Instance;
         this._postHelper = new PostHelper();
         this._restRequester = new RESTRequester();
@@ -81,9 +83,11 @@ public class NewPostController : MonoBehaviour
 
         var croppingController = picture.GetComponent<CroppingController>();
         croppingController.SetMovableItems(movableObjects);
+        croppingController.OnAvatarMovedDecentDistance.AddListener(this._tutorialController.FinishedMovingTutorial);
+        croppingController.OnAvatarResizedAndRotated.AddListener(this._tutorialController.FinishedResizingAndRotatingTutorial);
     }
 
-    public void CheckClick(string colliderName)
+    public void HandleClick(string colliderName)
     {
         
         switch (colliderName)
@@ -220,42 +224,51 @@ public class NewPostController : MonoBehaviour
             case NewPostState.BackgroundSelection:
                 break;
             case NewPostState.Cropping:
-                this._postPopupWindow.transform.Find("BackButton").gameObject.SetActive(true);
-                this._postPopupWindow.transform.Find("Beach").gameObject.SetActive(false);
-                this._postPopupWindow.transform.Find("City").gameObject.SetActive(false);
-                this._postPopupWindow.transform.Find("Louvre").gameObject.SetActive(false);
-                this._postPopupWindow.transform.Find("Park").gameObject.SetActive(false);
-                this._postPopupWindow.transform.Find("CamRoom").gameObject.SetActive(false);
-                this._postPopupWindow.transform.Find("ChooseText").GetComponent<TextMeshPro>().text
-                    = "Edit your photo:";
-                this._postPopupWindow.transform.Find("NewPostDoneButton").gameObject.SetActive(true);
-
-                var post = this._postPopupWindow.transform.Find("NewPost");
-                post.gameObject.SetActive(true);
-                var picture = post.transform.Find("Picture");
-                switch (this._currentBackground)
-                {
-                    case "Beach":
-                        picture.transform.Find("BeachBackground").gameObject.SetActive(true);
-                        break;
-                    case "City":
-                        picture.transform.Find("CityBackground").gameObject.SetActive(true);
-                        break;
-                    case "Louvre":
-                        picture.transform.Find("LouvreBackground").gameObject.SetActive(true);
-                        break;
-                    case "Park":
-                        picture.transform.Find("ParkBackground").gameObject.SetActive(true);
-                        break;
-                    case "CamRoom":
-                        picture.transform.Find("CamRoomBackground").gameObject.SetActive(true);
-                        break;
-                }
-
+                this.EnterCroppingStage();
                 break;
         }
 
         this._currentPostState = newState;
+    }
+
+    private void EnterCroppingStage()
+    {
+        this._postPopupWindow.transform.Find("BackButton").gameObject.SetActive(true);
+        this._postPopupWindow.transform.Find("Beach").gameObject.SetActive(false);
+        this._postPopupWindow.transform.Find("City").gameObject.SetActive(false);
+        this._postPopupWindow.transform.Find("Louvre").gameObject.SetActive(false);
+        this._postPopupWindow.transform.Find("Park").gameObject.SetActive(false);
+        this._postPopupWindow.transform.Find("CamRoom").gameObject.SetActive(false);
+        this._postPopupWindow.transform.Find("ChooseText").GetComponent<TextMeshPro>().text
+            = "Edit your photo:";
+        this._postPopupWindow.transform.Find("NewPostDoneButton").gameObject.SetActive(true);
+
+        var post = this._postPopupWindow.transform.Find("NewPost");
+        post.gameObject.SetActive(true);
+        var picture = post.transform.Find("Picture");
+        switch (this._currentBackground)
+        {
+            case "Beach":
+                picture.transform.Find("BeachBackground").gameObject.SetActive(true);
+                break;
+            case "City":
+                picture.transform.Find("CityBackground").gameObject.SetActive(true);
+                break;
+            case "Louvre":
+                picture.transform.Find("LouvreBackground").gameObject.SetActive(true);
+                break;
+            case "Park":
+                picture.transform.Find("ParkBackground").gameObject.SetActive(true);
+                break;
+            case "CamRoom":
+                picture.transform.Find("CamRoomBackground").gameObject.SetActive(true);
+                break;
+        }
+
+        if (!this._userSerializer.PostedPhoto)
+        {
+            this._tutorialController.ShowMovingTutorialAtPostScreen(this._postPopupWindow);
+        }
     }
 
     private void CreateNewPost()

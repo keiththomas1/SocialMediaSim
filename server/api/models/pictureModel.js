@@ -28,10 +28,12 @@ let CharacterColorProperties = new Schema({
 
 let CharacterSpriteProperties = new Schema({
 	hairSprite: String,
-	eyeSprite: String
+	eyeSprite: String,
+	birthmark: String
 });
 
 let CharacterLevelProperties = new Schema({
+	avatarLevel: Number,
 	happinessLevel: Number,
 	fitnessLevel: Number,
 	styleLevel: Number

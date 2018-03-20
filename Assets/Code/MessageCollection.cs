@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 public class MessageCollection
 {
@@ -118,6 +116,7 @@ public class MessageCollection
                 newMessage9a.timeSent = DateTime.Now;
                 newConversation.messages.Add(newMessage9a);
 
+                newConversation.finished = true;
                 messageLoop = false;
             }
             else if (choices[choiceIndex] == 2)
@@ -139,6 +138,7 @@ public class MessageCollection
                 newMessage9a.timeSent = DateTime.Now;
                 newConversation.messages.Add(newMessage9a);
 
+                newConversation.finished = true;
                 messageLoop = false;
             }
             else if (choices[choiceIndex] == 3)
@@ -180,6 +180,7 @@ public class MessageCollection
 			(npcProperties == null) ?
 			this._characterRandomization.GetFullRandomCharacter(Gender.Female) :
 			npcProperties;
+        newConversation.choiceCount = 1;
 
         var newMessage1 = new Message();
         newMessage1.text = "Hi! Totally loved your latest post! I run a business called 'Reap What You Sew'.";
@@ -239,6 +240,8 @@ public class MessageCollection
 			newMessage9a.type = DelaygramMessageType.NPC;
             newMessage9a.timeSent = DateTime.Now;
             newConversation.messages.Add(newMessage9a);
+
+            newConversation.finished = true;
         }
         else if (choices[0] == 2)
         {
@@ -252,6 +255,8 @@ public class MessageCollection
             newMessage8a.type = DelaygramMessageType.NPC;
             newMessage8a.timeSent = DateTime.Now;
             newConversation.messages.Add(newMessage8a);
+
+            newConversation.finished = true;
         }
 
         return newConversation;
@@ -263,6 +268,7 @@ public class MessageCollection
         newConversation.messages = new List<Message>();
         newConversation.choicesMade = new List<int>();
         newConversation.viewed = false;
+        newConversation.finished = false;
 
         return newConversation;
     }

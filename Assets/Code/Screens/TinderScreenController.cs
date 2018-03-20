@@ -105,7 +105,7 @@ public class ExploreScreenController : MonoBehaviour
         }
     }
 
-    public void CheckClick(string colliderName)
+    public void HandleClick(string colliderName)
     {
     }
 

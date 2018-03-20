@@ -127,6 +127,15 @@ public class CharacterSerializer
             this.SaveFile();
         }
     }
+    public int AvatarLevel
+    {
+        get { return this._currentSave.properties.avatarLevel; }
+        set
+        {
+            this._currentSave.properties.avatarLevel = value;
+            this.SaveFile();
+        }
+    }
     public int HappinessLevel
     {
         get { return this._currentSave.properties.happinessLevel; }
@@ -154,6 +163,20 @@ public class CharacterSerializer
             this.SaveFile();
         }
     }
+    public bool Smelly
+    {
+        get { return this._currentSave.properties.smelly; }
+        set
+        {
+            if (value == false)
+            {
+                this._currentSave.currentlyCleaningUp = false;
+            }
+            this._currentSave.properties.smelly = value;
+            this.SaveFile();
+        }
+    }
+
     public CharacterProperties CurrentCharacterProperties
     {
         get
@@ -173,6 +196,41 @@ public class CharacterSerializer
         get
         {
             return this._currentSave.initialized;
+        }
+    }
+
+    public bool CleaningUp
+    {
+        get
+        {
+            return this._currentSave.currentlyCleaningUp;
+        }
+    }
+    public DateTime CleanUpTime
+    {
+        get
+        {
+            return this._currentSave.cleanUpTime;
+        }
+        set
+        {
+            if (value > DateTime.Now)
+            {
+                this._currentSave.currentlyCleaningUp = true;
+            }
+            this._currentSave.cleanUpTime = value;
+            this.SaveFile();
+        }
+    }
+
+    public void UpdateAllCharacters()
+    {
+        foreach (CharacterCustomization character in this._customizationListeners)
+        {
+            if (character)
+            {
+                character.SetCharacterLook(this._currentSave.properties);
+            }
         }
     }
 
@@ -217,23 +275,14 @@ public class CharacterSerializer
             this._currentSave = new CharacterSaveVariables();
             this._currentSave.lastUpdate = DateTime.Now;
             this._currentSave.properties = new CharacterProperties();
+            this._currentSave.cleanUpTime = DateTime.Now;
+            this._currentSave.currentlyCleaningUp = false;
             this._currentSave.initialized = false;
             this.SaveFile();
         }
 
         this.UpdateAllCharacters();
         return loadSuccess;
-    }
-
-    public void UpdateAllCharacters()
-    {
-        foreach (CharacterCustomization character in this._customizationListeners)
-        {
-            if (character)
-            {
-                character.SetCharacterLook(this._currentSave.properties);
-            }
-        }
     }
 
     private void SaveGameThread()
@@ -287,29 +336,48 @@ public enum Gender
 }
 
 [Serializable]
+public enum BirthMarkType
+{
+    NoseMole,
+    EyeMole,
+    FaceBlotchDarkRight,
+    FaceBlotchRedSquiggleLeft,
+    FaceBlotchRedSpotLeft,
+    None
+}
+
+[Serializable]
 public class CharacterProperties
 {
     public Gender gender;
     public string hairSprite;
     public string eyeSprite;
+    public BirthMarkType birthmark;
     public SerializableColor skinColor;
     public SerializableColor hairColor;
     public SerializableColor shirtColor;
     public SerializableColor pantsColor;
+    public int avatarLevel;
     public int happinessLevel;
     public int fitnessLevel;
     public int styleLevel;
+    public bool smelly;
 
     public CharacterProperties()
     {
         gender = Gender.Female;
+        birthmark = BirthMarkType.None;
+        hairSprite = "";
+        eyeSprite = "";
         skinColor = new SerializableColor(255, 255, 255);
         hairColor = new SerializableColor(255, 255, 255);
         shirtColor = new SerializableColor(255, 255, 255);
         pantsColor = new SerializableColor(255, 255, 255);
+        avatarLevel = 1;
         happinessLevel = 1;
         fitnessLevel = 1;
         styleLevel = 1;
+        smelly = false;
     }
     public CharacterProperties(CharacterProperties other)
     {
@@ -320,9 +388,11 @@ public class CharacterProperties
         hairColor = other.hairColor;
         shirtColor = other.shirtColor;
         pantsColor = other.pantsColor;
+        avatarLevel = other.avatarLevel;
         happinessLevel = other.happinessLevel;
         fitnessLevel = other.fitnessLevel;
         styleLevel = other.styleLevel;
+        smelly = other.smelly;
     }
 }
 
@@ -331,5 +401,7 @@ class CharacterSaveVariables
 {
     public DateTime lastUpdate;
     public CharacterProperties properties;
+    public DateTime cleanUpTime;
+    public bool currentlyCleaningUp;
     public bool initialized;
 }

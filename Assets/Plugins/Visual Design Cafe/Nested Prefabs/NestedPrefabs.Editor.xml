@@ -79,7 +79,7 @@
         </member>
         <member name="M:VisualDesignCafe.Editor.Prefabs.Patch.ReplaceGuidInOverrides(UnityEngine.Transform,System.String,System.String)">
             <summary>
-            Replaces all occurances of the GUID value in all Prefab Overrides components on all parents of the transform.
+            Replaces all occurrences of the GUID value in all Prefab Overrides components on all parents of the transform.
             </summary>
         </member>
         <member name="M:VisualDesignCafe.Editor.Prefabs.SerializedObjectExtensions.SaveModifications(UnityEditor.SerializedObject)">
@@ -397,6 +397,27 @@
             <summary>
             Gets called for each modification found in a prefab.
             </summary>
+        </member>
+        <member name="M:VisualDesignCafe.Editor.Prefabs.NestedPrefabUtility.GetPrefab(UnityEngine.GameObject)">
+            <summary>
+            Returns the prefab object that the gameobject is part of.
+            </summary>
+        </member>
+        <member name="M:VisualDesignCafe.Editor.Prefabs.NestedPrefabUtility.GetPrefab(UnityEngine.Transform)">
+            <summary>
+            Returns the prefab object that the transform is part of.
+            </summary>
+        </member>
+        <member name="M:VisualDesignCafe.Editor.Prefabs.NestedPrefabUtility.GetParentPrefab(VisualDesignCafe.Editor.Prefabs.Prefab)">
+            <summary>
+            Returns the parent prefab of the given prefab.
+            </summary>
+        </member>
+        <member name="M:VisualDesignCafe.Editor.Prefabs.NestedPrefabUtility.GetParentPrefab(VisualDesignCafe.Editor.Prefabs.Prefab,System.Boolean)">
+            <summary>
+            Returns the parent of the given prefab.
+            </summary>
+            <param name="ignoreModelPrefabs">Should model prefabs be ignored?</param>
         </member>
         <member name="M:VisualDesignCafe.Editor.Prefabs.NestedPrefabUtility.RevertProperty(UnityEditor.SerializedProperty)">
             <summary>

@@ -22,6 +22,7 @@ public class WorldScreenController : MonoBehaviour {
     private RESTRequester _restRequester;
     private PostHelper _postHelper;
     private GameObject _loadingIcon;
+    private GameObject _userStub = null;
 
     // For handling of selecting an image and resizing/repositioning
     private DelayGramPostObject? _currentSelectedImage;
@@ -77,10 +78,11 @@ public class WorldScreenController : MonoBehaviour {
         this.DestroyPage();
     }
 
-    public void CheckClick(string colliderName)
+    public void HandleClick(string colliderName)
     {
         if (colliderName == "UserPageLink")
         {
+            this.DestroyPage();
             this.ShowUserProfile();
         }
         else
@@ -93,7 +95,7 @@ public class WorldScreenController : MonoBehaviour {
                     {
                         this.EnlargePost(post);
                     }
-                    else
+                    else if (this._currentState == HomeScreenState.SinglePicture)
                     {
                         this.ShrinkPost(this._currentSelectedImage.Value);
                     }
@@ -103,11 +105,11 @@ public class WorldScreenController : MonoBehaviour {
             {
                 if (post.postObject && colliderName == post.postObject.name)
                 {
-                    if (this._currentState == HomeScreenState.WorldFeed)
+                    if (this._currentState == HomeScreenState.UserProfile)
                     {
                         this.EnlargePost(post);
                     }
-                    else
+                    else if (this._currentState == HomeScreenState.SinglePicture)
                     {
                         this.ShrinkPost(this._currentSelectedImage.Value);
                     }
@@ -202,8 +204,9 @@ public class WorldScreenController : MonoBehaviour {
         this._originalImageScale = post.postObject.transform.localScale;
         this._originalImagePosition = post.postObject.transform.localPosition;
 
-        this._postHelper.EnlargeAndCenterPost(post);
+        this._userStub = this._postHelper.EnlargeAndCenterPost(post);
 
+        post.postObject.transform.parent = null;
         foreach (DelayGramPostObject newPostObject in this._worldPostObjects)
         {
             if (newPostObject.postObject.name != post.postObject.name)
@@ -247,6 +250,11 @@ public class WorldScreenController : MonoBehaviour {
                 newPostObject.postObject.SetActive(true);
             }
         }
+
+        if (this._userStub != null)
+        {
+            GameObject.Destroy(this._userStub);
+        }
     }
 
     private void PostFinishedShrinking(DelayGramPostObject postObject, bool showDetails)
@@ -270,6 +278,10 @@ public class WorldScreenController : MonoBehaviour {
         if (this._userProfileScreen)
         {
             GameObject.Destroy(this._userProfileScreen);
+        }
+        if (this._userStub != null)
+        {
+            GameObject.Destroy(this._userStub);
         }
     }
 

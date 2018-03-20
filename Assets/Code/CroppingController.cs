@@ -1,12 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class CroppingController : MonoBehaviour {
+    public UnityEvent OnAvatarMovedDecentDistance;
+    public UnityEvent OnAvatarResizedAndRotated;
+
     private List<GameObject> _movableObjects;
     private GameObject _currentObject = null;
     private bool _currentlyDragging = false;
     private Vector3 _dragStartMouseDifference;
+    private Vector3 _currentObjectStartPosition;
+    private float _currentObjectStartRotation;
+    private Vector3 _currentObjectStartScale;
 
     private GameObject _leftArrow;
     private GameObject _rightArrow;
@@ -82,7 +89,7 @@ public class CroppingController : MonoBehaviour {
             // Find the difference in the distances between each frame.
             float deltaMagnitudeDiff = touchDeltaMag - prevTouchDeltaMag;
 
-            var scaleAmount = deltaMagnitudeDiff / 400;
+            var scaleAmount = deltaMagnitudeDiff / 450;
             if (this._currentObject.transform.localScale.x <= 0.2 && scaleAmount < 0)
             {
                 // Don't do anything
@@ -91,7 +98,13 @@ public class CroppingController : MonoBehaviour {
                 this._currentObject.transform.localScale.x + scaleAmount,
                 this._currentObject.transform.localScale.y + scaleAmount,
                 this._currentObject.transform.localScale.z);
-            }   
+            }
+
+            if (Mathf.Abs(Mathf.DeltaAngle(this._currentObject.transform.rotation.eulerAngles.z, this._currentObjectStartRotation)) > 10.0f
+                && Vector2.Distance(this._currentObject.transform.localScale, this._currentObjectStartScale) > 0.2f)
+            {
+                this.OnAvatarResizedAndRotated.Invoke();
+            }
         } else if (Input.GetMouseButtonDown(0)) // If left touch or tap
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -103,6 +116,9 @@ public class CroppingController : MonoBehaviour {
                     if (hit.collider.gameObject == movable)
                     {
                         this._currentObject = hit.collider.gameObject;
+                        this._currentObjectStartPosition = this._currentObject.transform.position;
+                        this._currentObjectStartRotation = this._currentObject.transform.rotation.eulerAngles.z;
+                        this._currentObjectStartScale = this._currentObject.transform.localScale;
                         this._currentObject.transform.SetAsLastSibling();
                         var animators = this._currentObject.GetComponentsInChildren<Animator>();
                         if (animators.Length > 0)
@@ -172,9 +188,9 @@ public class CroppingController : MonoBehaviour {
 
         if (this._currentlyDragging)
         {
-            var newAvatarPosition =
+            var newPosition =
                 Camera.main.ScreenToWorldPoint(Input.mousePosition) - this._dragStartMouseDifference;
-            this._currentObject.transform.position = newAvatarPosition;
+            this._currentObject.transform.position = newPosition;
 
             var directionColor = this._leftArrow.GetComponent<SpriteRenderer>().color;
             var scaleColor = this._topLeftArrow.GetComponent<SpriteRenderer>().color;
@@ -190,6 +206,11 @@ public class CroppingController : MonoBehaviour {
                 this._topRightArrow.GetComponent<SpriteRenderer>().color = scaleColor;
                 this._bottomLeftArrow.GetComponent<SpriteRenderer>().color = scaleColor;
                 this._bottomRightArrow.GetComponent<SpriteRenderer>().color = scaleColor;
+            }
+
+            if (Vector3.Distance(newPosition, this._currentObjectStartPosition) > 0.5f)
+            {
+                this.OnAvatarMovedDecentDistance.Invoke();
             }
         } else {
             // If you want to fade the arrows back in

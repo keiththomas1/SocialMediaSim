@@ -90,7 +90,7 @@ public class MessagesScreenController : MonoBehaviour {
         }
     }
 
-    public void CheckClick(string colliderName)
+    public void HandleClick(string colliderName)
     {
         if (this._messageWritingTimer > 0.0f)
         {
@@ -216,7 +216,7 @@ public class MessagesScreenController : MonoBehaviour {
             var previousScale = typingBackground.localScale;
             typingBackground.localScale = new Vector3(scaleFactor.x, scaleFactor.y, 1.0f);
 
-            this._currentTypingTween = typingBackground.DOScale(previousScale, 0.5f)
+            this._currentTypingTween = typingBackground.DOScale(previousScale, 0.3f)
                 .SetEase(Ease.OutSine)
                 .SetDelay(TYPING_TIME)
                 .OnComplete(() => {
@@ -362,7 +362,7 @@ public class MessagesScreenController : MonoBehaviour {
         messageStub.transform.localScale = new Vector3(.95f, .95f, 1.0f);
 
         var profileBubble = messageStub.transform.Find("ProfilePicBubble");
-        this._postHelper.SetupProfilePicBubble(profileBubble.gameObject, conversation.npcProperties);
+        this._postHelper.SetupAvatarMask(profileBubble.gameObject, conversation.npcProperties);
 
         var nameText = messageStub.transform.Find("NameText");
         if (nameText)
@@ -384,6 +384,12 @@ public class MessagesScreenController : MonoBehaviour {
         {
             var newBubble = messageStub.transform.Find("NewBubble");
             newBubble.gameObject.SetActive(true);
+        }
+        // User has already gone through the whole conversation
+        if (conversation.finished)
+        {
+            messageStub.transform.Find("StubBackground").GetComponent<SpriteRenderer>().color =
+                new Color(167f / 255f, 167f / 255f, 167f / 255f, 1f);
         }
 
         createdStubs.Add(messageStub);
@@ -456,7 +462,7 @@ public class MessagesScreenController : MonoBehaviour {
         popupMessage.transform.localPosition = new Vector3(0.0f, yPosition, 0.0f);
 
         var profileBubble = popupMessage.transform.Find("ProfilePicBubble");
-        this._postHelper.SetupProfilePicBubble(profileBubble.gameObject, this._characterSerializer.CurrentCharacterProperties);
+        this._postHelper.SetupAvatarMask(profileBubble.gameObject, this._characterSerializer.CurrentCharacterProperties);
 
         var textHeight = this.SetupText(popupMessage, message.text);
         this.StoreMessageObject(conversation, popupMessage);
@@ -482,7 +488,7 @@ public class MessagesScreenController : MonoBehaviour {
         popupMessage.transform.localPosition = new Vector3(0.0f, yPosition, 0.0f);
 
         var profileBubble = popupMessage.transform.Find("ProfilePicBubble");
-        this._postHelper.SetupProfilePicBubble(profileBubble.gameObject, conversation.npcProperties);
+        this._postHelper.SetupAvatarMask(profileBubble.gameObject, conversation.npcProperties);
 
         var textHeight = this.SetupText(popupMessage, message.text);
         this.StoreMessageObject(conversation, popupMessage);

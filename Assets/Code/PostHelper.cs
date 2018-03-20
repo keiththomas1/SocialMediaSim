@@ -21,6 +21,9 @@ public class PostHelper {
     private float WIDTH_BETWEEN_THUMBNAILS = 1.7f;
     private float HEIGHT_BETWEEN_THUMBNAILS = 1.32f;
 
+    private Tweener _growScaleTween = null;
+    private Tweener _growMoveTween = null;
+
     // Use this for initialization
     public PostHelper() {
 	}
@@ -100,43 +103,46 @@ public class PostHelper {
         var likeDislikeArea = post.transform.Find("LikeDislikeArea");
         float likesPercentage = 100.0f;
         float dislikePercentage = 0.0f;
-        if (data.likes + data.dislikes > 0)
+        var totalFeedback = data.likes + data.dislikes;
+        if (totalFeedback > 0)
         {
-            likesPercentage = Mathf.Floor(((float)data.likes) / ((float)(data.likes + data.dislikes)) * 100.0f);
-            dislikePercentage = Mathf.Ceil(((float)data.dislikes) / ((float)(data.likes + data.dislikes)) * 100.0f);
+            likesPercentage = ((float)data.likes) / ((float)totalFeedback);
+            dislikePercentage = ((float)data.dislikes) / ((float)totalFeedback);
         }
 
         var likeBar = likeDislikeArea.Find("LikeBar");
         if (likeBar)
         {
+            var scaleAt100Percent = likeBar.transform.localScale.x * 2.0f;
             likeBar.transform.localScale = new Vector3(
-                likesPercentage / 100.0f,
+                likesPercentage * scaleAt100Percent,
                 likeBar.transform.localScale.y,
                 likeBar.transform.localScale.z);
         }
         var dislikeBar = likeDislikeArea.transform.Find("DislikeBar");
         if (dislikeBar)
         {
+            var scaleAt100Percent = dislikeBar.transform.localScale.x * 2.0f;
             dislikeBar.transform.localScale = new Vector3(
-                dislikePercentage / 100.0f,
+                dislikePercentage * scaleAt100Percent,
                 dislikeBar.transform.localScale.y,
                 dislikeBar.transform.localScale.z);
         }
     }
 
-    public void SetupProfilePicBubble(GameObject bubble, CharacterProperties properties)
+    public void SetupAvatarMask(GameObject mask, CharacterProperties properties)
     {
         GameObject avatar;
         switch (properties.gender)
         {
             case Gender.Male:
-                avatar = bubble.transform.Find("MaleAvatar").gameObject;
-                bubble.transform.Find("FemaleAvatar").gameObject.SetActive(false);
+                avatar = mask.transform.Find("MaleAvatar").gameObject;
+                mask.transform.Find("FemaleAvatar").gameObject.SetActive(false);
                 break;
             case Gender.Female:
             default:
-                avatar = bubble.transform.Find("FemaleAvatar").gameObject;
-                bubble.transform.Find("MaleAvatar").gameObject.SetActive(false);
+                avatar = mask.transform.Find("FemaleAvatar").gameObject;
+                mask.transform.Find("MaleAvatar").gameObject.SetActive(false);
                 break;
         }
         avatar.SetActive(true);
@@ -272,26 +278,6 @@ public class PostHelper {
 
     public void SetPostDetails(GameObject postObject, DelayGramPost post, bool showDetails, bool showPostShadow)
     {
-        var userHeader = postObject.transform.Find("UserHeader");
-        var userHeaderXPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.07f, 0.0f, 0.0f)).x;
-        // Position User Header at correct x position for different screen sizes
-        userHeader.position = new Vector3(
-            userHeaderXPosition,
-            userHeader.position.y,
-            userHeader.position.z);
-
-        var nameText = userHeader.transform.Find("NameText");
-        if (nameText)
-        {
-            nameText.gameObject.SetActive(showDetails);
-            nameText.GetComponent<TextMeshPro>().text = post.playerName;
-        }
-
-        var userPageLink = postObject.transform.Find("UserPageLink");
-        if (userPageLink)
-        {
-            userPageLink.gameObject.SetActive(showDetails);
-        }
 
         var timeText = postObject.transform.Find("TimeText");
         if (timeText)
@@ -305,13 +291,6 @@ public class PostHelper {
             // Need to make rest requester a singleton or try to find the gameobject that has it which is dubious
             // var timeSincePost = DateTime.Now - post.dateTime;
             // timeText.GetComponent<TextMeshPro>().text = this._restRequester.GetPostTimeFromDateTime(timeSincePost);
-        }
-
-        var profilePicBubble = userHeader.transform.Find("ProfilePicBubble");
-        if (profilePicBubble)
-        {
-            profilePicBubble.gameObject.SetActive(showDetails);
-            this.SetupProfilePicBubble(profilePicBubble.gameObject, post.characterProperties);
         }
 
         var likeDislikeArea = postObject.transform.Find("LikeDislikeArea").gameObject;
@@ -332,18 +311,60 @@ public class PostHelper {
         }
     }
 
-    public void EnlargeAndCenterPost(DelayGramPostObject post)
+    public GameObject EnlargeAndCenterPost(DelayGramPostObject post)
     {
         // First, disable drop shadow
         this.SetPostDetails(post.postObject, post.post, false, false);
 
         // Scale post up and position in middle of screen
-        post.postObject.transform.DOScale(1.0f, 0.5f).SetEase(Ease.InOutBack);
-        var middleScreenPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f));
+        // Both InOutQuint and InOutBack are decent options also
+        this._growScaleTween = post.postObject.transform.DOScale(1.0f, 0.4f).SetEase(Ease.OutBack);
+        var middleScreenPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.45f, 0.0f));
         middleScreenPosition.z = 0.0f;
-        post.postObject.transform.DOMove(middleScreenPosition, 0.5f, false)
-            .OnComplete(() =>
-                this.SetPostDetails(post.postObject, post.post, true, false));
+        this._growMoveTween = post.postObject.transform.DOMove(middleScreenPosition, 0.5f, false)
+            .OnComplete(() => {
+                this.SetPostDetails(post.postObject, post.post, true, false); });
+        var userStub = this.CreateUserStub(post, middleScreenPosition);
+
+        return userStub;
+    }
+
+    private GameObject CreateUserStub(DelayGramPostObject post, Vector3 position)
+    {
+        var userStub = GameObject.Instantiate(Resources.Load("Posts/UserStub") as GameObject);
+        userStub.name = "UserStub";
+        userStub.transform.position = position; // post.postObject.transform.position;
+        // userStub.transform.SetParent(post.postObject.transform);
+
+        var nameText = userStub.transform.Find("NameText");
+        if (nameText)
+        {
+            nameText.gameObject.SetActive(true);
+            nameText.GetComponent<TextMeshPro>().text = post.post.playerName;
+        }
+
+        var userPageLink = userStub.transform.Find("UserPageLink");
+        if (userPageLink)
+        {
+            userPageLink.gameObject.SetActive(true);
+        }
+
+        var portraitMask = userStub.transform.Find("PortraitMask");
+        if (portraitMask)
+        {
+            portraitMask.gameObject.SetActive(true);
+            this.SetupAvatarMask(portraitMask.gameObject, post.post.characterProperties);
+        }
+
+        var portraitLevelBanner = userStub.transform.Find("PortraitLevelBanner");
+        if (portraitLevelBanner)
+        {
+            var bannerText = portraitLevelBanner.Find("BannerText");
+            bannerText.GetComponent<TextMeshPro>().text =
+                String.Format("Level {0}", post.post.characterProperties.avatarLevel);
+        }
+
+        return userStub;
     }
 
     public void ShrinkAndReturnPost(
@@ -352,9 +373,23 @@ public class PostHelper {
         Vector3 originalPosition,
         TweenCallback callback)
     {
+        if (!this._growScaleTween.IsComplete())
+        {
+            this._growScaleTween.Kill();
+        }
+        if (!this._growMoveTween.IsComplete())
+        {
+            this._growMoveTween.Kill();
+        }
+
+        var userStub = post.postObject.transform.Find("UserStub");
+        if (userStub)
+        {
+            GameObject.Destroy(userStub.gameObject);
+        }
         if (post.postObject)
         {
-            post.postObject.transform.DOScale(originalScale, 0.5f).SetEase(Ease.InOutBack);
+            post.postObject.transform.DOScale(originalScale, 0.4f).SetEase(Ease.OutBack); // .InOutBack);
             post.postObject.transform.DOLocalMove(originalPosition, 0.5f, false).OnComplete(callback);
         }
     }

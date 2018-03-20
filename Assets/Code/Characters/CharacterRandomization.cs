@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class CharacterRandomization {
@@ -52,6 +54,7 @@ public class CharacterRandomization {
         newProperties.shirtColor = new SerializableColor(this.GetRandomColor());
         newProperties.pantsColor = new SerializableColor(this.GetRandomColor());
         newProperties.skinColor = new SerializableColor(this.GetRandomSkinColor(Color.cyan));
+        newProperties.birthmark = this.GetRandomBirthMark();
         return newProperties;
     }
 
@@ -63,7 +66,7 @@ public class CharacterRandomization {
         {
             while (finalSprite == oldSprite)
             {
-                finalSprite = faceSprites[Random.Range(0, faceSprites.Count)].name;
+                finalSprite = faceSprites[UnityEngine.Random.Range(0, faceSprites.Count)].name;
             }
         }
         return faceSprites[0].name;
@@ -76,7 +79,7 @@ public class CharacterRandomization {
         {
             while (finalSprite == oldSprite)
             {
-                finalSprite = faceSprites[Random.Range(0, faceSprites.Count)].name;
+                finalSprite = faceSprites[UnityEngine.Random.Range(0, faceSprites.Count)].name;
             }
         }
         return faceSprites[0].name;
@@ -90,7 +93,7 @@ public class CharacterRandomization {
         {
             while (finalSprite == oldSprite)
             {
-                finalSprite = eyeSprites[Random.Range(0, eyeSprites.Count)];
+                finalSprite = eyeSprites[UnityEngine.Random.Range(0, eyeSprites.Count)];
             }
         }
         return eyeSprites[0];
@@ -103,7 +106,7 @@ public class CharacterRandomization {
         {
             while (finalSprite == oldSprite)
             {
-                finalSprite = eyeSprites[Random.Range(0, eyeSprites.Count)];
+                finalSprite = eyeSprites[UnityEngine.Random.Range(0, eyeSprites.Count)];
             }
         }
         return eyeSprites[0];
@@ -117,7 +120,7 @@ public class CharacterRandomization {
         {
             while (finalSprite == oldSprite)
             {
-                finalSprite = hairSprites[Random.Range(0, hairSprites.Count)].name;
+                finalSprite = hairSprites[UnityEngine.Random.Range(0, hairSprites.Count)].name;
             }
         }
         return hairSprites[0].name;
@@ -130,7 +133,7 @@ public class CharacterRandomization {
         {
             while (finalSprite == oldSprite)
             {
-                finalSprite = hairSprites[Random.Range(0, hairSprites.Count)].name;
+                finalSprite = hairSprites[UnityEngine.Random.Range(0, hairSprites.Count)].name;
             }
         }
         return hairSprites[0].name;
@@ -159,9 +162,24 @@ public class CharacterRandomization {
         return this._spriteCollection.FemaleHairSprites[0].name;
     }
 
+    public BirthMarkType GetRandomBirthMark()
+    {
+        var randomBirthmark = BirthMarkType.None;
+        while (randomBirthmark == BirthMarkType.None)
+        {
+            var birthmarkEnumLength = Enum.GetValues(typeof(BirthMarkType)).Length;
+            randomBirthmark = (BirthMarkType)UnityEngine.Random.Range(0, birthmarkEnumLength);
+        }
+
+        return randomBirthmark;
+    }
+
     public Color GetRandomColor()
     {
-        return new Color(Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f));
+        return new Color(
+            UnityEngine.Random.Range(0.0f, 1.0f),
+            UnityEngine.Random.Range(0.0f, 1.0f),
+            UnityEngine.Random.Range(0.0f, 1.0f));
     }
 
     public Color GetRandomSkinColor(Color oldSkinColor)
@@ -171,7 +189,7 @@ public class CharacterRandomization {
         {
             while (finalColor == oldSkinColor)
             {
-                finalColor = this._skinColors[Random.Range(0, this._skinColors.Count)];
+                finalColor = this._skinColors[UnityEngine.Random.Range(0, this._skinColors.Count)];
             }
         }
         return finalColor;
@@ -179,10 +197,18 @@ public class CharacterRandomization {
 
     public Color GetNextSkinColor(Color previousColor)
     {
-        var index = this._skinColors.FindIndex(c => c == previousColor);
+        Debug.Log("start of GetNextSkinColor" + previousColor);
+        var index = this._skinColors.FindIndex(color => (color == previousColor));
         if (index != -1) {
-            var nextIndex = this._skinColors.Count == (index + 1) ? 0 : (index + 1);
-            return this._skinColors[nextIndex];
+            if ((index + 1) >= this._skinColors.Count)
+            {
+                return this._skinColors[0];
+            }
+            else
+            {
+                Debug.Log("return of GetNextSkinColor" + this._skinColors[index + 1]);
+                return this._skinColors[index + 1];
+            }
         }
 
         return this._skinColors[0];

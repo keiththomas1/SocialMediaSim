@@ -154,6 +154,7 @@ public struct Conversation
     public int choiceCount; // How many choices available (only supports one choice per convo right now)
     public List<int> choicesMade;
     public bool viewed;
+    public bool finished;
 }
 
 [Serializable]

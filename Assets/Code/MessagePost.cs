@@ -86,10 +86,12 @@ public class MessagePost
                 if (choice == 1)
                 {
                     this._userSerializer.HasCat = true;
+                    this._userSerializer.NextPostTime = DateTime.Now;
                 }
                 else if (choice == 2)
                 {
                     this._userSerializer.HasBulldog = true;
+                    this._userSerializer.NextPostTime = DateTime.Now;
                 }
                 newConversation = this._messageCollection.CreateLostDogConversation(choices, conversation.npcProperties);
                 break;

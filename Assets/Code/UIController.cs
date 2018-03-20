@@ -25,8 +25,8 @@ public class UIController : MonoBehaviour {
     [SerializeField]
     private GameObject _messagesButton;
     private Image _messagesIcon;
-    [SerializeField]
-    private GameObject _postButton;
+
+    public GameObject _postButton;
     private Image _postIcon;
     [SerializeField]
     private GameObject _ratingButton;
@@ -82,7 +82,7 @@ public class UIController : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        this._bottomNavBackground.GetComponent<Image>().enabled = true;
+        this._bottomNavBackground.transform.Find("BottomNavImage").GetComponent<Image>().enabled = true;
         this._profileButton.GetComponent<Button>().onClick.AddListener(this.OnProfileClick);
         this._profileIcon = this._profileButton.transform.Find("ProfileButtonIcon").GetComponent<Image>();
         this._messagesButton.GetComponent<Button>().onClick.AddListener(this.OnMessagesClick);
@@ -111,7 +111,7 @@ public class UIController : MonoBehaviour {
 
         this._lastPages = new List<Page>();
 
-        if (!this._userSerializer.CompletedTutorial)
+        if (!this._userSerializer.CreatedCharacter)
         {
             this._goalsController.SetFirstGoal();
             this.GoToTutorialPage();
@@ -263,6 +263,8 @@ public class UIController : MonoBehaviour {
         var spriteMask = avatarSection.transform.Find("SpriteMask");
         var oldFemaleAvatar = spriteMask.transform.Find("OldFemaleAvatar");
         var oldMaleAvatar = spriteMask.transform.Find("OldMaleAvatar");
+        var newMaleAvatar = spriteMask.transform.Find("NewMaleAvatar");
+        var newFemaleAvatar = spriteMask.transform.Find("NewFemaleAvatar");
 
         var gender = previousCharacterProperties.gender;
         switch(gender)
@@ -271,14 +273,12 @@ public class UIController : MonoBehaviour {
                 oldFemaleAvatar.GetComponent<CharacterCustomization>().SetCharacterLook(previousCharacterProperties);
 
                 oldMaleAvatar.gameObject.SetActive(false);
-                var newMaleAvatar = spriteMask.transform.Find("NewMaleAvatar");
                 newMaleAvatar.gameObject.SetActive(false);
                 break;
             case Gender.Male:
                 oldMaleAvatar.GetComponent<CharacterCustomization>().SetCharacterLook(previousCharacterProperties);
 
                 oldFemaleAvatar.gameObject.SetActive(false);
-                var newFemaleAvatar = spriteMask.transform.Find("NewFemaleAvatar");
                 newFemaleAvatar.gameObject.SetActive(false);
                 break;
         }
@@ -286,7 +286,7 @@ public class UIController : MonoBehaviour {
 
     private void OnworldClick()
     {
-        if (this._userSerializer.CompletedTutorial)
+        if (this._userSerializer.PostedPhoto)
         {
             this.UpdateLastVisited();
             this.GoToworldPage();
@@ -310,7 +310,7 @@ public class UIController : MonoBehaviour {
 
     private void OnProfileClick()
     {
-        if (this._userSerializer.CompletedTutorial)
+        if (this._userSerializer.PostedPhoto)
         {
             this.UpdateLastVisited();
             this.GoToProfilePage();
@@ -334,7 +334,7 @@ public class UIController : MonoBehaviour {
 
     private void OnPostClick()
     {
-        if (this._userSerializer.CompletedTutorial)
+        if (this._userSerializer.CreatedCharacter)
         {
             this.UpdateLastVisited();
             this.GoToPostPage();
@@ -358,7 +358,7 @@ public class UIController : MonoBehaviour {
 
     private void OnRatingClick()
     {
-        if (this._userSerializer.CompletedTutorial)
+        if (this._userSerializer.PostedPhoto)
         {
             this.UpdateLastVisited();
             this.GoToRatingPage();
@@ -382,7 +382,7 @@ public class UIController : MonoBehaviour {
 
     private void OnMessagesClick()
     {
-        if (this._userSerializer.CompletedTutorial)
+        if (this._userSerializer.PostedPhoto)
         {
             this.UpdateLastVisited();
             this.GoToMessagesPage();

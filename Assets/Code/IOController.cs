@@ -102,22 +102,22 @@ public class IOController : MonoBehaviour
                 switch (this._uiController.GetCurrentPage())
                 {
                     case Page.World:
-                        this._worldController.CheckClick(colliderName);
+                        this._worldController.HandleClick(colliderName);
                         break;
                     case Page.Profile:
-                        this._profileController.CheckClick(colliderName);
+                        this._profileController.HandleClick(colliderName);
                         break;
                     case Page.Post:
-                        this._newPostController.CheckClick(colliderName);
+                        this._newPostController.HandleClick(colliderName);
                         break;
                     case Page.Rating:
-                        this._ratingController.CheckClick(colliderName);
+                        this._ratingController.HandleClick(colliderName);
                         break;
                     case Page.Messages:
-                        this._messagesController.CheckClick(colliderName);
+                        this._messagesController.HandleClick(colliderName);
                         break;
                     case Page.Tutorial:
-                        this._tutorialController.CheckClick(colliderName);
+                        this._tutorialController.HandleClick(colliderName);
                         break;
                     default:
                         break;

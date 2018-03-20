@@ -16,8 +16,10 @@ public class RatingScreenController : MonoBehaviour
     private GameObject _currentTopPost;
     private PictureModelJsonReceive _currentBottomPicture;
     private GameObject _currentBottomPost;
+    private GameObject _vsGraphic;
 
     private bool _loadingPictures = false;
+    private bool _canRate = false;
     private GameObject _loadingIcon;
 
     private GameObject _swipeCountText;
@@ -41,25 +43,31 @@ public class RatingScreenController : MonoBehaviour
     {
     }
 
-    public void CheckClick(string colliderName)
+    public void HandleClick(string colliderName)
     {
         switch (colliderName)
         {
             case "TopPost":
-                GameObject.Destroy(this._currentTopPost);
-                GameObject.Destroy(this._currentBottomPost);
-                this.RatePicture(this._currentTopPicture, RatingType.Liked);
-                this.RatePicture(this._currentBottomPicture, RatingType.Disliked);
-                this.CreatePostPair();
-                this.IterateRatings();
+                if (this._canRate)
+                {
+                    this._canRate = false;
+                    GameObject.Destroy(this._vsGraphic);
+                    this.RatePicture(this._currentTopPicture, this._currentTopPost, RatingType.Liked);
+                    this.RatePicture(this._currentBottomPicture, this._currentBottomPost, RatingType.Disliked);
+                    this.CreatePostPair();
+                    this.IterateRatings();
+                }
                 break;
             case "BottomPost":
-                GameObject.Destroy(this._currentTopPost);
-                GameObject.Destroy(this._currentBottomPost);
-                this.RatePicture(this._currentBottomPicture, RatingType.Liked);
-                this.RatePicture(this._currentTopPicture, RatingType.Disliked);
-                this.CreatePostPair();
-                this.IterateRatings();
+                if (this._canRate)
+                {
+                    this._canRate = false;
+                    GameObject.Destroy(this._vsGraphic);
+                    this.RatePicture(this._currentBottomPicture, this._currentBottomPost, RatingType.Liked);
+                    this.RatePicture(this._currentTopPicture, this._currentTopPost, RatingType.Disliked);
+                    this.CreatePostPair();
+                    this.IterateRatings();
+                }
                 break;
         }
     }
@@ -150,20 +158,37 @@ public class RatingScreenController : MonoBehaviour
         this._swipeCountText.GetComponent<TextMeshPro>().text = this._swipesLeft.ToString();
     }
 
-    private void RatePicture(PictureModelJsonReceive picture, RatingType ratingType)
+    private void RatePicture(
+        PictureModelJsonReceive picture,
+        GameObject pictureObject,
+        RatingType ratingType)
     {
         switch (ratingType)
         {
             case RatingType.Liked:
-            case RatingType.Equal:
+                var likeTint = pictureObject.transform.Find("LikeTint");
+                likeTint.GetComponent<SpriteRenderer>().enabled = true;
+                pictureObject.transform.DOMoveX(4.0f, 0.5f)
+                    .SetEase(Ease.InBack);
+
                 var addLike = this._restRequester.AddLikeToPicture(picture._id);
                 StartCoroutine(addLike);
                 break;
+            case RatingType.Equal:
+                break;
             case RatingType.Disliked:
+                var dislikeTint = pictureObject.transform.Find("DislikeTint");
+                dislikeTint.GetComponent<SpriteRenderer>().enabled = true;
+                pictureObject.transform.DOMoveX(-4.0f, 0.5f)
+                    .SetEase(Ease.InBack);
+
                 var addDislike = this._restRequester.AddDislikeToPicture(picture._id);
                 StartCoroutine(addDislike);
                 break;
         }
+
+        var deathByTimer = pictureObject.AddComponent<DeathByTimer>();
+        deathByTimer.deathTimeInSeconds = 1.0f;
     }
 
     private void CreatePostPair()
@@ -189,6 +214,10 @@ public class RatingScreenController : MonoBehaviour
         this._currentBottomPost = this.CreatePost(bottomData);
         this._currentBottomPost.transform.localPosition = new Vector3(0.0f, -0.91f, 0.0f);
         this._currentBottomPost.name = "BottomPost";
+
+        this._vsGraphic = GameObject.Instantiate(Resources.Load("Rating/VsGraphic") as GameObject);
+        this._vsGraphic.transform.SetParent(this._ratingPage.transform);
+        this._vsGraphic.transform.localPosition = new Vector3(0.045f, .2f, -2.0f);
     }
 
     private GameObject CreatePost(DelayGramPost postData)
@@ -198,7 +227,9 @@ public class RatingScreenController : MonoBehaviour
         postObject.transform.parent = this._ratingPage.transform;
 
         postObject.transform.localScale = new Vector3(0.0f, 0.0f, 0.0f);
-        postObject.transform.DOScale(new Vector3(1.2f, 1.2f, 1.0f), 0.5f).SetEase(Ease.OutSine);
+        postObject.transform.DOScale(new Vector3(1.2f, 1.2f, 1.0f), 0.7f)
+            .SetEase(Ease.InCubic)
+            .OnComplete(() => { this._canRate = true; });
 
         var newPost = postObject.transform.Find("NewPost").gameObject;
         this._postHelper.PopulatePostFromData(newPost, postData);

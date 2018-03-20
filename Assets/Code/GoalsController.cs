@@ -55,13 +55,30 @@ public class GoalsController : MonoBehaviour {
         var firstGoal = new GoalInformation();
         firstGoal.status = GoalStatus.Active;
         firstGoal.goalType = GoalObjectType.Location;
-        firstGoal.goalObject = "City";
+        firstGoal.goalObject = "Beach";
         firstGoal.rewardType = GoalRewardType.ExperiencePoints;
         firstGoal.reward = "50";
         firstGoal.stepsCompleted = 0;
         firstGoal.stepsNeeded = 1;
 
         currentGoals[0] = firstGoal;
+        this._goalSerializer.CurrentGoals = currentGoals;
+    }
+
+    public void SetSecondGoal()
+    {
+        var currentGoals = this.GetCurrentGoals();
+
+        var secondGoal = new GoalInformation();
+        secondGoal.status = GoalStatus.Active;
+        secondGoal.goalType = GoalObjectType.Location;
+        secondGoal.goalObject = "City";
+        secondGoal.rewardType = GoalRewardType.ExperiencePoints;
+        secondGoal.reward = "50";
+        secondGoal.stepsCompleted = 0;
+        secondGoal.stepsNeeded = 1;
+
+        currentGoals[1] = secondGoal;
         this._goalSerializer.CurrentGoals = currentGoals;
     }
 
@@ -72,11 +89,18 @@ public class GoalsController : MonoBehaviour {
         newWaitingGoal.nextGoalTime = DateTime.Now.AddMinutes(5.0f);
         currentGoals[index] = newWaitingGoal;
 
-        if (index == 0 && currentGoals[1].status == GoalStatus.Inactive && currentGoals[2].status == GoalStatus.Inactive)
-        {   // Then user just completed their first goal
-            // For now, just give them the other two goals
-            currentGoals[1] = this.GetNewGoal();
-            currentGoals[2] = this.GetNewGoal();
+        if (currentGoals[1].status == GoalStatus.Inactive && currentGoals[2].status == GoalStatus.Inactive)
+        {
+            if (index == 0)
+            {   // Then user just completed their first goal
+                this.SetSecondGoal();
+                return;
+            }
+            else if (index == 1)
+            {
+                currentGoals[0] = this.GetNewGoal();
+                currentGoals[2] = this.GetNewGoal();
+            }
         }
 
         this._goalSerializer.CurrentGoals = currentGoals;

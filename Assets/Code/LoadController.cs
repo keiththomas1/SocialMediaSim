@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class LoadController : MonoBehaviour {
@@ -56,6 +57,11 @@ public class LoadController : MonoBehaviour {
             this._messagesSerializer.LoadGame();
             this._userSerializer = UserSerializer.Instance;
             this._userSerializer.LoadGame();
+
+            if (this._userSerializer.PostedPhoto && ((DateTime.Now - this._userSerializer.LastUpdate) > TimeSpan.FromDays(1f)))
+            {
+                this._characterSerializer.Smelly = true;
+            }
 
             this._gameLoaded = true;
         }
