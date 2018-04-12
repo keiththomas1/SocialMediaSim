@@ -6,6 +6,8 @@ using UnityEngine.UI;
 public class TutorialScreenController : MonoBehaviour {
     [SerializeField]
     private GameObject _goToPostScreenPopup;
+    [SerializeField]
+    private GameObject _goToMessageScreenPopup;
 
     private UserSerializer _userSerializer;
     private UIController _uiController;
@@ -25,7 +27,9 @@ public class TutorialScreenController : MonoBehaviour {
         ProfileScreenAboutToPostPhoto,
         MovingAvatar,
         RotatingResizingAvatar,
-        PostingPhoto
+        PostingPhoto,
+        ReadingMessage,
+        Finished
     }
     private TutorialState _currentState;
 
@@ -38,11 +42,11 @@ public class TutorialScreenController : MonoBehaviour {
 
         this._profileController = GetComponent<ProfileScreenController>();
         this._introDialog = new List<string>();
-        this._introDialog.Add("Sup! I'm supposed to introduce you to Delaygram.");
-        this._introDialog.Add("I'm going to do it because I'm paid to do it.");
-        this._introDialog.Add("I actually hate this job.");
-        this._introDialog.Add("But they pay good .. big wealthy social media network and all that.");
-        this._introDialog.Add("Alright .. go make your avatar.");
+        this._introDialog.Add("Hello! Welcome to <size=\"3\"><#790CB2>Delaygram</color></size>, the greatest social media network ever.");
+        this._introDialog.Add("<size=\"3\"><#0076FFFF>Post</color></size> pictures of yourself and get <#982409FF>ratings</color> from others!");
+        this._introDialog.Add("Participate in <size=\"3\"><#09982DFF>challenges</color></size> to win special items.");
+        this._introDialog.Add("To participate, simply <size=\"3\"><#982409FF>rate</color></size> other's photos.");
+        this._introDialog.Add("Alright, time to make your <size=\"3\">avatar!</size>");
 	}
 
     private void Start()
@@ -72,8 +76,10 @@ public class TutorialScreenController : MonoBehaviour {
     public void EnterScreen()
     {
         this._introductionObject = GameObject.Instantiate(Resources.Load("Tutorial/TutorialIntroduction") as GameObject);
+        Debug.Log(this._introductionObject);
         this._introductionObject.transform.position = new Vector3(0.27f, 0.17f, 0.0f);
-        this._introTextAnimation = this._introductionObject.transform.Find("TutorialText").GetComponent<TextTypingAnimation>();
+        var tutorialBubble = this._introductionObject.transform.Find("TutorialBubble");
+        this._introTextAnimation = tutorialBubble.Find("TutorialText").GetComponent<TextTypingAnimation>();
 
         this.ShowNextDialog();
     }
@@ -86,6 +92,7 @@ public class TutorialScreenController : MonoBehaviour {
                 this.ContinueText();
                 break;
         }
+        Debug.Log(this._introductionObject);
     }
 
     public void ShowGoToPostScreenPopup()
@@ -146,6 +153,23 @@ public class TutorialScreenController : MonoBehaviour {
             tutorialPopup.gameObject.SetActive(false);
 
             this._userSerializer.PostedPhoto = true;
+        }
+    }
+
+    public void ShowGoToMessageScreenPopup()
+    {
+        if (this._currentState == TutorialState.PostingPhoto)
+        {
+            this._currentState = TutorialState.ReadingMessage;
+            this._goToMessageScreenPopup.SetActive(true);
+        }
+    }
+    public void HideGoToMessageScreenPopup()
+    {
+        if (this._currentState == TutorialState.ReadingMessage)
+        {
+            this._currentState = TutorialState.Finished;
+            this._goToMessageScreenPopup.SetActive(false);
         }
     }
 

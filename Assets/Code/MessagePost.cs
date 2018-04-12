@@ -13,12 +13,11 @@ public class MessagePost
     private static MessagePost _instance;
     private UserSerializer _userSerializer;
     private MessagesSerializer _messageSerializer;
-    private NotificationController _notificationController;
+    private AlertsController _alertsController;
     private CharacterRandomization _characterRandomization;
     private MessageCollection _messageCollection;
 
-    private bool _seenLostDogConvo = false;
-    private bool _seenNewShirt1Convo = false;
+    private bool _seenProfessorPartnerConvo = false;
 
     public static MessagePost Instance
     {
@@ -37,17 +36,14 @@ public class MessagePost
         this._userSerializer = UserSerializer.Instance;
         this._messageSerializer = MessagesSerializer.Instance;
         this._messageCollection = new MessageCollection();
-        this._notificationController = GameObject.Find("CONTROLLER").GetComponent<NotificationController>();
+        this._alertsController = GameObject.Find("CONTROLLER").GetComponent<AlertsController>();
 
         foreach (Conversation convo in this._messageSerializer.ActiveConversations)
         {
             switch(convo.npcName)
             {
-                case MessageCollection.LOST_DOG_NPC_NAME:
-                    this._seenLostDogConvo = true;
-                    break;
-                case MessageCollection.SHIRT1_NPC_NAME:
-                    this._seenNewShirt1Convo = true;
+                case MessageCollection.PROFESSOR_NAME:
+                    this._seenProfessorPartnerConvo = true;
                     break;
             }
         }
@@ -60,13 +56,13 @@ public class MessagePost
             case MessageTriggerType.NewPost:
                 if (CreateNextMessage())
                 {
-                    this._notificationController.CreateNotificationBubble(NotificationType.Message, 1);
+                    this._alertsController.CreateNotificationBubble(NotificationType.Message, 1);
                 }
                 break;
             case MessageTriggerType.SwipeGoal:
                 if (CreateNextMessage())
                 {
-                    this._notificationController.CreateNotificationBubble(NotificationType.Message, 1);
+                    this._alertsController.CreateNotificationBubble(NotificationType.Message, 1);
                 }
                 break;
             default:
@@ -82,7 +78,7 @@ public class MessagePost
 
         switch (conversation.npcName)
         {
-            case MessageCollection.LOST_DOG_NPC_NAME:
+            case MessageCollection.PROFESSOR_NAME:
                 if (choice == 1)
                 {
                     this._userSerializer.HasCat = true;
@@ -93,11 +89,13 @@ public class MessagePost
                     this._userSerializer.HasBulldog = true;
                     this._userSerializer.NextPostTime = DateTime.Now;
                 }
-                newConversation = this._messageCollection.CreateLostDogConversation(choices, conversation.npcProperties);
+                else if (choice == 3)
+                {
+                    this._userSerializer.HasDrone = true;
+                    this._userSerializer.NextPostTime = DateTime.Now;
+                }
+                newConversation = this._messageCollection.CreateProfessorConversation(choices, conversation.npcProperties);
                 break;
-			case MessageCollection.SHIRT1_NPC_NAME:
-				newConversation = this._messageCollection.CreateShirtConversation (choices, conversation.npcProperties);
-				break;
         }
         newConversation.choicesMade = choices;
         this._messageSerializer.UpdateConversation(newConversation);
@@ -105,18 +103,14 @@ public class MessagePost
 
     private bool CreateNextMessage()
     {
-        if (!this._seenLostDogConvo)
+        if (!this._seenProfessorPartnerConvo)
         {
-            var conversation = this._messageCollection.CreateLostDogConversation(new List<int>());
+            var conversation = this._messageCollection.CreateProfessorConversation(new List<int>());
             this._messageSerializer.AddConversation(conversation);
-            this._seenLostDogConvo = true;
-            return true;
-        } else if (!this._seenNewShirt1Convo) {
-            var conversation = this._messageCollection.CreateShirtConversation(new List<int>());
-            this._messageSerializer.AddConversation(conversation);
-            this._seenNewShirt1Convo = true;
+            this._seenProfessorPartnerConvo = true;
             return true;
         }
+        // else if (!this._seenNewShirt1Convo) {}
 
         return false;
     }

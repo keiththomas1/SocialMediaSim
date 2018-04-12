@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class MessageCollection
 {
-    public const string LOST_DOG_NPC_NAME = "Karen L";
-    public const string SHIRT1_NPC_NAME = "Gracie Reap";
+    public const string PROFESSOR_NAME = "Professor Woke";
 
-    private UserSerializer _userSerializer;
     private CharacterRandomization _characterRandomization;
 
     public MessageCollection()
     {
-        this._userSerializer = UserSerializer.Instance;
         this._characterRandomization = CharacterRandomization.Instance;
     }
 
@@ -23,139 +21,166 @@ public class MessageCollection
                 return "Messages/Results/BulldogUnlocked";
             case "Cat":
                 return "Messages/Results/CatUnlocked";
+            case "Drone":
+                return "Messages/Results/DroneUnlocked";
             default:
                 return "";
         }
     }
 
-    public Conversation CreateLostDogConversation(List<int> choices, CharacterProperties npcProperties = null)
+    public Conversation CreateProfessorConversation(List<int> choices, CharacterProperties npcProperties = null)
     {
         var newConversation = this.CreateEmptyConversation();
-		newConversation.conversationType = DelaygramConversationType.Choice;
-        newConversation.npcName = LOST_DOG_NPC_NAME;
-        newConversation.npcProperties =
-            (npcProperties == null) ?
-				this._characterRandomization.GetFullRandomCharacter(Gender.Female) :
-				npcProperties;
-		newConversation.npcProperties.happinessLevel = 6;
+        newConversation.conversationType = DelaygramConversationType.Choice;
+        newConversation.npcName = PROFESSOR_NAME;
         newConversation.choiceCount = 3;
 
         var newMessage1 = new Message();
-        newMessage1.text = "Hi, " + this._userSerializer.PlayerName + "! I saw your post and noticed a severe lack of fluffy friends in it.";
+        newMessage1.text = "Hey there! Welcome to this grand adventure you have set off on! I believe it is destined to be the greatest thing you will ever experience.";
         newMessage1.type = DelaygramMessageType.NPC;
         newMessage1.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage1);
 
         var newMessage2 = new Message();
-        newMessage2.text = "I work with the local non-profit shelter, and we are absolutely STOCKED with pets, sadly.";
+        newMessage2.text = ".. ah shit, who am I kidding";
         newMessage2.type = DelaygramMessageType.NPC;
         newMessage2.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage2);
 
         var newMessage3 = new Message();
-        newMessage3.text = "But lucky for YOU, I have an interesting offer.";
+        newMessage3.text = "It could be a terrible experience, honestly";
         newMessage3.type = DelaygramMessageType.NPC;
         newMessage3.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage3);
-		newConversation.npcProperties.happinessLevel = 6;
 
         var newMessage4 = new Message();
-        newMessage4.text = "You can adopt for free one of our animals!";
+        newMessage4.text = "I mean, sure, you could end up popular and liked by all";
         newMessage4.type = DelaygramMessageType.NPC;
         newMessage4.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage4);
 
         var newMessage5 = new Message();
-        newMessage5.text = "Here's the catch: You HAVE to include them in your next three pictures! You know, free publicity for the shelter and all.";
+        newMessage5.text = "But you could also end up like all those celebrities you see in the news";
         newMessage5.type = DelaygramMessageType.NPC;
         newMessage5.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage5);
 
+        var newMessage5b = new Message();
+        newMessage5b.text = "Strung out and begging to be thrust back into the limelight";
+        newMessage5b.type = DelaygramMessageType.NPC;
+        newMessage5b.timeSent = DateTime.Now;
+        newConversation.messages.Add(newMessage5b);
+
         var newMessage6 = new Message();
-        newMessage6.text = "If you don't .. we may have to take them back. So! Which furry friend would you like?";
+        newMessage6.text = "It all depends on your choices";
         newMessage6.type = DelaygramMessageType.NPC;
         newMessage6.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage6);
 
-        bool messageLoop = true;
-        int choiceIndex = 0;
-        while (messageLoop)
+        var newMessage7 = new Message();
+        newMessage7.text = "Except for this first one! This is just a warm-up for everybody that joins Delaygram.";
+        newMessage7.type = DelaygramMessageType.NPC;
+        newMessage7.timeSent = DateTime.Now;
+        newConversation.messages.Add(newMessage7);
+
+        var newMessage8 = new Message();
+        newMessage8.text = "You get to choose a partner! <sprite name=\"1f60e\"> I've got a cat, a bulldog, and a drone. All good pals in their own right.";
+        newMessage8.type = DelaygramMessageType.NPC;
+        newMessage8.timeSent = DateTime.Now;
+        newConversation.messages.Add(newMessage8);
+
+        var newMessage9 = new Message();
+        if (choices.Count == 0)
         {
-            var newMessage7 = new Message();
-            if (choices.Count == choiceIndex)
-            {   // At the point where user hasn't made a choice at this index
-                newMessage7.type = DelaygramMessageType.Choice;
-                newMessage7.choices = new List<string>();
-                newMessage7.choices.Add("Cat!");
-                newMessage7.choices.Add("Dog!");
-                if (choices.Count == 0)
-                {   // Only show this the first time
-                    newMessage7.choices.Add("A mixture of both!");
-                }
-                newMessage7.timeSent = DateTime.Now;
-                newConversation.messages.Add(newMessage7);
+            newMessage9.type = DelaygramMessageType.Choice;
+            newMessage9.choices = new List<string>();
+            newMessage9.choices.Add("Cat, please!");
+            newMessage9.choices.Add("Dog, obviously!");
+            newMessage9.choices.Add("Drone, clearly");
+            newMessage9.timeSent = DateTime.Now;
+            newConversation.messages.Add(newMessage9);
+        }
+        else if (choices[0] == 1)
+        {
+            newMessage9.text = "Cat, please!";
+            newMessage9.type = DelaygramMessageType.Player;
+            newMessage9.timeSent = DateTime.Now;
+            newConversation.messages.Add(newMessage9);
 
-                messageLoop = false;
-            }
-            else if (choices[choiceIndex] == 1)
-            {
-                newMessage7.text = "Cat!";
-                newMessage7.type = DelaygramMessageType.Player;
-                newMessage7.timeSent = DateTime.Now;
-                newConversation.messages.Add(newMessage7);
+            var newMessage10a = new Message();
+            newMessage10a.text = "Sure thing. Here you go. I'll be sure to check back in with you eventually.";
+            newMessage10a.type = DelaygramMessageType.NPC;
+            newMessage10a.timeSent = DateTime.Now;
+            newConversation.messages.Add(newMessage10a);
 
-                var newMessage8a = new Message();
-                newMessage8a.text = "Great! I'll bring her over right now! Send me your address.";
-                newMessage8a.type = DelaygramMessageType.NPC;
-                newMessage8a.timeSent = DateTime.Now;
-                newConversation.messages.Add(newMessage8a);
+            var newMessage11a = new Message();
+            newMessage11a.text = "Also I'll refresh your delay time so you can create a post with your new pal right away. <sprite name=\"1f604\">";
+            newMessage11a.type = DelaygramMessageType.NPC;
+            newMessage11a.timeSent = DateTime.Now;
+            newConversation.messages.Add(newMessage11a);
 
-                var newMessage9a = new Message();
-                newMessage9a.text = "Cat";
-                newMessage9a.type = DelaygramMessageType.Result;
-                newMessage9a.timeSent = DateTime.Now;
-                newConversation.messages.Add(newMessage9a);
+            var newMessage12a = new Message();
+            newMessage12a.text = "Cat";
+            newMessage12a.type = DelaygramMessageType.Result;
+            newMessage12a.timeSent = DateTime.Now;
+            newConversation.messages.Add(newMessage12a);
 
-                newConversation.finished = true;
-                messageLoop = false;
-            }
-            else if (choices[choiceIndex] == 2)
-            {
-                newMessage7.text = "Dog!";
-                newMessage7.type = DelaygramMessageType.Player;
-                newMessage7.timeSent = DateTime.Now;
-                newConversation.messages.Add(newMessage7);
+            newConversation.finished = true;
+        }
+        else if (choices[0] == 2)
+        {
+            newMessage9.text = "Dog, obviously";
+            newMessage9.type = DelaygramMessageType.Player;
+            newMessage9.timeSent = DateTime.Now;
+            newConversation.messages.Add(newMessage9);
 
-                var newMessage8a = new Message();
-                newMessage8a.text = "Great! I'll bring him over right now! Send me your address.";
-                newMessage8a.type = DelaygramMessageType.NPC;
-                newMessage8a.timeSent = DateTime.Now;
-                newConversation.messages.Add(newMessage8a);
+            var newMessage10b = new Message();
+            newMessage10b.text = "Sure thing. Here you go. I'll be sure to check back in with you eventually.";
+            newMessage10b.type = DelaygramMessageType.NPC;
+            newMessage10b.timeSent = DateTime.Now;
+            newConversation.messages.Add(newMessage10b);
 
-                var newMessage9a = new Message();
-                newMessage9a.text = "Dog";
-                newMessage9a.type = DelaygramMessageType.Result;
-                newMessage9a.timeSent = DateTime.Now;
-                newConversation.messages.Add(newMessage9a);
+            var newMessage11b = new Message();
+            newMessage11b.text = "Also I'll refresh your delay time so you can create a post with your new pal right away. <sprite name=\"1f604\">";
+            newMessage11b.type = DelaygramMessageType.NPC;
+            newMessage11b.timeSent = DateTime.Now;
+            newConversation.messages.Add(newMessage11b);
 
-                newConversation.finished = true;
-                messageLoop = false;
-            }
-            else if (choices[choiceIndex] == 3)
-            {
-                newMessage7.text = "A mixture of both!";
-                newMessage7.type = DelaygramMessageType.Player;
-                newMessage7.timeSent = DateTime.Now;
-                newConversation.messages.Add(newMessage7);
+            var newMessage12b = new Message();
+            newMessage12b.text = "Dog";
+            newMessage12b.type = DelaygramMessageType.Result;
+            newMessage12b.timeSent = DateTime.Now;
+            newConversation.messages.Add(newMessage12b);
 
-                var newMessage8a = new Message();
-                newMessage8a.text = "Okay dude, this isn't a 90's TV show .. can you just pick an actual animal please?";
-                newMessage8a.type = DelaygramMessageType.NPC;
-                newMessage8a.timeSent = DateTime.Now;
-                newConversation.messages.Add(newMessage8a);
-            }
+            newConversation.finished = true;
+        }
+        else if (choices[0] == 3)
+        {
+            newMessage9.text = "Drone, clearly";
+            newMessage9.type = DelaygramMessageType.Player;
+            newMessage9.timeSent = DateTime.Now;
+            newConversation.messages.Add(newMessage9);
 
-            choiceIndex++;
+            var newMessage10c = new Message();
+            newMessage10c.text = "Sure thing. I call him D-Rone because we found him busted up on the south side. <sprite name=\"1f602\">";
+            Debug.Log(newMessage10c.text);
+            newMessage10c.type = DelaygramMessageType.NPC;
+            newMessage10c.timeSent = DateTime.Now;
+            newConversation.messages.Add(newMessage10c);
+
+            var newMessage11c = new Message();
+            newMessage11c.text = "I'll be sure to check back in with you at some point. Also I'll refresh your delay time so you can create a post with your new pal right away.";
+            newMessage11c.type = DelaygramMessageType.NPC;
+            newMessage11c.timeSent = DateTime.Now;
+            newConversation.messages.Add(newMessage11c);
+
+            var newMessage12c = new Message();
+            newMessage12c.text = "Drone";
+            newMessage12c.type = DelaygramMessageType.Result;
+            newMessage12c.timeSent = DateTime.Now;
+            newConversation.messages.Add(newMessage12c);
+
+            newConversation.finished = true;
         }
 
         return newConversation;
@@ -164,103 +189,12 @@ public class MessageCollection
 	public Conversation CreateFemaleRomance1Conversation(LinkedList<int> choices) {
 		var newConversation = this.CreateEmptyConversation ();
 		newConversation.conversationType = DelaygramConversationType.Flirty;
-		newConversation.npcName = "Carmen Sandiego";
+		newConversation.npcName = "";
 		newConversation.npcProperties = this._characterRandomization.GetFullRandomCharacter(Gender.Female);
 		newConversation.npcProperties.happinessLevel = 6;
 
 		return newConversation;
 	}
-
-	public Conversation CreateShirtConversation(List<int> choices, CharacterProperties npcProperties = null)
-    {
-        var newConversation = this.CreateEmptyConversation();
-		newConversation.conversationType = DelaygramConversationType.Story;
-        newConversation.npcName = SHIRT1_NPC_NAME;
-		newConversation.npcProperties =
-			(npcProperties == null) ?
-			this._characterRandomization.GetFullRandomCharacter(Gender.Female) :
-			npcProperties;
-        newConversation.choiceCount = 1;
-
-        var newMessage1 = new Message();
-        newMessage1.text = "Hi! Totally loved your latest post! I run a business called 'Reap What You Sew'.";
-        newMessage1.type = DelaygramMessageType.NPC;
-        newMessage1.timeSent = DateTime.Now;
-        newConversation.messages.Add(newMessage1);
-
-        var newMessage2 = new Message();
-        newMessage2.text = "I design t-shirts and I'm totally full of shit.";
-        newMessage2.type = DelaygramMessageType.NPC;
-        newMessage2.timeSent = DateTime.Now;
-        newConversation.messages.Add(newMessage2);
-
-        var newMessage3 = new Message();
-        newMessage3.text = "*good ideas";
-        newMessage3.type = DelaygramMessageType.NPC;
-        newMessage3.timeSent = DateTime.Now;
-        newConversation.messages.Add(newMessage3);
-
-        var newMessage4 = new Message();
-        newMessage4.text = "full of good ideas";
-        newMessage4.type = DelaygramMessageType.NPC;
-        newMessage4.timeSent = DateTime.Now;
-        newConversation.messages.Add(newMessage4);
-
-        var newMessage5 = new Message();
-        newMessage5.text = "LOL! soooo, anyways, can I make you a shirt? You have to promise to wear it forever. HAHA!!";
-        newMessage5.type = DelaygramMessageType.NPC;
-        newMessage5.timeSent = DateTime.Now;
-        newConversation.messages.Add(newMessage5);
-
-        var newMessage7 = new Message();
-        if (choices.Count == 0)
-        {
-            newMessage7.type = DelaygramMessageType.Choice;
-            newMessage7.choices = new List<string>();
-            newMessage7.choices.Add("Okay, I could use new threads I guess, sign me up");
-            newMessage7.choices.Add("No thx, you sound batshit crazy");
-            newMessage7.timeSent = DateTime.Now;
-            newConversation.messages.Add(newMessage7);
-        }
-        else if (choices[0] == 1)
-        {
-            newMessage7.text = "Okay, I could use new threads";
-            newMessage7.type = DelaygramMessageType.Player;
-            newMessage7.timeSent = DateTime.Now;
-            newConversation.messages.Add(newMessage7);
-
-            var newMessage8a = new Message();
-            newMessage8a.text = "Awesome! You may or may not (but probably will totally not) regret it!";
-            newMessage8a.type = DelaygramMessageType.NPC;
-            newMessage8a.timeSent = DateTime.Now;
-            newConversation.messages.Add(newMessage8a);
-
-            var newMessage9a = new Message();
-			newMessage9a.text = "It'll take me a little while to make. I'll get back to you.";
-			newMessage9a.type = DelaygramMessageType.NPC;
-            newMessage9a.timeSent = DateTime.Now;
-            newConversation.messages.Add(newMessage9a);
-
-            newConversation.finished = true;
-        }
-        else if (choices[0] == 2)
-        {
-            newMessage7.text = "No thx, you sound batshit crazy";
-            newMessage7.type = DelaygramMessageType.Player;
-            newMessage7.timeSent = DateTime.Now;
-            newConversation.messages.Add(newMessage7);
-
-            var newMessage8a = new Message();
-            newMessage8a.text = "Wow okay, screw you! u don't deserve my clothes hunny, bye bye";
-            newMessage8a.type = DelaygramMessageType.NPC;
-            newMessage8a.timeSent = DateTime.Now;
-            newConversation.messages.Add(newMessage8a);
-
-            newConversation.finished = true;
-        }
-
-        return newConversation;
-    }
 
     private Conversation CreateEmptyConversation()
     {

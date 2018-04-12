@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -67,6 +65,13 @@ public class IOController : MonoBehaviour
                 this.CheckPageMouseClick(null);
             }
         }
+    }
+
+    public bool CanClick()
+    {
+        var canClick = true;
+        canClick = !this._uiController.LevelPopupVisible();
+        return canClick;
     }
 
     private void CheckPageMouseClick(Collider collider)

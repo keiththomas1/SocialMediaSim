@@ -19,7 +19,6 @@ public class ProfileScreenController : MonoBehaviour
     private CharacterSerializer _characterSerializer = null;
     private UserSerializer _userSerializer = null;
     private GoalsController _goalsController = null;
-    private LevelingController _levelingController = null;
     private TutorialScreenController _tutorialController = null;
 
     private ScrollController _scrollController = null;
@@ -36,7 +35,7 @@ public class ProfileScreenController : MonoBehaviour
     private GameObject _currentAvatar = null;
     private GameObject _editScreen = null;
     private CharacterProperties _previousCharacterProperties;
-    private Transform _levelInformation = null;
+    private LevelingController _levelingController = null;
 
     private GoalInformation[] _previousGoals;
     private float _tickGoalTimer = 0.0f;
@@ -63,7 +62,6 @@ public class ProfileScreenController : MonoBehaviour
         this._characterSerializer = CharacterSerializer.Instance;
         this._userSerializer = UserSerializer.Instance;
         this._goalsController = this.GetComponent<GoalsController>();
-        this._levelingController = this.GetComponent<LevelingController>();
         this._tutorialController = this.GetComponent<TutorialScreenController>();
 
         this._randomNameGenerator = new RandomNameGenerator();
@@ -201,7 +199,7 @@ public class ProfileScreenController : MonoBehaviour
             switch (colliderName)
             {
                 case "ExpButton":
-                    this._levelingController.AddExperience(20, this._levelInformation.gameObject);
+                    this._levelingController.AddExperience(20);
                     break;
                 case "EditButton":
                     this.CreateEditAvatarScreen(true);
@@ -254,7 +252,7 @@ public class ProfileScreenController : MonoBehaviour
         this._scrollController = _scrollArea.GetComponent<ScrollController>();
 
         var characterSection = _scrollArea.transform.Find("CharacterSection").gameObject;
-        this._levelInformation = characterSection.transform.Find("LevelInformation");
+        this._levelingController = characterSection.transform.Find("LevelInformation").GetComponent<LevelingController>();
         this._spriteMask = characterSection.transform.Find("SpriteMask").gameObject;
         this.SetAvatar(this._spriteMask);
         this.SetupItems(this._spriteMask);
@@ -290,8 +288,6 @@ public class ProfileScreenController : MonoBehaviour
         {
             this._tutorialController.ShowGoToPostScreenPopup();
         }
-
-        this._levelingController.UpdateLevelDisplay(this._levelInformation.gameObject);
 
         this.GenerateProfilePosts();
     }
@@ -346,6 +342,11 @@ public class ProfileScreenController : MonoBehaviour
         UpdateText(this._editScreen.transform.Find("ChooseNameTextBox").Find("NameText").gameObject);
 
         this._previousCharacterProperties = new CharacterProperties(this._characterSerializer.CurrentCharacterProperties);
+    }
+
+    public void LevelUp()
+    {
+        this._levelingController.LevelUp();
     }
 
     private void NameExitClicked()
@@ -434,7 +435,7 @@ public class ProfileScreenController : MonoBehaviour
         }
         if (this._userSerializer.HasCat)
         {
-            var cat = parent.transform.Find("Sylvester");
+            var cat = parent.transform.Find("Cat");
             if (cat)
             {
                 cat.gameObject.SetActive(true);
@@ -557,9 +558,9 @@ public class ProfileScreenController : MonoBehaviour
         {
             this._scrollController.ScrollToPosition(
                 NEW_POST_SCROLL_POSITION,
-                () => {
-                    this._levelingController.AddExperience(10, this._levelInformation.gameObject);
-                    this.CheckGoalProgress(); });
+                (() => {
+                    this._levelingController.AddExperience(10);
+                    this.CheckGoalProgress(); }));
 
             var postAnimation = GameObject.Instantiate(Resources.Load("Posts/NewPostAnimation") as GameObject);
             var animationPosition = this._youPostObjects[0].postObject.transform.position;
@@ -580,7 +581,7 @@ public class ProfileScreenController : MonoBehaviour
             try
             {
                 var experienceGained = Convert.ToInt32(currentGoals[index].reward);
-                this._levelingController.AddExperience(experienceGained, this._levelInformation.gameObject);
+                this._levelingController.AddExperience(experienceGained);
             }
             catch (Exception exception)
             {

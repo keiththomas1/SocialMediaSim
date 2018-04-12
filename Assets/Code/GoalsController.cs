@@ -24,14 +24,14 @@ public enum GoalRewardType
 
 public class GoalsController : MonoBehaviour {
     private GoalSerializer _goalSerializer;
+    private UserSerializer _userSerializer;
 
-    private List<GoalInformation> _possibleGoals;
+    private List<GoalInformation> _possibleGoals = new List<GoalInformation>();
 
     private void Awake()
     {
         this._goalSerializer = GoalSerializer.Instance;
-        this._possibleGoals = new List<GoalInformation>();
-        this.CreatePossibleGoals();
+        this._userSerializer = UserSerializer.Instance;
     }
 
     // Use this for initialization
@@ -108,15 +108,13 @@ public class GoalsController : MonoBehaviour {
 
     public void CheckGoalProgress(DelayGramPost post)
     {
-        var location = post.backgroundName;
         var items = new List<string>();
         foreach (var item in post.items)
         {
             items.Add(item.name);
         }
 
-        // Go through each goal, see if it matches up with
-
+        var location = post.backgroundName;
         var currentGoals = this.GetCurrentGoals();
         for (int i = 0; i < currentGoals.Length; i++)
         {
@@ -178,6 +176,7 @@ public class GoalsController : MonoBehaviour {
 
     private GoalInformation GetNewGoal()
     {
+        this.CreatePossibleGoals();
         var newGoal = this._possibleGoals[UnityEngine.Random.Range(0, this._possibleGoals.Count)];
         return newGoal;
     }
@@ -185,9 +184,46 @@ public class GoalsController : MonoBehaviour {
     // Need to call this everytime a user unlocks something new
     private void CreatePossibleGoals()
     {
-        // TODO: Populate these lists based on unlocked locations and items
-        string[] locations = { "Beach", "City", "Park" };
-        string[] items = { "Bulldog", "Sylvester", "D-Rone" };
+        this._possibleGoals.Clear();
+
+        List<string> locations = new List<string>() { "Apartment"}; //  "Beach", "City", "Park" 
+        if (this._userSerializer.HasBeachBackground)
+        {
+            locations.Add("Beach");
+        }
+        if (this._userSerializer.HasCityBackground)
+        {
+            locations.Add("City");
+        }
+        if (this._userSerializer.HasParkBackground)
+        {
+            locations.Add("Park");
+        }
+        if (this._userSerializer.HasCamRoomBackground)
+        {
+            locations.Add("CamRoom");
+        }
+        if (this._userSerializer.HasLouvreBackground)
+        {
+            locations.Add("Louvre");
+        }
+        if (this._userSerializer.HasYachtBackground)
+        {
+            locations.Add("Yacht");
+        }
+        List<string> items = new List<string>(); // "Bulldog", "Sylvester", "D-Rone" };
+        if (this._userSerializer.HasBulldog)
+        {
+            items.Add("Bulldog");
+        }
+        if (this._userSerializer.HasCat)
+        {
+            items.Add("Cat");
+        }
+        if (this._userSerializer.HasDrone)
+        {
+            items.Add("D-Rone");
+        }
 
         foreach (var location in locations)
         {

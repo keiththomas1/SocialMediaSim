@@ -280,6 +280,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Code\AlertsController.cs" />
     <Compile Include="Assets\Code\Animations\BlinkAnimation.cs" />
     <Compile Include="Assets\Code\Animations\FollowTextAnimation.cs" />
     <Compile Include="Assets\Code\Animations\LoadingAnimation.cs" />
@@ -298,13 +299,14 @@
     <Compile Include="Assets\Code\LoadController.cs" />
     <Compile Include="Assets\Code\MessageCollection.cs" />
     <Compile Include="Assets\Code\MessagePost.cs" />
-    <Compile Include="Assets\Code\NotificationController.cs" />
+    <Compile Include="Assets\Code\NotificationRequester.cs" />
     <Compile Include="Assets\Code\PostHelper.cs" />
+    <Compile Include="Assets\Code\PostRequester.cs" />
     <Compile Include="Assets\Code\RandomNameGenerator.cs" />
-    <Compile Include="Assets\Code\RESTRequester.cs" />
     <Compile Include="Assets\Code\SceneLoader.cs" />
     <Compile Include="Assets\Code\Screens\MessagesScreenController.cs" />
     <Compile Include="Assets\Code\Screens\NewPostController.cs" />
+    <Compile Include="Assets\Code\Screens\NotificationScreenController.cs" />
     <Compile Include="Assets\Code\Screens\ProfileScreenController.cs" />
     <Compile Include="Assets\Code\Screens\RatingScreenController.cs" />
     <Compile Include="Assets\Code\Screens\TinderScreenController.cs" />
@@ -314,10 +316,12 @@
     <Compile Include="Assets\Code\Serializers\CharacterSerializer.cs" />
     <Compile Include="Assets\Code\Serializers\GoalSerializer.cs" />
     <Compile Include="Assets\Code\Serializers\MessagesSerializer.cs" />
+    <Compile Include="Assets\Code\Serializers\NotificationSerializer.cs" />
     <Compile Include="Assets\Code\Serializers\UserSerializer.cs" />
     <Compile Include="Assets\Code\SetRendererSortingLayer.cs" />
     <Compile Include="Assets\Code\TextTypingAnimation.cs" />
     <Compile Include="Assets\Code\UIController.cs" />
+    <Compile Include="Assets\Code\UserRequester.cs" />
     <Compile Include="Assets\ColorPicker\Examples\ExampleScript\ExampleVariable.cs" />
     <Compile Include="Assets\ColorPicker\Source\Additional\ImageResizer.cs" />
     <Compile Include="Assets\ColorPicker\Source\ColorPicker.cs" />
@@ -379,6 +383,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TMP_DigitValidator.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TMP_ExampleScript_01.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TMP_FrameRateCounter.cs" />
+    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TMP_PhoneNumberValidator.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TMP_TextEventCheck.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TMP_TextEventHandler.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TMP_TextInfoDebugTool.cs" />
@@ -425,6 +430,7 @@
     <None Include="Assets\TextMesh Pro\Fonts\Anton OFL.txt" />
     <None Include="Assets\TextMesh Pro\Fonts\Bangers - OFL.txt" />
     <None Include="Assets\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
+    <None Include="Assets\TextMesh Pro\Fonts\NotoSans - License.txt" />
     <None Include="Assets\TextMesh Pro\Fonts\Oswald-Bold - OFL.txt" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />

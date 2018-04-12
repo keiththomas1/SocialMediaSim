@@ -140,7 +140,7 @@ public class MessagesScreenController : MonoBehaviour {
     public void EnterScreen()
     {
         this._messagePage = GameObject.Instantiate(Resources.Load("Messages/DGMessagesPage") as GameObject);
-        this._messagePage.transform.position = new Vector3(0.0f, 0.0f, 0.0f);
+        this._messagePage.transform.position = new Vector3(0.0f, 0.0f, 2.0f);
         this._pageScrollArea = this._messagePage.transform.Find("ScrollArea");
         this._scrollController = this._pageScrollArea.GetComponent<ScrollController>();
 
@@ -302,15 +302,18 @@ public class MessagesScreenController : MonoBehaviour {
             }
 
             var newConvo = this._messagesSerializer.GetConversationByNPCName(this._currentConversation.npcName);
-            if (newConvo != null)
+            if (newConvo.HasValue)
             {
                 var newMessages = new List<Message>(newConvo.Value.messages);
                 var messagesToDelete = new List<Message>();
                 for (int i = 0; i < oldMessages.Count; i++)
                 {
-                    if (oldMessages[i].text == newMessages[i].text)
+                    if (newMessages.Count > i)
                     {
-                        messagesToDelete.Add(newMessages[i]);
+                        if (oldMessages[i].text == newMessages[i].text)
+                        {
+                            messagesToDelete.Add(newMessages[i]);
+                        }
                     }
                 }
                 foreach (Message message in messagesToDelete)
@@ -362,7 +365,7 @@ public class MessagesScreenController : MonoBehaviour {
         messageStub.transform.localScale = new Vector3(.95f, .95f, 1.0f);
 
         var profileBubble = messageStub.transform.Find("ProfilePicBubble");
-        this._postHelper.SetupAvatarMask(profileBubble.gameObject, conversation.npcProperties);
+        this.SetNPCMessageAvatarMask(profileBubble, conversation);
 
         var nameText = messageStub.transform.Find("NameText");
         if (nameText)
@@ -488,7 +491,7 @@ public class MessagesScreenController : MonoBehaviour {
         popupMessage.transform.localPosition = new Vector3(0.0f, yPosition, 0.0f);
 
         var profileBubble = popupMessage.transform.Find("ProfilePicBubble");
-        this._postHelper.SetupAvatarMask(profileBubble.gameObject, conversation.npcProperties);
+        this.SetNPCMessageAvatarMask(profileBubble, conversation);
 
         var textHeight = this.SetupText(popupMessage, message.text);
         this.StoreMessageObject(conversation, popupMessage);
@@ -507,6 +510,18 @@ public class MessagesScreenController : MonoBehaviour {
 
         // TODO: Figure out the size dynamically somehow, or just make all the results the same height
         return 1.6f;
+    }
+
+    private void SetNPCMessageAvatarMask(Transform profileBubble, Conversation conversation)
+    {
+        profileBubble.Find("MaleAvatar").gameObject.SetActive(false);
+        profileBubble.Find("FemaleAvatar").gameObject.SetActive(false);
+        profileBubble.Find("Professor").gameObject.SetActive(conversation.npcName == MessageCollection.PROFESSOR_NAME);
+
+        if (conversation.npcName != MessageCollection.PROFESSOR_NAME)
+        {
+            this._postHelper.SetupAvatarMask(profileBubble.gameObject, conversation.npcProperties);
+        }
     }
 
     private void StoreMessageObject(Conversation conversation, GameObject messageObject)

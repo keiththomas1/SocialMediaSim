@@ -5,8 +5,9 @@ using DG.Tweening;
 
 public class RatingScreenController : MonoBehaviour
 {
-    private RESTRequester _restRequester;
+    private PostRequester _restRequester;
     private PostHelper _postHelper;
+    private UserSerializer _userSerializer;
 
     private GameObject _ratingPage;
     private GameObject _errorText;
@@ -35,8 +36,9 @@ public class RatingScreenController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        this._restRequester = new RESTRequester();
+        this._restRequester = new PostRequester();
         this._postHelper = new PostHelper();
+        this._userSerializer = UserSerializer.Instance;
     }
 
     void Update()
@@ -171,7 +173,7 @@ public class RatingScreenController : MonoBehaviour
                 pictureObject.transform.DOMoveX(4.0f, 0.5f)
                     .SetEase(Ease.InBack);
 
-                var addLike = this._restRequester.AddLikeToPicture(picture._id);
+                var addLike = this._restRequester.AddLikeToPicture(picture._id, this._userSerializer.PlayerId);
                 StartCoroutine(addLike);
                 break;
             case RatingType.Equal:
@@ -182,7 +184,7 @@ public class RatingScreenController : MonoBehaviour
                 pictureObject.transform.DOMoveX(-4.0f, 0.5f)
                     .SetEase(Ease.InBack);
 
-                var addDislike = this._restRequester.AddDislikeToPicture(picture._id);
+                var addDislike = this._restRequester.AddDislikeToPicture(picture._id, this._userSerializer.PlayerId);
                 StartCoroutine(addDislike);
                 break;
         }
@@ -233,6 +235,7 @@ public class RatingScreenController : MonoBehaviour
 
         var newPost = postObject.transform.Find("NewPost").gameObject;
         this._postHelper.PopulatePostFromData(newPost, postData);
+        this._postHelper.SetPostDetails(newPost, postData, false, true);
 
         return postObject;
     }

@@ -32,7 +32,6 @@ public class ColorPicker : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     private Image Texture_Image; //---Current texture image
 
     private Vector2 TextureSize; //---Original texture size
-    private Vector2 CursosPos; //---Cursor position
 
     private bool cursorEnter = false; //---Overlaping image with cursor
 
@@ -63,7 +62,6 @@ public class ColorPicker : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         Pointer.transform.position = mpos;
 
         mpos = Texture_Image.rectTransform.InverseTransformPoint(mpos);
-        CursosPos = mpos;
 
         Texture_Image.rectTransform.sizeDelta = TextureSize;
 

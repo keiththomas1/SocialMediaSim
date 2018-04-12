@@ -2,51 +2,35 @@
 using UnityEngine;
 
 public class TextTypingAnimation : MonoBehaviour {
-    [SerializeField]
-    private float _typeTime = 0.01f;
-
     private TextMeshPro _textMesh;
-    private string _cachedString;
-    private int _currentLength;
-
-    private float _typingTimer;
+    private int _currentLength = 0;
+    private int _currentTextLength = 0;
 
 	// Use this for initialization
 	void Awake () {
         this._textMesh = GetComponent<TextMeshPro>();
-        this._cachedString = this._textMesh.text;
         this._currentLength = 0;
         this.UpdateText();
-        this._typingTimer = this._typeTime;
 	}
 	
 	// Update is called once per frame
-	void Update () {
-		if (this._typingTimer > 0.0f)
+	void Update ()
+    {
+        if (this._currentLength < this._currentTextLength)
         {
-            this._typingTimer -= Time.deltaTime;
-            if (this._typingTimer <= 0.0f)
-            {
-                this._currentLength++;
-                this.UpdateText();
-
-                if (this._currentLength < this._cachedString.Length)
-                {
-                    this._typingTimer = this._typeTime;
-                }
-            }
+            this._currentLength++;
+            this.UpdateText();
         }
-	}
+    }
 
     public bool FinishText()
     {
-        if (this._currentLength == this._cachedString.Length)
+        if (this._currentLength >= this._currentTextLength)
         {
             return true;
         }
 
-        this._typingTimer = 0.0f;
-        this._currentLength = this._cachedString.Length;
+        this._currentLength = this._currentTextLength;
         this.UpdateText();
 
         return false;
@@ -56,14 +40,16 @@ public class TextTypingAnimation : MonoBehaviour {
     {
         if (newText != "")
         {
-            this._cachedString = newText;
+            this._textMesh.text = newText;
         }
         this._currentLength = 0;
-        this._typingTimer = this._typeTime;
+        var textInfo = this._textMesh.GetTextInfo(this._textMesh.text);
+        this._currentTextLength = textInfo.characterCount;
+        this.UpdateText();
     }
 
     private void UpdateText()
     {
-        this._textMesh.text = this._cachedString.Substring(0, this._currentLength);
+        this._textMesh.maxVisibleCharacters = this._currentLength;
     }
 }

@@ -8,10 +8,10 @@ using System.IO;
 public class UserSerializer
 {
     private static UserSerializer instance;
-    private UserSaveVariables currentSave;
+    private UserSaveVariables _currentSave;
 
     // For saving/loading
-    private string savePath;
+    private string _savePath;
 
     public static UserSerializer Instance
     {
@@ -27,104 +27,159 @@ public class UserSerializer
 
     private UserSerializer()
     {
-        this.savePath = Application.persistentDataPath + "/DelayGram.dat";
+        this._savePath = Application.persistentDataPath + "/DelayGram.dat";
     }
 
     public string PlayerName
     {
-        get { return currentSave.playerName; }
+        get { return _currentSave.playerName; }
         set
         {
-            currentSave.playerName = value;
+            _currentSave.playerName = value;
+            _currentSave.playerId = value; // TODO - make this an actual ID
+            SaveFile();
+        }
+    }
+    public string PlayerId
+    {
+        get { return _currentSave.playerId; }
+        set
+        {
+            _currentSave.playerId = value;
             SaveFile();
         }
     }
 
     public int LevelExperience
     {
-        get { return this.currentSave.experienceProperties.levelExperience; }
+        get { return this._currentSave.levelExperience; }
         set
         {
-            this.currentSave.experienceProperties.levelExperience = value;
-            this.SaveFile();
-        }
-    }
-    public int NeededLevelExperience
-    {
-        get { return this.currentSave.experienceProperties.neededLevelExperience; }
-        set
-        {
-            this.currentSave.experienceProperties.neededLevelExperience = value;
+            this._currentSave.levelExperience = value;
             this.SaveFile();
         }
     }
 
     public DateTime LastUpdate
     {
-        get { return this.currentSave.lastUpdate; }
+        get { return this._currentSave.lastUpdate; }
     }
     public DateTime NextPostTime
     {
-        get { return this.currentSave.nextPostTime; }
+        get { return this._currentSave.nextPostTime; }
         set
         {
-            this.currentSave.nextPostTime = value;
+            this._currentSave.nextPostTime = value;
             this.SaveFile();
         }
     }
 
     public bool CreatedCharacter
     {
-        get { return this.currentSave.storyProperties.createdCharacter; }
+        get { return this._currentSave.storyProperties.createdCharacter; }
         set
         {
-            this.currentSave.storyProperties.createdCharacter = value;
+            this._currentSave.storyProperties.createdCharacter = value;
             this.SaveFile();
         }
     }
     public bool PostedPhoto
     {
-        get { return this.currentSave.storyProperties.postedPhoto; }
+        get { return this._currentSave.storyProperties.postedPhoto; }
         set
         {
-            this.currentSave.storyProperties.postedPhoto = value;
+            this._currentSave.storyProperties.postedPhoto = value;
             this.SaveFile();
         }
     }
     public bool CompletedTutorial
     {
-        get { return this.currentSave.storyProperties.completedTutorial; }
+        get { return this._currentSave.storyProperties.completedTutorial; }
         set
         {
-            this.currentSave.storyProperties.completedTutorial = value;
+            this._currentSave.storyProperties.completedTutorial = value;
             this.SaveFile();
         }
     }
 
     public bool HasBulldog
     {
-        get { return this.currentSave.storyProperties.hasBulldog; }
+        get { return this._currentSave.storyProperties.hasBulldog; }
         set
         {
-            this.currentSave.storyProperties.hasBulldog = value;
+            this._currentSave.storyProperties.hasBulldog = value;
             this.SaveFile();
         }
     }
     public bool HasCat
     {
-        get { return this.currentSave.storyProperties.hasCat; }
+        get { return this._currentSave.storyProperties.hasCat; }
         set
         {
-            this.currentSave.storyProperties.hasCat = value;
+            this._currentSave.storyProperties.hasCat = value;
             this.SaveFile();
         }
     }
     public bool HasDrone
     {
-        get { return this.currentSave.storyProperties.hasDrone; }
+        get { return this._currentSave.storyProperties.hasDrone; }
         set
         {
-            this.currentSave.storyProperties.hasDrone = value;
+            this._currentSave.storyProperties.hasDrone = value;
+            this.SaveFile();
+        }
+    }
+    public bool HasBeachBackground
+    {
+        get { return this._currentSave.storyProperties.hasBeachBackground; }
+        set
+        {
+            this._currentSave.storyProperties.hasBeachBackground = value;
+            this.SaveFile();
+        }
+    }
+    public bool HasCityBackground
+    {
+        get { return this._currentSave.storyProperties.hasCityBackground; }
+        set
+        {
+            this._currentSave.storyProperties.hasCityBackground = value;
+            this.SaveFile();
+        }
+    }
+    public bool HasParkBackground
+    {
+        get { return this._currentSave.storyProperties.hasParkBackground; }
+        set
+        {
+            this._currentSave.storyProperties.hasParkBackground = value;
+            this.SaveFile();
+        }
+    }
+    public bool HasCamRoomBackground
+    {
+        get { return this._currentSave.storyProperties.hasCamRoomBackground; }
+        set
+        {
+            this._currentSave.storyProperties.hasCamRoomBackground = value;
+            this.SaveFile();
+        }
+    }
+    public bool HasLouvreBackground
+    {
+        get { return this._currentSave.storyProperties.hasLouvreBackground; }
+        set
+        {
+            this._currentSave.storyProperties.hasLouvreBackground = value;
+            this.SaveFile();
+        }
+    }
+    public bool HasYachtBackground
+    {
+        get { return this._currentSave.storyProperties.hasYachtBackground; }
+        set
+        {
+            this._currentSave.storyProperties.hasYachtBackground = value;
             this.SaveFile();
         }
     }
@@ -133,27 +188,42 @@ public class UserSerializer
     {
         get
         {
-            return this.currentSave.posts.Count;
+            return this._currentSave.posts.Count;
         }
     }
 
     public List<DelayGramPost> GetReverseChronologicalPosts()
     {
         List<DelayGramPost> returnList = new List<DelayGramPost>();
-        if (this.currentSave.posts != null)
+        if (this._currentSave.posts != null)
         {
-            returnList = this.currentSave.posts;
+            returnList = this._currentSave.posts;
             returnList.Reverse();
         }
         return returnList;
     }
 
+    public DelayGramPost FindPost(string pictureID)
+    {
+        Debug.Log("Looking for .. " + pictureID);
+        foreach (var post in this._currentSave.posts)
+        {
+            Debug.Log(".. " + post.pictureID);
+            if (post.pictureID == pictureID)
+            {
+                return post;
+            }
+        }
+
+        return null;
+    }
+
     public List<DelayGramNotification> GetNotifications()
     {
         List<DelayGramNotification> returnList = new List<DelayGramNotification>();
-        if (this.currentSave.notifications != null)
+        if (this._currentSave.notifications != null)
         {
-            returnList = this.currentSave.notifications;
+            returnList = this._currentSave.notifications;
             returnList.Reverse();
         }
         return returnList;
@@ -161,27 +231,27 @@ public class UserSerializer
 
     public void SerializePost(DelayGramPost newPost)
     {
-        if (this.currentSave.posts == null)
+        if (this._currentSave.posts == null)
         {
-            this.currentSave.posts = new List<DelayGramPost>();
+            this._currentSave.posts = new List<DelayGramPost>();
         }
-        this.currentSave.posts.Add(newPost);
+        this._currentSave.posts.Add(newPost);
         SaveFile();
     }
 
     public void SerializeNotification(DelayGramNotification newNotification)
     {
-        if (this.currentSave.notifications == null)
+        if (this._currentSave.notifications == null)
         {
-            this.currentSave.notifications = new List<DelayGramNotification>();
+            this._currentSave.notifications = new List<DelayGramNotification>();
         }
-        this.currentSave.notifications.Add(newNotification);
+        this._currentSave.notifications.Add(newNotification);
         this.SaveFile();
     }
 
     public void SerializePostCooldown(DateTime nextPostTime)
     {
-        this.currentSave.nextPostTime = nextPostTime;
+        this._currentSave.nextPostTime = nextPostTime;
         this.SaveFile();
     }
 
@@ -193,13 +263,13 @@ public class UserSerializer
 
     public void SaveGameThread()
     {
-        FileStream file = File.Open(this.savePath, FileMode.OpenOrCreate);
+        FileStream file = File.Open(this._savePath, FileMode.OpenOrCreate);
 
         if (file.CanWrite)
         {
             BinaryFormatter bf = new BinaryFormatter();
-            this.currentSave.lastUpdate = DateTime.Now;
-            bf.Serialize(file, this.currentSave);
+            this._currentSave.lastUpdate = DateTime.Now;
+            bf.Serialize(file, this._currentSave);
             Debug.Log("Saved delay gram file");
         }
         else
@@ -213,15 +283,15 @@ public class UserSerializer
     public bool LoadGame()
     {
         bool fileLoaded = false;
-        if (File.Exists(this.savePath))
+        if (File.Exists(this._savePath))
         {
-            FileStream file = File.Open(this.savePath, FileMode.Open);
+            FileStream file = File.Open(this._savePath, FileMode.Open);
 
             if (file.CanRead)
             {
                 BinaryFormatter bf = new BinaryFormatter();
-                this.currentSave = (UserSaveVariables)bf.Deserialize(file);
-                Debug.Log("Save game loaded from " + this.savePath);
+                this._currentSave = (UserSaveVariables)bf.Deserialize(file);
+                Debug.Log("Save game loaded from " + this._savePath);
                 fileLoaded = true;
             }
 
@@ -230,25 +300,29 @@ public class UserSerializer
 
         if (!fileLoaded)
         {
-            this.currentSave = new UserSaveVariables();
-            this.currentSave.playerName = "Temp.Name";
-            this.currentSave.lastUpdate = DateTime.Now;
+            this._currentSave = new UserSaveVariables();
+            this._currentSave.playerName = "Temp.Name";
+            this._currentSave.playerId = "Temp.Name";
+            this._currentSave.lastUpdate = DateTime.Now;
 
-            this.currentSave.experienceProperties = new ExperienceProperties();
-            this.currentSave.experienceProperties.levelExperience = 0;
-            this.currentSave.experienceProperties.neededLevelExperience = 100;
+            this._currentSave.levelExperience = 0;
 
-            this.currentSave.storyProperties = new StoryProperties();
-            this.currentSave.storyProperties.createdCharacter = false;
-            this.currentSave.storyProperties.postedPhoto = false;
-            this.currentSave.storyProperties.completedTutorial = false;
-            this.currentSave.storyProperties.hasBulldog = false;
-            this.currentSave.storyProperties.hasCat = false;
-            this.currentSave.storyProperties.hasDrone = false;
+            this._currentSave.storyProperties = new StoryProperties();
+            this._currentSave.storyProperties.createdCharacter = false;
+            this._currentSave.storyProperties.postedPhoto = false;
+            this._currentSave.storyProperties.completedTutorial = false;
+            this._currentSave.storyProperties.hasBulldog = false;
+            this._currentSave.storyProperties.hasCat = false;
+            this._currentSave.storyProperties.hasDrone = false;
+            this._currentSave.storyProperties.hasBeachBackground = false;
+            this._currentSave.storyProperties.hasCityBackground = false;
+            this._currentSave.storyProperties.hasParkBackground = false;
+            this._currentSave.storyProperties.hasLouvreBackground = false;
+            this._currentSave.storyProperties.hasYachtBackground = false;
 
-            this.currentSave.posts = new List<DelayGramPost>();
-            this.currentSave.notifications = new List<DelayGramNotification>();
-            this.currentSave.nextPostTime = DateTime.Now;
+            this._currentSave.posts = new List<DelayGramPost>();
+            this._currentSave.notifications = new List<DelayGramNotification>();
+            this._currentSave.nextPostTime = DateTime.Now;
             this.SaveFile();
         }
 
@@ -274,7 +348,8 @@ public class SerializableVector3
 public class DelayGramPost
 {
     public DateTime dateTime;
-    public string imageID;
+    public string pictureID;
+    public string playerID;
     public string playerName;
     public string backgroundName;
     public SerializableVector3 avatarPosition;
@@ -302,13 +377,12 @@ public class StoryProperties
     public bool hasBulldog;
     public bool hasCat;
     public bool hasDrone;
-}
-
-[Serializable]
-public class ExperienceProperties
-{
-    public int levelExperience;
-    public int neededLevelExperience;
+    public bool hasBeachBackground;
+    public bool hasCityBackground;
+    public bool hasParkBackground;
+    public bool hasCamRoomBackground;
+    public bool hasLouvreBackground;
+    public bool hasYachtBackground;
 }
 
 // Can speed up in the future by turning bought items into a bool array.
@@ -317,8 +391,9 @@ class UserSaveVariables
 {
     public DateTime lastUpdate;
     public String playerName;
+    public String playerId;
 
-    public ExperienceProperties experienceProperties;
+    public int levelExperience;
 
     public StoryProperties storyProperties;
 

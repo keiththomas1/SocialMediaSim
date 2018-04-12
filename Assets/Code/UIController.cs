@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using DG.Tweening;
 
 public enum Page
 {
@@ -12,6 +11,7 @@ public enum Page
     Post,
     Rating,
     World,
+    Notifications,
     Tutorial
 }
 
@@ -20,10 +20,10 @@ public class UIController : MonoBehaviour {
     private GameObject _bottomNavBackground;
 
     [SerializeField]
-    private GameObject _profileButton;
+    public GameObject _profileButton;
     private Image _profileIcon;
     [SerializeField]
-    private GameObject _messagesButton;
+    public GameObject _messagesButton;
     private Image _messagesIcon;
 
     public GameObject _postButton;
@@ -56,16 +56,22 @@ public class UIController : MonoBehaviour {
     [SerializeField]
     private Sprite _worldButtonSelected;
 
+    [SerializeField]
+    private Button _notificationButton;
+
     private UserSerializer _userSerializer;
+    private CharacterSerializer _characterSerializer;
 
     private ProfileScreenController _profileController;
     private MessagesScreenController _messagesController;
     private NewPostController _newPostController;
     private RatingScreenController _ratingController;
     private WorldScreenController _worldController;
+    private NotificationScreenController _notificationController;
 
+    private IOController _ioController;
     private TutorialScreenController _tutorialController;
-    private NotificationController _notificationController;
+    private AlertsController _alertsController;
     private GoalsController _goalsController;
 
     private Page _currentPage = Page.World;
@@ -94,30 +100,27 @@ public class UIController : MonoBehaviour {
         this._postTimeText.GetComponent<TextMeshProUGUI>().text = "";
         this._ratingButton.GetComponent<Button>().onClick.AddListener(this.OnRatingClick);
         this._ratingIcon = this._ratingButton.transform.Find("RatingButtonIcon").GetComponent<Image>();
-        this._worldButton.GetComponent<Button>().onClick.AddListener(this.OnworldClick);
+        this._worldButton.GetComponent<Button>().onClick.AddListener(this.OnWorldClick);
         this._worldIcon = this._worldButton.transform.Find("WorldButtonIcon").GetComponent<Image>();
 
         this._userSerializer = UserSerializer.Instance;
+        this._characterSerializer = CharacterSerializer.Instance;
 
         this._profileController = GetComponent<ProfileScreenController>();
         this._messagesController = GetComponent<MessagesScreenController>();
         this._newPostController = GetComponent<NewPostController>();
         this._ratingController = GetComponent<RatingScreenController>();
         this._worldController = GetComponent<WorldScreenController>();
+        this._notificationController = GetComponent<NotificationScreenController>();
 
+        this._ioController = GetComponent<IOController>();
         this._tutorialController = GetComponent<TutorialScreenController>();
-        this._notificationController = GetComponent<NotificationController>();
+        this._alertsController = GetComponent<AlertsController>();
         this._goalsController = GetComponent<GoalsController>();
 
-        this._lastPages = new List<Page>();
+        this._notificationButton.onClick.AddListener(this.GoToNotificationsPage);
 
-        if (!this._userSerializer.CreatedCharacter)
-        {
-            this._goalsController.SetFirstGoal();
-            this.GoToTutorialPage();
-        } else {
-            this.GoToProfilePage();
-        }
+        this._lastPages = new List<Page>();
 
         if (this._userSerializer.NextPostTime > DateTime.Now)
         {
@@ -157,6 +160,25 @@ public class UIController : MonoBehaviour {
                 }
             }
         }
+
+        // HACK - for allowing entering through the main scene for development use
+        if (Input.GetKeyDown(KeyCode.Semicolon))
+        {
+            this.EnterGame();
+        }
+    }
+
+    public void EnterGame()
+    {
+        if (!this._userSerializer.CreatedCharacter)
+        {
+            this._goalsController.SetFirstGoal();
+            this.GoToTutorialPage();
+        }
+        else
+        {
+            this.GoToProfilePage();
+        }
     }
 
     public Page GetCurrentPage()
@@ -172,11 +194,15 @@ public class UIController : MonoBehaviour {
 
     public void DestroyLevelPopup(CharacterProperties previousCharacterProperties = null)
     {
-        GameObject.Destroy(this._levelUpPopup);
-        this._levelUpPopup = null;
-        if (previousCharacterProperties != null)
+        if (this._levelUpPopup)
         {
-            this.CreateAvatarTransitionPopup(previousCharacterProperties);
+            GameObject.Destroy(this._levelUpPopup);
+            this._levelUpPopup = null;
+            if (previousCharacterProperties != null)
+            {
+                this.CreateAvatarTransitionPopup(previousCharacterProperties);
+            }
+            this._profileController.LevelUp();
         }
     }
     public void DestroyAvatarTransitionPopup()
@@ -226,6 +252,12 @@ public class UIController : MonoBehaviour {
                     return;
                 }
                 break;
+            case Page.Notifications:
+                if (!this._notificationController.BackOut())
+                {
+                    return;
+                }
+                break;
         }
 
         if (this._lastPages.Count > 0)
@@ -236,7 +268,7 @@ public class UIController : MonoBehaviour {
             switch (lastPage)
             {
                 case Page.World:
-                    this.GoToworldPage();
+                    this.GoToWorldPage();
                     break;
                 case Page.Profile:
                     this.GoToProfilePage();
@@ -261,42 +293,41 @@ public class UIController : MonoBehaviour {
 
         var avatarSection = this._avatarTransitionPopup.transform.Find("AvatarTransition");
         var spriteMask = avatarSection.transform.Find("SpriteMask");
-        var oldFemaleAvatar = spriteMask.transform.Find("OldFemaleAvatar");
         var oldMaleAvatar = spriteMask.transform.Find("OldMaleAvatar");
+        var oldFemaleAvatar = spriteMask.transform.Find("OldFemaleAvatar");
         var newMaleAvatar = spriteMask.transform.Find("NewMaleAvatar");
         var newFemaleAvatar = spriteMask.transform.Find("NewFemaleAvatar");
 
         var gender = previousCharacterProperties.gender;
-        switch(gender)
+        oldMaleAvatar.gameObject.SetActive(gender == Gender.Male);
+        oldFemaleAvatar.gameObject.SetActive(gender == Gender.Female);
+        var newGender = this._characterSerializer.Gender;
+        newMaleAvatar.gameObject.SetActive(newGender == Gender.Male);
+        newFemaleAvatar.gameObject.SetActive(newGender == Gender.Female);
+        switch (gender)
         {
             case Gender.Female:
                 oldFemaleAvatar.GetComponent<CharacterCustomization>().SetCharacterLook(previousCharacterProperties);
-
-                oldMaleAvatar.gameObject.SetActive(false);
-                newMaleAvatar.gameObject.SetActive(false);
                 break;
             case Gender.Male:
                 oldMaleAvatar.GetComponent<CharacterCustomization>().SetCharacterLook(previousCharacterProperties);
-
-                oldFemaleAvatar.gameObject.SetActive(false);
-                newFemaleAvatar.gameObject.SetActive(false);
                 break;
         }
     }
 
-    private void OnworldClick()
+    private void OnWorldClick()
     {
-        if (this._userSerializer.PostedPhoto)
+        if (this._userSerializer.PostedPhoto && this._ioController.CanClick())
         {
             this.UpdateLastVisited();
-            this.GoToworldPage();
+            this.GoToWorldPage();
         }
     }
-    public void GoToworldPage()
+    public void GoToWorldPage()
     {
         GenerateworldPage();
         UpdateButtonState();
-        this._notificationController.ClearNotifications(this._currentPage);
+        this._alertsController.ClearNotifications(this._currentPage);
     }
     private void GenerateworldPage()
     {
@@ -310,7 +341,7 @@ public class UIController : MonoBehaviour {
 
     private void OnProfileClick()
     {
-        if (this._userSerializer.PostedPhoto)
+        if (this._userSerializer.PostedPhoto && this._ioController.CanClick())
         {
             this.UpdateLastVisited();
             this.GoToProfilePage();
@@ -320,7 +351,7 @@ public class UIController : MonoBehaviour {
     {
         GenerateProfilePage();
         UpdateButtonState();
-        this._notificationController.ClearNotifications(this._currentPage);
+        this._alertsController.ClearNotifications(this._currentPage);
     }
     private void GenerateProfilePage()
     {
@@ -334,7 +365,7 @@ public class UIController : MonoBehaviour {
 
     private void OnPostClick()
     {
-        if (this._userSerializer.CreatedCharacter)
+        if (this._userSerializer.CreatedCharacter && this._ioController.CanClick())
         {
             this.UpdateLastVisited();
             this.GoToPostPage();
@@ -344,7 +375,7 @@ public class UIController : MonoBehaviour {
     {
         GeneratePostPage();
         UpdateButtonState();
-        this._notificationController.ClearNotifications(this._currentPage);
+        this._alertsController.ClearNotifications(this._currentPage);
     }
     private void GeneratePostPage()
     {
@@ -358,7 +389,7 @@ public class UIController : MonoBehaviour {
 
     private void OnRatingClick()
     {
-        if (this._userSerializer.PostedPhoto)
+        if (this._userSerializer.PostedPhoto && this._ioController.CanClick())
         {
             this.UpdateLastVisited();
             this.GoToRatingPage();
@@ -368,7 +399,7 @@ public class UIController : MonoBehaviour {
     {
         GenerateRatingPage();
         UpdateButtonState();
-        this._notificationController.ClearNotifications(this._currentPage);
+        this._alertsController.ClearNotifications(this._currentPage);
     }
     private void GenerateRatingPage()
     {
@@ -382,7 +413,7 @@ public class UIController : MonoBehaviour {
 
     private void OnMessagesClick()
     {
-        if (this._userSerializer.PostedPhoto)
+        if (this._userSerializer.PostedPhoto && this._ioController.CanClick())
         {
             this.UpdateLastVisited();
             this.GoToMessagesPage();
@@ -392,7 +423,7 @@ public class UIController : MonoBehaviour {
     {
         GenerateMessagesPage();
         UpdateButtonState();
-        this._notificationController.ClearNotifications(this._currentPage);
+        this._alertsController.ClearNotifications(this._currentPage);
     }
     private void GenerateMessagesPage()
     {
@@ -400,6 +431,23 @@ public class UIController : MonoBehaviour {
         DestroyPage(this._currentPage);
         this._messagesController.EnterScreen();
         this._currentPage = Page.Messages;
+    }
+
+    public void GoToNotificationsPage()
+    {
+        if (this._userSerializer.PostedPhoto && this._ioController.CanClick())
+        {
+            GenerateNotificationsPage();
+            UpdateButtonState();
+            this._alertsController.ClearNotifications(this._currentPage);
+        }
+    }
+    private void GenerateNotificationsPage()
+    {
+        // Even if we are currently in messages, destroy and refresh inbox
+        DestroyPage(this._currentPage);
+        this._notificationController.EnterScreen();
+        this._currentPage = Page.Notifications;
     }
 
     private void GoToTutorialPage()
@@ -435,7 +483,10 @@ public class UIController : MonoBehaviour {
                 break;
             case Page.Messages:
                 this._messagesController.DestroyPage();
-                break; 
+                break;
+            case Page.Notifications:
+                this._notificationController.DestroyPage();
+                break;
         }
     }
 

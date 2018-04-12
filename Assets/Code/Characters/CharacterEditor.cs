@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using DG.Tweening;
 
 public class CharacterEditor : MonoBehaviour {
     private CharacterSerializer _characterSerializer;
@@ -44,7 +45,6 @@ public class CharacterEditor : MonoBehaviour {
             this._colorPickerParent = GameObject.Instantiate(Resources.Load("UI/ColorPicker") as GameObject);
             var uiCanvas = GameObject.FindObjectOfType<Canvas>();
             this._colorPickerParent.transform.SetParent(uiCanvas.transform);
-            this._colorPickerParent.transform.localScale = new Vector3(0.85f, 0.85f, 1f);
             this._colorPickerParent.GetComponent<RectTransform>().localPosition = new Vector3(-3f, 332f, 0f);
 
             this._colorPickerObject = this._colorPickerParent.transform.Find("PickerSource").gameObject;
@@ -101,7 +101,7 @@ public class CharacterEditor : MonoBehaviour {
                 this.RandomizeCharacter();
                 break;
             case "ColorHairButton":
-                this._colorPickerParent.SetActive(true);
+                this.EnableColorPicker();
                 this._colorPicker.Event.RemoveAllListeners();
                 this._colorPicker.Event.AddListener(() => {
                     this._avatarHair.GetComponent<SpriteRenderer>().color =
@@ -118,7 +118,7 @@ public class CharacterEditor : MonoBehaviour {
                 this._currentProperties.skinColor = new SerializableColor(skinColor);
                 break;
             case "ColorShirtButton":
-                this._colorPickerParent.SetActive(true);
+                this.EnableColorPicker();
                 this._colorPicker.Event.RemoveAllListeners();
                 this._colorPicker.Event.AddListener(() => {
                     this._avatarBody.GetComponent<SpriteRenderer>().color =
@@ -132,7 +132,7 @@ public class CharacterEditor : MonoBehaviour {
                 });
                 break;
             case "ColorPantsButton":
-                this._colorPickerParent.SetActive(true);
+                this.EnableColorPicker();
                 this._colorPicker.Event.RemoveAllListeners();
                 this._colorPicker.Event.AddListener(() => {
                     this._avatarPantsTopLeft.GetComponent<SpriteRenderer>().color =
@@ -164,6 +164,14 @@ public class CharacterEditor : MonoBehaviour {
         this._currentProperties.shirtColor = new SerializableColor(this._characterRandomization.GetRandomColor());
         this._currentProperties.skinColor = new SerializableColor(this._characterRandomization.GetRandomSkinColor(Color.cyan));
         this._currentProperties.pantsColor = new SerializableColor(this._characterRandomization.GetRandomColor());
+    }
+
+    private void EnableColorPicker()
+    {
+        this._colorPickerParent.SetActive(true);
+        this._colorPickerParent.transform.localScale = new Vector3(0.0f, 0.0f, 1f);
+        this._colorPickerParent.transform.DOScale(new Vector3(0.85f, 0.85f, 1f), 0.5f)
+            .SetEase(Ease.OutBack);
     }
 
     private void RandomizeHair()

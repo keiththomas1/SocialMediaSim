@@ -19,7 +19,7 @@ public class WorldScreenController : MonoBehaviour {
     // World objects
     private GameObject _worldScrollArea;
     private List<DelayGramPostObject> _worldPostObjects;
-    private RESTRequester _restRequester;
+    private PostRequester _restRequester;
     private PostHelper _postHelper;
     private GameObject _loadingIcon;
     private GameObject _userStub = null;
@@ -41,6 +41,7 @@ public class WorldScreenController : MonoBehaviour {
         SinglePicture,
         UserProfile
     }
+    private HomeScreenState _previousState = HomeScreenState.WorldFeed;
     private HomeScreenState _currentState = HomeScreenState.WorldFeed;
 
     // Use this for initialization
@@ -48,7 +49,7 @@ public class WorldScreenController : MonoBehaviour {
     {
         this._worldPostObjects = new List<DelayGramPostObject>();
         this._userProfilePostObjects = new List<DelayGramPostObject>();
-        this._restRequester = new RESTRequester();
+        this._restRequester = new PostRequester();
         this._postHelper = new PostHelper();
 	}
 
@@ -120,6 +121,7 @@ public class WorldScreenController : MonoBehaviour {
 
     private void ShowUserProfile()
     {
+        this._previousState = this._currentState;
         this._currentState = HomeScreenState.UserProfile;
 
         this._postPage.SetActive(false);
@@ -140,6 +142,10 @@ public class WorldScreenController : MonoBehaviour {
         var maleAvatar = spriteMask.Find("MaleAvatar");
 
         var characterProperties = this._currentSelectedImage.Value.post.characterProperties;
+        var levelBanner = characterSection.Find("LevelBanner");
+        var levelNumberText = levelBanner.Find("LevelNumberText");
+        levelNumberText.GetComponent<TextMeshPro>().text = characterProperties.avatarLevel.ToString();
+
         if (characterProperties.gender == Gender.Female)
         {
             femaleAvatar.GetComponent<CharacterCustomization>().SetCharacterLook(characterProperties);
@@ -199,6 +205,30 @@ public class WorldScreenController : MonoBehaviour {
             return;
         }
 
+        if (this._currentState == HomeScreenState.WorldFeed)
+        {
+            foreach (DelayGramPostObject newPostObject in this._worldPostObjects)
+            {
+                if (newPostObject.postObject.name != post.postObject.name)
+                {
+                    newPostObject.postObject.SetActive(false);
+                }
+            }
+        }
+        else if (this._currentState == HomeScreenState.UserProfile)
+        {
+            this._userProfileScrollArea.transform.Find("TopBackground").gameObject.SetActive(false);
+            this._userProfileScrollArea.transform.Find("CharacterSection").gameObject.SetActive(false);
+            foreach (DelayGramPostObject newPostObject in this._userProfilePostObjects)
+            {
+                if (newPostObject.postObject.name != post.postObject.name)
+                {
+                    newPostObject.postObject.SetActive(false);
+                }
+            }
+        }
+
+        this._previousState = this._currentState;
         this._currentState = HomeScreenState.SinglePicture;
         this._currentSelectedImage = post;
         this._originalImageScale = post.postObject.transform.localScale;
@@ -207,25 +237,12 @@ public class WorldScreenController : MonoBehaviour {
         this._userStub = this._postHelper.EnlargeAndCenterPost(post);
 
         post.postObject.transform.parent = null;
-        foreach (DelayGramPostObject newPostObject in this._worldPostObjects)
-        {
-            if (newPostObject.postObject.name != post.postObject.name)
-            {
-                newPostObject.postObject.SetActive(false);
-            }
-        }
-        foreach (DelayGramPostObject newPostObject in this._userProfilePostObjects)
-        {
-            if (newPostObject.postObject.name != post.postObject.name)
-            {
-                newPostObject.postObject.SetActive(false);
-            }
-        }
     }
 
     private void ShrinkPost(DelayGramPostObject post)
     {
-        this._currentState = HomeScreenState.WorldFeed;
+        this._currentState = this._previousState;
+        this._previousState = HomeScreenState.SinglePicture;
         this._imageCurrentlyShrinking = true;
 
         // Scale post down and position where it used to be
@@ -236,6 +253,16 @@ public class WorldScreenController : MonoBehaviour {
             this._originalImagePosition,
             () => this.PostFinishedShrinking(post, false));
 
+        if (this._currentState == HomeScreenState.WorldFeed)
+        {
+            post.postObject.transform.parent = this._worldScrollArea.transform;
+        }
+        else if (this._currentState == HomeScreenState.UserProfile)
+        {
+            this._userProfileScrollArea.transform.Find("TopBackground").gameObject.SetActive(true);
+            this._userProfileScrollArea.transform.Find("CharacterSection").gameObject.SetActive(true);
+            post.postObject.transform.parent = this._userProfileScrollArea.transform;
+        }
         foreach (DelayGramPostObject newPostObject in this._worldPostObjects)
         {
             if (newPostObject.postObject.name != post.postObject.name)

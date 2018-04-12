@@ -12,12 +12,13 @@ public class NewPostController : MonoBehaviour
     private TutorialScreenController _tutorialController;
     private MessagePost _messagePost;
     private PostHelper _postHelper;
-    private RESTRequester _restRequester;
+    private PostRequester _restRequester;
 
     private GameObject _postPopupWindow;
     private Transform scrollArea;
     private GameObject _avatar;
     private CreatePostCallBack _postCallBack;
+    private CroppingController _croppingController;
 
     private string _currentBackground;
     private List<PictureItem> _items;
@@ -39,7 +40,7 @@ public class NewPostController : MonoBehaviour
         this._tutorialController = this.GetComponent<TutorialScreenController>();
         this._messagePost = MessagePost.Instance;
         this._postHelper = new PostHelper();
-        this._restRequester = new RESTRequester();
+        this._restRequester = new PostRequester();
 
         this.Initialize();
     }
@@ -77,19 +78,13 @@ public class NewPostController : MonoBehaviour
         }
         this._avatar.SetActive(true);
 
-        this._itemObjects = this.SetupItemsInPost(picture.gameObject);
-        var movableObjects = new List<GameObject>(this._itemObjects);
-        movableObjects.Add(this._avatar);
-
-        var croppingController = picture.GetComponent<CroppingController>();
-        croppingController.SetMovableItems(movableObjects);
-        croppingController.OnAvatarMovedDecentDistance.AddListener(this._tutorialController.FinishedMovingTutorial);
-        croppingController.OnAvatarResizedAndRotated.AddListener(this._tutorialController.FinishedResizingAndRotatingTutorial);
+        this._croppingController = picture.GetComponent<CroppingController>();
+        this._croppingController.OnAvatarMovedDecentDistance.AddListener(this._tutorialController.FinishedMovingTutorial);
+        this._croppingController.OnAvatarResizedAndRotated.AddListener(this._tutorialController.FinishedResizingAndRotatingTutorial);
     }
 
     public void HandleClick(string colliderName)
     {
-        
         switch (colliderName)
         {
             case "NewPostDoneButton":
@@ -114,6 +109,10 @@ public class NewPostController : MonoBehaviour
                 break;
             case "CamRoom":
                 this._currentBackground = "CamRoom";
+                this.GotoNewState(NewPostState.Cropping);
+                break;
+            case "Yacht":
+                this._currentBackground = "Yacht";
                 this.GotoNewState(NewPostState.Cropping);
                 break;
             case "BackButton":
@@ -171,7 +170,7 @@ public class NewPostController : MonoBehaviour
         if (this._userSerializer.HasCat)
         {
             var cat = new PictureItem();
-            cat.name = "Sylvester";
+            cat.name = "Cat";
             cat.location = new SerializableVector3(new Vector3(1.2f, -0.5f, 0.0f));
             cat.rotation = 0;
             cat.scale = 0.45f;
@@ -239,13 +238,16 @@ public class NewPostController : MonoBehaviour
         this._postPopupWindow.transform.Find("Louvre").gameObject.SetActive(false);
         this._postPopupWindow.transform.Find("Park").gameObject.SetActive(false);
         this._postPopupWindow.transform.Find("CamRoom").gameObject.SetActive(false);
+        this._postPopupWindow.transform.Find("Yacht").gameObject.SetActive(false);
         this._postPopupWindow.transform.Find("ChooseText").GetComponent<TextMeshPro>().text
             = "Edit your photo:";
         this._postPopupWindow.transform.Find("NewPostDoneButton").gameObject.SetActive(true);
 
+
         var post = this._postPopupWindow.transform.Find("NewPost");
         post.gameObject.SetActive(true);
         var picture = post.transform.Find("Picture");
+        var itemsParent = picture.gameObject;
         switch (this._currentBackground)
         {
             case "Beach":
@@ -263,7 +265,20 @@ public class NewPostController : MonoBehaviour
             case "CamRoom":
                 picture.transform.Find("CamRoomBackground").gameObject.SetActive(true);
                 break;
+            case "Yacht":
+                var yachtBackground = picture.transform.Find("YachtBackground");
+                if (yachtBackground)
+                {
+                    yachtBackground.gameObject.SetActive(true);
+                    itemsParent = yachtBackground.Find("YachtBoat").gameObject;
+                }
+                break;
         }
+
+        this._itemObjects = this.SetupItemsInPost(itemsParent);
+        var movableObjects = new List<GameObject>(this._itemObjects);
+        movableObjects.Add(this._avatar);
+        this._croppingController.SetMovableItems(movableObjects);
 
         if (!this._userSerializer.PostedPhoto)
         {
@@ -289,7 +304,7 @@ public class NewPostController : MonoBehaviour
     {
         var newPost = new DelayGramPost();
         newPost.playerName = this._userSerializer.PlayerName;
-        newPost.imageID = GetRandomImageID();
+        newPost.pictureID = GetRandomImageID();
         newPost.backgroundName = this._currentBackground;
         newPost.avatarPosition = new SerializableVector3(this._avatar.transform.localPosition);
         newPost.avatarRotation = this._avatar.transform.localRotation.eulerAngles.z;

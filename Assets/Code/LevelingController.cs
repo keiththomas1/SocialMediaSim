@@ -1,8 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using DG.Tweening;
+using System;
 
 public class LevelingController : MonoBehaviour {
     private UserSerializer _userSerializer;
@@ -10,123 +9,119 @@ public class LevelingController : MonoBehaviour {
 
     private UIController _uiController;
 
-    private int _previousLevel = 0;
-    private int _previousNeededExperience = 0;
-
     private Tweener _currentTweener = null;
     private bool _currentlyTweening = false;
+
+    private Transform _levelBanner;
+    private Transform _levelNumberText;
+    private Transform _experienceBarFront;
+    private Transform _experienceBarBack;
+    private Transform _levelExperienceText;
 
     private void Awake()
     {
         this._userSerializer = UserSerializer.Instance;
         this._characterSerializer = CharacterSerializer.Instance;
+        this._uiController = GameObject.Find("CONTROLLER").GetComponent<UIController>();
+
+        this._levelBanner = this.transform.Find("LevelBanner");
+        this._levelNumberText = this._levelBanner.transform.Find("LevelNumberText");
+        this._experienceBarFront = this.transform.Find("LevelExperienceBar");
+        this._experienceBarBack = this._experienceBarFront.transform.Find("ExperienceBar");
+        this._levelExperienceText = this.transform.Find("LevelExperienceText");
     }
 
     private void Start ()
     {
-        this._uiController = GetComponent<UIController>();
-        this.UpdatePreviousInformation();
+        this.SetupLevelDisplay();
     }
 
     private void Update () {
 	}
 
-    public void SetupLevelDisplay(GameObject levelBarParent)
+    public void LevelUp()
     {
-        var experienceBarFront = levelBarParent.transform.Find("LevelExperienceBar");
-        var experienceBarBack = experienceBarFront.transform.Find("ExperienceBar");
-
         var levelExperience = this._userSerializer.LevelExperience;
-        var neededExperience = this._userSerializer.NeededLevelExperience;
-        var experiencePercentage = (float)levelExperience / (float)neededExperience;
-        experienceBarBack.localScale = new Vector3(experiencePercentage, 1.0f, 1.0f);
+        var neededExperience = 80 + (this._characterSerializer.AvatarLevel * 20);
+
+        this._characterSerializer.AvatarLevel += 1;
+        this._levelNumberText.GetComponent<TextMeshPro>().text = this._characterSerializer.AvatarLevel.ToString();
+        var newLevelExperience = levelExperience - neededExperience;
+        this._userSerializer.LevelExperience = newLevelExperience;
+
+        var newNeededExperience = neededExperience + 20;
+        var newExperiencePercentage = (float)newLevelExperience / (float)newNeededExperience;
+
+        this.AnimateExperienceBar(newExperiencePercentage);
     }
 
-    public void AddExperience(int experience, GameObject levelBarParent)
+    public void AddExperience(int experience)
     {
-        var currentExperience = this._userSerializer.LevelExperience;
-        this._userSerializer.LevelExperience = currentExperience + experience;
+        var newLevelExperience = this._userSerializer.LevelExperience + experience;
+        this._userSerializer.LevelExperience = newLevelExperience;
+        var neededExperience = 80 + (this._characterSerializer.AvatarLevel * 20);
+        float newExperiencePercentage = 0f;
+        if (newLevelExperience >= neededExperience)
+        {
+            newExperiencePercentage = 1f;
+        }
+        else
+        {
+            newExperiencePercentage = (float)newLevelExperience / (float)neededExperience;
+        }
 
         if (this._currentlyTweening)
         {
             this._currentTweener.Kill();
+            this._currentlyTweening = false;
         }
 
-        this.UpdateLevelDisplay(levelBarParent);
+        this.AnimateExperienceBar(newExperiencePercentage);
     }
 
-    public void UpdateLevelDisplay(GameObject levelBarParent)
+    private void SetupLevelDisplay()
     {
-        if (this._previousLevel == 0)
-        {
-            this.UpdatePreviousInformation();
-        }
+        var levelExperience = this._userSerializer.LevelExperience;
+        var neededExperience = 80 + (this._characterSerializer.AvatarLevel * 20);
+        var experiencePercentage = (float)levelExperience / (float)neededExperience;
+        this._experienceBarBack.localScale = new Vector3(experiencePercentage, 1.0f, 1.0f);
 
-        if (this._previousLevel < this._characterSerializer.AvatarLevel)
+        this._levelNumberText.GetComponent<TextMeshPro>().text = this._characterSerializer.AvatarLevel.ToString();
+        this._levelExperienceText.GetComponent<TextMeshPro>().text =
+            String.Format("{0}/{1}", levelExperience, neededExperience);
+
+        if (levelExperience >= neededExperience)
         {
+            this._experienceBarBack.localScale = new Vector3(0f, 1.0f, 1.0f);
             this._uiController.CreateLevelUpPopup();
         }
-
-        var levelBanner = levelBarParent.transform.Find("LevelBanner");
-
-        var levelNumberText = levelBanner.transform.Find("LevelNumberText");
-        levelNumberText.GetComponent<TextMeshPro>().text = this._previousLevel.ToString();
-
-        var levelExperienceText = levelBarParent.transform.Find("LevelExperienceText");
-        // var previousExperienceText = this._previousLevelExperience.ToString() + "/" + this._previousNeededExperience.ToString();
-        // levelExperienceText.GetComponent<TextMeshPro>().text = previousExperienceText;
-
-        var experienceBarFront = levelBarParent.transform.Find("LevelExperienceBar");
-        var experienceBarBack = experienceBarFront.transform.Find("ExperienceBar");
-        
-
-        var currentLevelExperience = this._userSerializer.LevelExperience;
-        var newExperiencePercentage = Mathf.Min((float)currentLevelExperience / (float)this._previousNeededExperience, 1.0f);
-
-        // if (oldExperiencePercentage != newExperiencePercentage)
-        // {
-        //    this.AnimateExperienceBar(experienceBarBack, newExperiencePercentage, levelBarParent);
-        // }
-
-        this.UpdatePreviousInformation();
-        this.RolloverLevelExperience();
     }
 
-    private void RolloverLevelExperience()
-    {
-        var currentLevelExperience = this._userSerializer.LevelExperience;
-        var neededExperience = this._userSerializer.NeededLevelExperience;
-
-        if (currentLevelExperience >= neededExperience)
-        {
-            this._characterSerializer.AvatarLevel += 1;
-            this._userSerializer.LevelExperience = currentLevelExperience - neededExperience;
-            this._userSerializer.NeededLevelExperience = neededExperience + 20;
-        }
-    }
-
-    private void AnimateExperienceBar(
-        Transform experienceBarBack,
-        float newExperiencePercentage,
-        GameObject parent)
+    private void AnimateExperienceBar(float newExperiencePercentage)
     {
         if (!this._currentlyTweening)
         {
             this._currentlyTweening = true;
-            experienceBarBack.transform
+            var neededExperience = 80 + (this._characterSerializer.AvatarLevel * 20);
+            this._currentTweener = this._experienceBarBack.transform
                 .DOScaleX(newExperiencePercentage, 0.8f)
                 .SetEase(Ease.OutSine)
+                .OnUpdate(() =>
+                {
+                    var currentScaleX = this._experienceBarBack.transform.localScale.x;
+                    var levelExperience = Mathf.Round(currentScaleX * neededExperience);
+                    this._levelExperienceText.GetComponent<TextMeshPro>().text =
+                        String.Format("{0}/{1}", levelExperience, neededExperience);
+                })
                 .OnComplete(() =>
                 {
                     this._currentlyTweening = false;
-                    this.UpdateLevelDisplay(parent);
+                    if (newExperiencePercentage >= 1f)
+                    {
+                        this._experienceBarBack.localScale = new Vector3(0f, 1.0f, 1.0f);
+                        this._uiController.CreateLevelUpPopup();
+                    }
                 });
         }
-    }
-
-    private void UpdatePreviousInformation()
-    {
-        this._previousLevel = this._characterSerializer.AvatarLevel;
-        this._previousNeededExperience = this._userSerializer.NeededLevelExperience;
     }
 }

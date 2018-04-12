@@ -1,6 +1,7 @@
 'use strict';
 module.exports = function(app) {
 	let pictures = require('../controllers/pictureController');
+	let notifications = require('../controllers/notificationController');
 
 	// POST pictures
 	app.route('/pictures')
@@ -20,8 +21,8 @@ module.exports = function(app) {
 	app.route('/pictures/:pictureID')
 		.put(pictures.updatePicture)
 		.get(pictures.readPicture);
-	app.route('/liked/:pictureID')
+	app.route('/liked/:pictureID/:userID')
 		.put(pictures.incrementLikes);
-	app.route('/disliked/:pictureID')
+	app.route('/disliked/:pictureID/:userID')
 		.put(pictures.incrementDislikes);
 };

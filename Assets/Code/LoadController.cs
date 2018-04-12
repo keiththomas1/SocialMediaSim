@@ -7,6 +7,7 @@ public class LoadController : MonoBehaviour {
     private GoalSerializer _goalSerializer;
     private MessagesSerializer _messagesSerializer;
     private UserSerializer _userSerializer;
+    private NotificationSerializer _notificationSerializer;
 
     // Use this for initialization
     void Awake()
@@ -43,6 +44,7 @@ public class LoadController : MonoBehaviour {
         this._goalSerializer.SaveGame();
         this._messagesSerializer.SaveFile();
         this._userSerializer.SaveFile();
+        this._notificationSerializer.SaveGame();
     }
 
     void LoadState()
@@ -57,6 +59,8 @@ public class LoadController : MonoBehaviour {
             this._messagesSerializer.LoadGame();
             this._userSerializer = UserSerializer.Instance;
             this._userSerializer.LoadGame();
+            this._notificationSerializer = NotificationSerializer.Instance;
+            this._notificationSerializer.LoadGame();
 
             if (this._userSerializer.PostedPhoto && ((DateTime.Now - this._userSerializer.LastUpdate) > TimeSpan.FromDays(1f)))
             {

@@ -5,7 +5,7 @@ using DG.Tweening;
 
 public class ExploreScreenController : MonoBehaviour
 {
-    private RESTRequester _restRequester;
+    private PostRequester _restRequester;
     private PostHelper _postHelper;
     private MessagePost _messagePost;
 
@@ -33,7 +33,7 @@ public class ExploreScreenController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        this._restRequester = new RESTRequester();
+        this._restRequester = new PostRequester();
         this._postHelper = new PostHelper();
         this._messagePost = MessagePost.Instance;
     }
@@ -203,8 +203,8 @@ public class ExploreScreenController : MonoBehaviour
 
     private void LikePicture()
     {
-        var addLike = this._restRequester.AddLikeToPicture(this._currentPicture._id);
-        StartCoroutine(addLike);
+        // var addLike = this._restRequester.AddLikeToPicture(this._currentPicture._id);
+        // StartCoroutine(addLike);
 
         CreateNewExplorePost();
         DisableCurrentDragObject(PictureRotateAway.RotateDirection.Right);
@@ -218,8 +218,8 @@ public class ExploreScreenController : MonoBehaviour
 
     private void DislikePicture()
     {
-        var addDislike = this._restRequester.AddDislikeToPicture(this._currentPicture._id);
-        StartCoroutine(addDislike);
+        //var addDislike = this._restRequester.AddDislikeToPicture(this._currentPicture._id);
+       // StartCoroutine(addDislike);
 
         CreateNewExplorePost();
         DisableCurrentDragObject(PictureRotateAway.RotateDirection.Left);
