@@ -31,7 +31,10 @@ public class CharacterRandomization {
 
         if (!this._characterSerializer.Initialized)
         {
-            this._characterSerializer.CurrentCharacterProperties = this.GetFullRandomCharacter();
+            var newProperties = this.GetFullRandomCharacter();
+            newProperties.happinessLevel = 4;
+            newProperties.fitnessLevel = 4;
+            this._characterSerializer.CurrentCharacterProperties = newProperties;
         }
     }
 

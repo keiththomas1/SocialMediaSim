@@ -55,9 +55,9 @@ public class GoalsController : MonoBehaviour {
         var firstGoal = new GoalInformation();
         firstGoal.status = GoalStatus.Active;
         firstGoal.goalType = GoalObjectType.Location;
-        firstGoal.goalObject = "Beach";
+        firstGoal.goalObject = "Apartment";
         firstGoal.rewardType = GoalRewardType.ExperiencePoints;
-        firstGoal.reward = "50";
+        firstGoal.reward = "40";
         firstGoal.stepsCompleted = 0;
         firstGoal.stepsNeeded = 1;
 
@@ -72,9 +72,9 @@ public class GoalsController : MonoBehaviour {
         var secondGoal = new GoalInformation();
         secondGoal.status = GoalStatus.Active;
         secondGoal.goalType = GoalObjectType.Location;
-        secondGoal.goalObject = "City";
+        secondGoal.goalObject = "Apartment";
         secondGoal.rewardType = GoalRewardType.ExperiencePoints;
-        secondGoal.reward = "50";
+        secondGoal.reward = "40";
         secondGoal.stepsCompleted = 0;
         secondGoal.stepsNeeded = 1;
 

@@ -18,6 +18,7 @@ public class MessagePost
     private MessageCollection _messageCollection;
 
     private bool _seenProfessorPartnerConvo = false;
+    private bool _seenProductEngineerConvo = false;
 
     public static MessagePost Instance
     {
@@ -44,6 +45,9 @@ public class MessagePost
             {
                 case MessageCollection.PROFESSOR_NAME:
                     this._seenProfessorPartnerConvo = true;
+                    break;
+                case MessageCollection.PRODUCT_ENGINEER_NAME:
+                    this._seenProductEngineerConvo = true;
                     break;
             }
         }
@@ -94,7 +98,7 @@ public class MessagePost
                     this._userSerializer.HasDrone = true;
                     this._userSerializer.NextPostTime = DateTime.Now;
                 }
-                newConversation = this._messageCollection.CreateProfessorConversation(choices, conversation.npcProperties);
+                newConversation = this._messageCollection.CreateProfessorConversation(choices);
                 break;
         }
         newConversation.choicesMade = choices;
@@ -110,7 +114,13 @@ public class MessagePost
             this._seenProfessorPartnerConvo = true;
             return true;
         }
-        // else if (!this._seenNewShirt1Convo) {}
+        else if (!this._seenProductEngineerConvo)
+        {
+            var conversation = this._messageCollection.CreateProductEngineerConversation();
+            this._messageSerializer.AddConversation(conversation);
+            this._seenProductEngineerConvo = true;
+            return true;
+        }
 
         return false;
     }

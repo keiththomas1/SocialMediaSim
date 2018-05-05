@@ -135,6 +135,7 @@ public class PostRequester
         newPicture.characterProperties.spriteProperties.birthmark = post.characterProperties.birthmark.ToString();
 
         newPicture.characterProperties.levelProperties = new CharacterPropertiesModelJson.LevelProperties();
+        newPicture.characterProperties.levelProperties.avatarLevel = post.characterProperties.avatarLevel;
         newPicture.characterProperties.levelProperties.happinessLevel = post.characterProperties.happinessLevel;
         newPicture.characterProperties.levelProperties.fitnessLevel = post.characterProperties.fitnessLevel;
         newPicture.characterProperties.levelProperties.styleLevel = post.characterProperties.styleLevel;
@@ -300,6 +301,7 @@ public class PostRequester
             newPost.characterProperties.birthmark = BirthMarkType.None;
         }
 
+        newPost.characterProperties.avatarLevel = picture.characterProperties.levelProperties.avatarLevel;
         newPost.characterProperties.happinessLevel = picture.characterProperties.levelProperties.happinessLevel;
         newPost.characterProperties.fitnessLevel = picture.characterProperties.levelProperties.fitnessLevel;
         newPost.characterProperties.styleLevel = picture.characterProperties.levelProperties.styleLevel;

@@ -5,6 +5,7 @@ using UnityEngine;
 public class MessageCollection
 {
     public const string PROFESSOR_NAME = "Professor Woke";
+    public const string PRODUCT_ENGINEER_NAME = "Manipulative Mary";
 
     private CharacterRandomization _characterRandomization;
 
@@ -28,7 +29,7 @@ public class MessageCollection
         }
     }
 
-    public Conversation CreateProfessorConversation(List<int> choices, CharacterProperties npcProperties = null)
+    public Conversation CreateProfessorConversation(List<int> choices)
     {
         var newConversation = this.CreateEmptyConversation();
         newConversation.conversationType = DelaygramConversationType.Choice;
@@ -36,55 +37,49 @@ public class MessageCollection
         newConversation.choiceCount = 3;
 
         var newMessage1 = new Message();
-        newMessage1.text = "Hey there! Welcome to this grand adventure you have set off on! I believe it is destined to be the greatest thing you will ever experience.";
+        newMessage1.text = "Hey there! Welcome to this grand <#A300F9FF>adventure</color> you have set off on! It will surely be the greatest journey of your life!";
         newMessage1.type = DelaygramMessageType.NPC;
         newMessage1.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage1);
 
         var newMessage2 = new Message();
-        newMessage2.text = ".. ah shit, who am I kidding";
+        newMessage2.text = "Social media is a <#00C111FF>beautiful</color> place where people will be lovely to you and .. and ..";
         newMessage2.type = DelaygramMessageType.NPC;
         newMessage2.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage2);
 
         var newMessage3 = new Message();
-        newMessage3.text = "It could be a terrible experience, honestly";
+        newMessage3.text = "You know what, screw it.";
         newMessage3.type = DelaygramMessageType.NPC;
         newMessage3.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage3);
 
         var newMessage4 = new Message();
-        newMessage4.text = "I mean, sure, you could end up popular and liked by all";
+        newMessage4.text = "Screw social media. It's a <#FF00B9FF>vain, self-serving, argument-fueling</color> piece of shit.";
         newMessage4.type = DelaygramMessageType.NPC;
         newMessage4.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage4);
 
         var newMessage5 = new Message();
-        newMessage5.text = "But you could also end up like all those celebrities you see in the news";
+        newMessage5.text = "Feeding on us <#F29A2BFF>psychologically</color>, draining our attention like by like.";
         newMessage5.type = DelaygramMessageType.NPC;
         newMessage5.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage5);
 
         var newMessage5b = new Message();
-        newMessage5b.text = "Strung out and begging to be thrust back into the limelight";
+        newMessage5b.text = "I need you to help me spread the word. People need to wake the hell up.";
         newMessage5b.type = DelaygramMessageType.NPC;
         newMessage5b.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage5b);
 
         var newMessage6 = new Message();
-        newMessage6.text = "It all depends on your choices";
+        newMessage6.text = "But we will get to that later. First, you need to make an important choice to start your journey, like usual.";
         newMessage6.type = DelaygramMessageType.NPC;
         newMessage6.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage6);
 
-        var newMessage7 = new Message();
-        newMessage7.text = "Except for this first one! This is just a warm-up for everybody that joins Delaygram.";
-        newMessage7.type = DelaygramMessageType.NPC;
-        newMessage7.timeSent = DateTime.Now;
-        newConversation.messages.Add(newMessage7);
-
         var newMessage8 = new Message();
-        newMessage8.text = "You get to choose a partner! <sprite name=\"1f60e\"> I've got a cat, a bulldog, and a drone. All good pals in their own right.";
+        newMessage8.text = "Choose a partner! <sprite name=\"1f60e\"> I've got a <#00C0FFFF>cat</color>, a <#FF0005FF>bulldog</color>, and a <#00C111FF>drone</color>. All good pals in their own right.";
         newMessage8.type = DelaygramMessageType.NPC;
         newMessage8.timeSent = DateTime.Now;
         newConversation.messages.Add(newMessage8);
@@ -95,8 +90,8 @@ public class MessageCollection
             newMessage9.type = DelaygramMessageType.Choice;
             newMessage9.choices = new List<string>();
             newMessage9.choices.Add("Cat, please!");
-            newMessage9.choices.Add("Dog, obviously!");
-            newMessage9.choices.Add("Drone, clearly");
+            newMessage9.choices.Add("Dog, obviously?");
+            newMessage9.choices.Add("Drone, clearly..");
             newMessage9.timeSent = DateTime.Now;
             newConversation.messages.Add(newMessage9);
         }
@@ -129,7 +124,7 @@ public class MessageCollection
         }
         else if (choices[0] == 2)
         {
-            newMessage9.text = "Dog, obviously";
+            newMessage9.text = "Dog, obviously?";
             newMessage9.type = DelaygramMessageType.Player;
             newMessage9.timeSent = DateTime.Now;
             newConversation.messages.Add(newMessage9);
@@ -156,14 +151,13 @@ public class MessageCollection
         }
         else if (choices[0] == 3)
         {
-            newMessage9.text = "Drone, clearly";
+            newMessage9.text = "Drone, clearly..";
             newMessage9.type = DelaygramMessageType.Player;
             newMessage9.timeSent = DateTime.Now;
             newConversation.messages.Add(newMessage9);
 
             var newMessage10c = new Message();
             newMessage10c.text = "Sure thing. I call him D-Rone because we found him busted up on the south side. <sprite name=\"1f602\">";
-            Debug.Log(newMessage10c.text);
             newMessage10c.type = DelaygramMessageType.NPC;
             newMessage10c.timeSent = DateTime.Now;
             newConversation.messages.Add(newMessage10c);
@@ -186,7 +180,76 @@ public class MessageCollection
         return newConversation;
     }
 
-	public Conversation CreateFemaleRomance1Conversation(LinkedList<int> choices) {
+    public Conversation CreateProductEngineerConversation()
+    {
+        var newConversation = this.CreateEmptyConversation();
+        newConversation.conversationType = DelaygramConversationType.Story;
+        newConversation.npcName = PRODUCT_ENGINEER_NAME;
+
+        var newMessage0 = new Message();
+        newMessage0.text = "Hello. I work at Delaygram and study user behavior.";
+        newMessage0.type = DelaygramMessageType.NPC;
+        newMessage0.timeSent = DateTime.Now;
+        newConversation.messages.Add(newMessage0);
+
+        var newMessage1 = new Message();
+        newMessage1.text = "Do you think exploiting psychological effects in an app is like quantum physics?";
+        newMessage1.type = DelaygramMessageType.NPC;
+        newMessage1.timeSent = DateTime.Now;
+        newConversation.messages.Add(newMessage1);
+
+        var newMessage2 = new Message();
+        newMessage2.text = "If we observe it, will it cease to be effective?";
+        newMessage2.type = DelaygramMessageType.NPC;
+        newMessage2.timeSent = DateTime.Now;
+        newConversation.messages.Add(newMessage2);
+
+        var newMessage2b = new Message();
+        newMessage2b.text = "Uhhh ... I don't know";
+        newMessage2b.type = DelaygramMessageType.Player;
+        newMessage2b.timeSent = DateTime.Now;
+        newConversation.messages.Add(newMessage2b);
+
+        var newMessage3 = new Message();
+        newMessage3.text = "If I tell you I'm going to send you notifications to hopefully spawn an addiction, will you still get addicted?";
+        newMessage3.type = DelaygramMessageType.NPC;
+        newMessage3.timeSent = DateTime.Now;
+        newConversation.messages.Add(newMessage3);
+
+        var newMessage4 = new Message();
+        newMessage4.text = "If I give you rewards for scrolling your feed, will you actually scroll your feed less?";
+        newMessage4.type = DelaygramMessageType.NPC;
+        newMessage4.timeSent = DateTime.Now;
+        newConversation.messages.Add(newMessage4);
+
+        var newMessage4b = new Message();
+        newMessage4b.text = "Is this all rhetorical?";
+        newMessage4b.type = DelaygramMessageType.Player;
+        newMessage4b.timeSent = DateTime.Now;
+        newConversation.messages.Add(newMessage4b);
+
+        var newMessage5 = new Message();
+        newMessage5.text = "Uhm. Yes. Of course. Hahahaha.";
+        newMessage5.type = DelaygramMessageType.NPC;
+        newMessage5.timeSent = DateTime.Now;
+        newConversation.messages.Add(newMessage5);
+
+        var newMessage6 = new Message();
+        newMessage6.text = "I'm enabling notifications for you now.";
+        newMessage6.type = DelaygramMessageType.NPC;
+        newMessage6.timeSent = DateTime.Now;
+        newConversation.messages.Add(newMessage6);
+
+        var newMessage7 = new Message();
+        newMessage7.text = "See ya!";
+        newMessage7.type = DelaygramMessageType.NPC;
+        newMessage7.timeSent = DateTime.Now;
+        newConversation.messages.Add(newMessage7);
+
+        return newConversation;
+    }
+
+    public Conversation CreateFemaleRomance1Conversation(LinkedList<int> choices) {
 		var newConversation = this.CreateEmptyConversation ();
 		newConversation.conversationType = DelaygramConversationType.Flirty;
 		newConversation.npcName = "";

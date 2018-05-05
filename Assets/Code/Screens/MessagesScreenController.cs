@@ -253,6 +253,10 @@ public class MessagesScreenController : MonoBehaviour {
                 return new Vector2(0.26f, 0.16f);
             case "MessageBox5":
                 return new Vector2(0.26f, 0.12f);
+            case "MessageBox6":
+                return new Vector2(0.26f, 0.09f);
+            case "MessageBox7":
+                return new Vector2(0.26f, 0.07f);
             case "ResultMessageBox":
                 return new Vector2(0.25f, 0.12f);
             default:
@@ -460,9 +464,9 @@ public class MessagesScreenController : MonoBehaviour {
 
     private float AddPlayerMessageObject(Conversation conversation, Message message, float yPosition)
     {
-        var popupMessage = GameObject.Instantiate(Resources.Load("Messages/PlayerMessage") as GameObject);
+        var popupMessage = GameObject.Instantiate(Resources.Load("Messages/Player/NewPlayerMessage") as GameObject);
         popupMessage.transform.parent = this._pageScrollArea;
-        popupMessage.transform.localPosition = new Vector3(0.0f, yPosition, 0.0f);
+        popupMessage.transform.localPosition = new Vector3(-0.3f, yPosition, 0.0f);
 
         var profileBubble = popupMessage.transform.Find("ProfilePicBubble");
         this._postHelper.SetupAvatarMask(profileBubble.gameObject, this._characterSerializer.CurrentCharacterProperties);
@@ -474,7 +478,7 @@ public class MessagesScreenController : MonoBehaviour {
 
     private float AddPlayerChoiceObject(Conversation conversation, string choiceText, string nameText, float yPosition)
     {
-        var popupMessage = GameObject.Instantiate(Resources.Load("Messages/PlayerChoice") as GameObject);
+        var popupMessage = GameObject.Instantiate(Resources.Load("Messages/Player/PlayerChoice") as GameObject);
         popupMessage.name = nameText;
         popupMessage.transform.parent = this._pageScrollArea;
         popupMessage.transform.localPosition = new Vector3(0.0f, yPosition, 0.0f);
@@ -486,9 +490,9 @@ public class MessagesScreenController : MonoBehaviour {
 
     private float AddNPCMessageObject(Conversation conversation, Message message, bool showPortrait, float yPosition)
     {
-        var popupMessage = GameObject.Instantiate(Resources.Load("Messages/NPCMessage") as GameObject);
+        var popupMessage = GameObject.Instantiate(Resources.Load("Messages/NPC/NewNPCMessage") as GameObject);
         popupMessage.transform.parent = this._pageScrollArea;
-        popupMessage.transform.localPosition = new Vector3(0.0f, yPosition, 0.0f);
+        popupMessage.transform.localPosition = new Vector3(0.3f, yPosition, 0.0f);
 
         var profileBubble = popupMessage.transform.Find("ProfilePicBubble");
         this.SetNPCMessageAvatarMask(profileBubble, conversation);
@@ -517,8 +521,10 @@ public class MessagesScreenController : MonoBehaviour {
         profileBubble.Find("MaleAvatar").gameObject.SetActive(false);
         profileBubble.Find("FemaleAvatar").gameObject.SetActive(false);
         profileBubble.Find("Professor").gameObject.SetActive(conversation.npcName == MessageCollection.PROFESSOR_NAME);
+        profileBubble.Find("ProductEngineer").gameObject.SetActive(conversation.npcName == MessageCollection.PRODUCT_ENGINEER_NAME);
 
-        if (conversation.npcName != MessageCollection.PROFESSOR_NAME)
+        if (conversation.npcName != MessageCollection.PROFESSOR_NAME
+            && conversation.npcName != MessageCollection.PRODUCT_ENGINEER_NAME)
         {
             this._postHelper.SetupAvatarMask(profileBubble.gameObject, conversation.npcProperties);
         }
@@ -571,8 +577,14 @@ public class MessagesScreenController : MonoBehaviour {
                 popupMessage.transform.Find("MessageBox4").gameObject.SetActive(true);
                 break;
             case 5:
-            default:
                 popupMessage.transform.Find("MessageBox5").gameObject.SetActive(true);
+                break;
+            case 6:
+                popupMessage.transform.Find("MessageBox6").gameObject.SetActive(true);
+                break;
+            case 7:
+            default:
+                popupMessage.transform.Find("MessageBox7").gameObject.SetActive(true);
                 break;
         }
 

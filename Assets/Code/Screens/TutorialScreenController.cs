@@ -42,9 +42,9 @@ public class TutorialScreenController : MonoBehaviour {
 
         this._profileController = GetComponent<ProfileScreenController>();
         this._introDialog = new List<string>();
-        this._introDialog.Add("Hello! Welcome to <size=\"3\"><#790CB2>Delaygram</color></size>, the greatest social media network ever.");
-        this._introDialog.Add("<size=\"3\"><#0076FFFF>Post</color></size> pictures of yourself and get <#982409FF>ratings</color> from others!");
-        this._introDialog.Add("Participate in <size=\"3\"><#09982DFF>challenges</color></size> to win special items.");
+        this._introDialog.Add("Hello! Welcome to <size=\"3\"><#790CB2>Delaygram</color></size>, a new type of social network.");
+        this._introDialog.Add("<size=\"3\"><#0076FFFF>Post</color></size> pictures of yourself and get <#982409FF>ratings</color> from other real people.");
+        // this._introDialog.Add("Participate in <size=\"3\"><#09982DFF>challenges</color></size> to win special items.");
         this._introDialog.Add("To participate, simply <size=\"3\"><#982409FF>rate</color></size> other's photos.");
         this._introDialog.Add("Alright, time to make your <size=\"3\">avatar!</size>");
 	}
@@ -76,7 +76,6 @@ public class TutorialScreenController : MonoBehaviour {
     public void EnterScreen()
     {
         this._introductionObject = GameObject.Instantiate(Resources.Load("Tutorial/TutorialIntroduction") as GameObject);
-        Debug.Log(this._introductionObject);
         this._introductionObject.transform.position = new Vector3(0.27f, 0.17f, 0.0f);
         var tutorialBubble = this._introductionObject.transform.Find("TutorialBubble");
         this._introTextAnimation = tutorialBubble.Find("TutorialText").GetComponent<TextTypingAnimation>();
@@ -92,7 +91,6 @@ public class TutorialScreenController : MonoBehaviour {
                 this.ContinueText();
                 break;
         }
-        Debug.Log(this._introductionObject);
     }
 
     public void ShowGoToPostScreenPopup()

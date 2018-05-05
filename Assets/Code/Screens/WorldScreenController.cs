@@ -256,25 +256,27 @@ public class WorldScreenController : MonoBehaviour {
         if (this._currentState == HomeScreenState.WorldFeed)
         {
             post.postObject.transform.parent = this._worldScrollArea.transform;
+
+            foreach (DelayGramPostObject newPostObject in this._worldPostObjects)
+            {
+                if (newPostObject.postObject.name != post.postObject.name)
+                {
+                    newPostObject.postObject.SetActive(true);
+                }
+            }
         }
         else if (this._currentState == HomeScreenState.UserProfile)
         {
             this._userProfileScrollArea.transform.Find("TopBackground").gameObject.SetActive(true);
             this._userProfileScrollArea.transform.Find("CharacterSection").gameObject.SetActive(true);
             post.postObject.transform.parent = this._userProfileScrollArea.transform;
-        }
-        foreach (DelayGramPostObject newPostObject in this._worldPostObjects)
-        {
-            if (newPostObject.postObject.name != post.postObject.name)
+
+            foreach (DelayGramPostObject newPostObject in this._userProfilePostObjects)
             {
-                newPostObject.postObject.SetActive(true);
-            }
-        }
-        foreach (DelayGramPostObject newPostObject in this._userProfilePostObjects)
-        {
-            if (newPostObject.postObject.name != post.postObject.name)
-            {
-                newPostObject.postObject.SetActive(true);
+                if (newPostObject.postObject.name != post.postObject.name)
+                {
+                    newPostObject.postObject.SetActive(true);
+                }
             }
         }
 

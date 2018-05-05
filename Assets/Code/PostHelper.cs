@@ -26,7 +26,7 @@ public class PostHelper {
 
     // Use this for initialization
     public PostHelper() {
-	}
+    }
 
     public void PopulatePostFromData(GameObject post, DelayGramPost data) {
         var postPicture = post.transform.Find("Picture");
@@ -35,20 +35,23 @@ public class PostHelper {
         GameObject background = null;
         switch (data.backgroundName)
         {
+            case "Apartment":
+                background = postPicture.Find("ApartmentBackground").gameObject;
+                break;
             case "City":
-                background = postPicture.transform.Find("CityBackground").gameObject;
+                background = postPicture.Find("CityBackground").gameObject;
                 break;
             case "Louvre":
-                background = postPicture.transform.Find("LouvreBackground").gameObject;
+                background = postPicture.Find("LouvreBackground").gameObject;
                 break;
             case "Park":
-                background = postPicture.transform.Find("ParkBackground").gameObject;
+                background = postPicture.Find("ParkBackground").gameObject;
                 break;
             case "CamRoom":
-                background = postPicture.transform.Find("CamRoomBackground").gameObject;
+                background = postPicture.Find("CamRoomBackground").gameObject;
                 break;
             case "Yacht":
-                var yachtBackground = postPicture.transform.Find("YachtBackground");
+                var yachtBackground = postPicture.Find("YachtBackground");
                 if (yachtBackground)
                 {
                     background = yachtBackground.gameObject;
@@ -57,7 +60,7 @@ public class PostHelper {
                 break;
             case "Beach":
             default:
-                background = postPicture.transform.Find("BeachBackground").gameObject;
+                background = postPicture.Find("BeachBackground").gameObject;
                 break;
         }
         if (background)
@@ -71,30 +74,30 @@ public class PostHelper {
             switch (data.characterProperties.gender)
             {
                 case Gender.Male:
-                    avatar = postPicture.transform.Find("MaleAvatar").gameObject;
-                    postPicture.transform.Find("FemaleAvatar").gameObject.SetActive(false);
+                    avatar = postPicture.Find("MaleAvatar").gameObject;
+                    postPicture.Find("FemaleAvatar").gameObject.SetActive(false);
                     break;
                 case Gender.Female:
                 default:
-                    avatar = postPicture.transform.Find("FemaleAvatar").gameObject;
-                    postPicture.transform.Find("MaleAvatar").gameObject.SetActive(false);
+                    avatar = postPicture.Find("FemaleAvatar").gameObject;
+                    postPicture.Find("MaleAvatar").gameObject.SetActive(false);
                     break;
             }
             avatar.SetActive(true);
-            avatar.transform.SetParent(itemsParent.transform);
+            avatar.transform.localScale = new Vector3(data.avatarScale, data.avatarScale, 1);
             avatar.transform.localPosition = new Vector3(
                 data.avatarPosition.x,
                 data.avatarPosition.y,
                 data.avatarPosition.z);
             avatar.transform.Rotate(0, 0, data.avatarRotation);
-            avatar.transform.localScale = new Vector3(data.avatarScale, data.avatarScale, 1);
+            avatar.transform.SetParent(itemsParent.transform, true);
             avatar.GetComponent<Animator>().Play("Standing", -1, UnityEngine.Random.Range(0.0f, 1.0f));
 
             var avatarCustomization = avatar.GetComponent<CharacterCustomization>();
             avatarCustomization.SetCharacterLook(data.characterProperties);
         }
 
-        this.PopulatePostWithItems(itemsParent, data.items);
+        this.PopulatePostWithItems(postPicture.gameObject, itemsParent, data.items);
 
         // Randomize the start time for all animations
         var components = background.transform.GetComponentsInChildren<Animator>(true);
@@ -167,32 +170,22 @@ public class PostHelper {
         avatarCustomization.SetCharacterLook(properties);
     }
 
-    public List<GameObject> PopulatePostWithItems(GameObject parent, List<PictureItem> items)
+    public List<GameObject> PopulatePostWithItems(GameObject picture, GameObject parent, List<PictureItem> items)
     {
         var itemObjects = new List<GameObject>();
         foreach(PictureItem item in items)
         {
-            GameObject itemObject = null;
-            switch(item.name)
+            var itemTransform = picture.transform.Find(item.name);
+            if (itemTransform != null)
             {
-                case "Cat":
-                    itemObject = GameObject.Instantiate(Resources.Load("Characters/Cat") as GameObject);
-                    break;
-                case "Bulldog":
-                    itemObject = GameObject.Instantiate(Resources.Load("Characters/Bulldog") as GameObject);
-                    break;
-                case "D-Rone":
-                    itemObject = GameObject.Instantiate(Resources.Load("Characters/D-Rone") as GameObject);
-                    break;
-            }
-            if (itemObject != null)
-            {
+                GameObject itemObject = itemTransform.gameObject;
+                itemObject.SetActive(true);
                 itemObject.name = item.name;
-                itemObject.transform.parent = parent.transform;
+                itemObject.transform.SetParent(parent.transform, true);
+                itemObject.transform.localScale = new Vector3(item.scale, item.scale, 1);
                 itemObject.transform.localPosition = new Vector3(
                     item.location.x, item.location.y, item.location.z);
                 itemObject.transform.Rotate(0, 0, item.rotation);
-                itemObject.transform.localScale = new Vector3(item.scale, item.scale, 1);
 
                 // Look at all of the animations on the object and it's children and randomize the start time
                 var components = itemObject.transform.GetComponentsInChildren<Animator>();

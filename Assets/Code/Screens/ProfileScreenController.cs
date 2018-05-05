@@ -10,7 +10,7 @@ public class ProfileScreenController : MonoBehaviour
 {
     [SerializeField]
     private GameObject _chooseNameBox;
-    private TextMeshProUGUI _chooseNameText;
+    private TMP_InputField _chooseNameText;
 
     private const float POST_X_OFFSET = -1.06f;
     private const float POST_Y_OFFSET = -5.45f;
@@ -43,6 +43,7 @@ public class ProfileScreenController : MonoBehaviour
     private float _randomSpeechBubbleTimer = 0.0f;
     private float _checkingPhoneTimer = 0.0f;
     private float _cleaningUpTimer = 0.0f;
+    private bool _createdName = false;
 
     private enum ProfileScreenState
     {
@@ -71,10 +72,7 @@ public class ProfileScreenController : MonoBehaviour
         this._firstPostNew = false;
         this._previousGoals = new GoalInformation[] { null, null, null, null, null };
 
-        this._chooseNameText = this._chooseNameBox.transform.Find("TextInput")
-            .transform.Find("TextArea")
-            .transform.Find("Text")
-            .GetComponent<TextMeshProUGUI>();
+        this._chooseNameText = this._chooseNameBox.transform.Find("TextInput").GetComponent<TMP_InputField>();
         var exitButton = this._chooseNameBox.transform.Find("ExitButton").GetComponent<Button>();
         exitButton.onClick.AddListener(this.NameExitClicked);
         var randomizeButton = this._chooseNameBox.transform.Find("RandomizeButton").GetComponent<Button>();
@@ -83,76 +81,12 @@ public class ProfileScreenController : MonoBehaviour
         doneButton.onClick.AddListener(this.NameDoneClicked);
     }
 
-    void Start()
-    {
-    }
     void Update()
     {
-        if (this._tickGoalTimer > 0.0f)
-        {
-            this._tickGoalTimer -= Time.deltaTime;
-            if (this._tickGoalTimer <= 0.0f)
-            {
-                if (this._goalsController.ChangeInWaitingGoals())
-                {
-                    this.SetupGoalSection();
-                }
-                else
-                {
-                    this.UpdateGoalTime();
-                }
-            }
-        }
-        if (this._randomSpeechBubbleTimer > 0.0f && !this._editScreen)
-        {
-            this._randomSpeechBubbleTimer -= Time.deltaTime;
-            if (this._randomSpeechBubbleTimer <= 0.0f)
-            {
-                if (_scrollArea)
-                {
-                    var speechBubble = GameObject.Instantiate(Resources.Load("Profile/SpeechBubble") as GameObject);
-                    speechBubble.transform.parent = this._scrollArea.transform;
-                    speechBubble.transform.localPosition = new Vector3(-0.3f, -1.2f, -3.0f);
-                    this._randomSpeechBubbleTimer = UnityEngine.Random.Range(15.0f, 25.0f);
-                }
-            }
-        }
-        if (this._checkingPhoneTimer > 0.0f && !this._editScreen)
-        {
-            this._checkingPhoneTimer -= Time.deltaTime;
-            if (this._checkingPhoneTimer <= 0.0f)
-            {
-                if (this._currentAvatar)
-                {
-                    this._currentAvatar.GetComponent<Animator>().Play("CheckingPhone");
-                    this._checkingPhoneTimer = UnityEngine.Random.Range(10.0f, 20.0f);
-                }
-            }
-        }
-        if (this._cleaningUpTimer > 0.0f && this._scrollArea != null)
-        {   // If scroll area is null, the screen is disabled or deleted
-            this._cleaningUpTimer -= Time.deltaTime;
-
-            var cleanText = this._scrollArea.transform.Find("CleanText");
-            if (this._cleaningUpTimer <= 0.0f)
-            {
-                if (this._characterSerializer.CleanUpTime > DateTime.Now)
-                {
-                    var timeTillClean = this._characterSerializer.CleanUpTime - DateTime.Now;
-                    var formattedTime = timeTillClean.ToString(@"mm\:ss");
-
-                    cleanText.gameObject.SetActive(true);
-                    cleanText.GetComponent<TextMeshPro>().text = String.Format("Clean in {0}", formattedTime);
-
-                    this._cleaningUpTimer = 1.0f;
-                }
-                else
-                {
-                    cleanText.gameObject.SetActive(false);
-                    this._characterSerializer.Smelly = false;
-                }
-            }
-        }
+        this.TickGoals();
+        this.TickRandomSpeech();
+        this.TickCheckingPhone();
+        this.TickCleaningUp();
     }
 
     public void FinishedCreatingPicture(DelayGramPost post)
@@ -169,27 +103,46 @@ public class ProfileScreenController : MonoBehaviour
         }
         if (this._editScreen)
         {
+            if (!this._userSerializer.CreatedCharacter
+                && !this._createdName
+                && colliderName != "ChooseNameTextBox")
+            {
+                return;
+            }
             switch (colliderName)
             {
                 case "ChooseNameTextBox":
                     this._chooseNameBox.SetActive(true);
-                    var chooseNameText = this._chooseNameBox.transform.Find("TextInput");
-                    chooseNameText.GetComponent<TMP_InputField>().text = this._userSerializer.PlayerName;
+                    this._editScreen.transform.Find("TutorialNamePopup").gameObject.SetActive(false);
+                    if (this._createdName)
+                    {
+                        this._chooseNameText.GetComponent<TMP_InputField>().text = this._userSerializer.PlayerName;
+                    }
+                    else
+                    {
+                        this.NameRandomizeClicked();
+                        this._createdName = true;
+                    }
                     break;
                 case "BackButton":
                     this.ResetCharacterProperties();
                     this.DestroyEditScreen();
                     break;
                 case "DoneButton":
+                    if (!this._userSerializer.CreatedCharacter)
+                    {
+                        if (!this._createdName)
+                        {
+                            // Show a 'Please enter a username' prompt
+                            return;
+                        }
+                        this._userSerializer.CreatedCharacter = true;
+                        this._tutorialController.ShowGoToPostScreenPopup();
+                    }
                     this._editScreen.GetComponent<CharacterEditor>().FinalizeCharacter();
                     this.DestroyEditScreen();
                     this._randomSpeechBubbleTimer = UnityEngine.Random.Range(15.0f, 25.0f);
                     this._checkingPhoneTimer = UnityEngine.Random.Range(10.0f, 20.0f);
-                    if (!this._userSerializer.CreatedCharacter)
-                    {
-                        this._userSerializer.CreatedCharacter = true;
-                        this._tutorialController.ShowGoToPostScreenPopup();
-                    }
                     break;
                 default:
                     this._editScreen.GetComponent<CharacterEditor>().HandleClick(colliderName);
@@ -263,12 +216,10 @@ public class ProfileScreenController : MonoBehaviour
             {
                 if (this._characterSerializer.CleaningUp)
                 {
-                    Debug.Log("First block");
                     this._characterSerializer.Smelly = false;
                 }
                 else
                 {
-                    Debug.Log("Second block");
                     var cleanButton = this._scrollArea.transform.Find("CleanButton");
                     cleanButton.gameObject.SetActive(true);
                 }
@@ -336,10 +287,19 @@ public class ProfileScreenController : MonoBehaviour
         this.SetAvatar(this._editScreen);
         this._page.SetActive(false);
 
-        var backButton = this._editScreen.transform.Find("BackButton");
+        var buttons = this._editScreen.transform.Find("Buttons");
+        var backButton = buttons.transform.Find("BackButton");
         backButton.gameObject.SetActive(backButtonEnabled);
 
-        UpdateText(this._editScreen.transform.Find("ChooseNameTextBox").Find("NameText").gameObject);
+        if (this._userSerializer.CreatedCharacter)
+        {
+            UpdateText(this._editScreen.transform.Find("ChooseNameTextBox").Find("NameText").gameObject);
+        }
+        else
+        {
+            this._editScreen.transform.Find("TutorialNamePopup").gameObject.SetActive(true);
+            this._editScreen.transform.Find("ChooseNameTextBox").Find("NameText").GetComponent<TextMeshPro>().text = "";
+        }
 
         this._previousCharacterProperties = new CharacterProperties(this._characterSerializer.CurrentCharacterProperties);
     }
@@ -347,6 +307,84 @@ public class ProfileScreenController : MonoBehaviour
     public void LevelUp()
     {
         this._levelingController.LevelUp();
+    }
+
+    private void TickGoals()
+    {
+        if (this._tickGoalTimer > 0.0f)
+        {
+            this._tickGoalTimer -= Time.deltaTime;
+            if (this._tickGoalTimer <= 0.0f)
+            {
+                if (this._goalsController.ChangeInWaitingGoals())
+                {
+                    this.SetupGoalSection();
+                }
+                else
+                {
+                    this.UpdateGoalTime();
+                }
+            }
+        }
+    }
+    private void TickRandomSpeech()
+    {
+        if (this._randomSpeechBubbleTimer > 0.0f && !this._editScreen)
+        {
+            this._randomSpeechBubbleTimer -= Time.deltaTime;
+            if (this._randomSpeechBubbleTimer <= 0.0f)
+            {
+                if (_scrollArea)
+                {
+                    var speechBubble = GameObject.Instantiate(Resources.Load("Profile/SpeechBubble") as GameObject);
+                    speechBubble.transform.parent = this._scrollArea.transform;
+                    speechBubble.transform.localPosition = new Vector3(-0.3f, -1.2f, -3.0f);
+                    this._randomSpeechBubbleTimer = UnityEngine.Random.Range(15.0f, 25.0f);
+                }
+            }
+        }
+    }
+    private void TickCheckingPhone()
+    {
+        if (this._checkingPhoneTimer > 0.0f && !this._editScreen)
+        {
+            this._checkingPhoneTimer -= Time.deltaTime;
+            if (this._checkingPhoneTimer <= 0.0f)
+            {
+                if (this._currentAvatar)
+                {
+                    this._currentAvatar.GetComponent<Animator>().Play("CheckingPhone");
+                    this._checkingPhoneTimer = UnityEngine.Random.Range(10.0f, 20.0f);
+                }
+            }
+        }
+    }
+    private void TickCleaningUp()
+    {
+        if (this._cleaningUpTimer > 0.0f && this._scrollArea != null)
+        {   // If scroll area is null, the screen is disabled or deleted
+            this._cleaningUpTimer -= Time.deltaTime;
+
+            var cleanText = this._scrollArea.transform.Find("CleanText");
+            if (this._cleaningUpTimer <= 0.0f)
+            {
+                if (this._characterSerializer.CleanUpTime > DateTime.Now)
+                {
+                    var timeTillClean = this._characterSerializer.CleanUpTime - DateTime.Now;
+                    var formattedTime = timeTillClean.ToString(@"mm\:ss");
+
+                    cleanText.gameObject.SetActive(true);
+                    cleanText.GetComponent<TextMeshPro>().text = String.Format("Clean in {0}", formattedTime);
+
+                    this._cleaningUpTimer = 1.0f;
+                }
+                else
+                {
+                    cleanText.gameObject.SetActive(false);
+                    this._characterSerializer.Smelly = false;
+                }
+            }
+        }
     }
 
     private void NameExitClicked()

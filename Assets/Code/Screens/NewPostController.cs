@@ -33,6 +33,13 @@ public class NewPostController : MonoBehaviour
     }
     private NewPostState _currentPostState;
 
+    private struct LocationParameters
+    {
+        public Vector3 AvatarLocation;
+        public Vector3 AvatarLocalScale;
+    }
+    private Dictionary<string, LocationParameters> _defaultLocationParameters;
+
     void Start()
     {
         this._userSerializer = UserSerializer.Instance;
@@ -42,6 +49,10 @@ public class NewPostController : MonoBehaviour
         this._postHelper = new PostHelper();
         this._restRequester = new PostRequester();
 
+        this._defaultLocationParameters = new Dictionary<string, LocationParameters>();
+        this.SetupDefaultLocationParameters();
+
+        this.CreatePopup();
         this.Initialize();
     }
 
@@ -51,18 +62,14 @@ public class NewPostController : MonoBehaviour
 
     public bool PopupActive()
     {
-        return this._postPopupWindow;
+        return this._postPopupWindow.activeSelf;
     }
 
-    public void CreatePopup(CreatePostCallBack callBack)
+    public void ShowPopup(CreatePostCallBack callBack)
     {
         this.Initialize();
         this._postCallBack = callBack;
-        this._postPopupWindow = GameObject.Instantiate(Resources.Load("Posts/NewPostPopup") as GameObject);
-        this._postPopupWindow.transform.position = new Vector3(2.0f, 0.55f, 0.0f);
-        this._postPopupWindow.transform.localScale = new Vector3(0.92f, 0.92f, 1.0f);
-
-        this._postPopupWindow.transform.Find("BackButton").gameObject.SetActive(false);
+        this._postPopupWindow.SetActive(true);
 
         var newPost = this._postPopupWindow.transform.Find("NewPost");
         var picture = newPost.transform.Find("Picture");
@@ -78,9 +85,7 @@ public class NewPostController : MonoBehaviour
         }
         this._avatar.SetActive(true);
 
-        this._croppingController = picture.GetComponent<CroppingController>();
-        this._croppingController.OnAvatarMovedDecentDistance.AddListener(this._tutorialController.FinishedMovingTutorial);
-        this._croppingController.OnAvatarResizedAndRotated.AddListener(this._tutorialController.FinishedResizingAndRotatingTutorial);
+        this.EnterBackgroundSelectionStage();
     }
 
     public void HandleClick(string colliderName)
@@ -90,6 +95,10 @@ public class NewPostController : MonoBehaviour
             case "NewPostDoneButton":
                 this.CreateNewPost();
                 this.DestroyPage();
+                break;
+            case "Apartment":
+                this._currentBackground = "Apartment";
+                this.GotoNewState(NewPostState.Cropping);
                 break;
             case "Beach":
                 this._currentBackground = "Beach";
@@ -133,7 +142,7 @@ public class NewPostController : MonoBehaviour
 
     public void DestroyPage()
     {
-        GameObject.Destroy(this._postPopupWindow);
+        this._postPopupWindow.SetActive(false);
     }
 
     public string GetRandomImageID()
@@ -149,6 +158,56 @@ public class NewPostController : MonoBehaviour
         return id;
     }
 
+    /* Private Methods */
+
+    private void CreatePopup()
+    {
+        this._postPopupWindow = GameObject.Instantiate(Resources.Load("Posts/NewPostPopup") as GameObject);
+        this._postPopupWindow.transform.position = new Vector3(2.0f, 0.55f, 0.0f);
+        this._postPopupWindow.transform.localScale = new Vector3(0.92f, 0.92f, 1.0f);
+
+        var newPost = this._postPopupWindow.transform.Find("NewPost");
+        var picture = newPost.transform.Find("Picture");
+        this._croppingController = picture.GetComponent<CroppingController>();
+        this._croppingController.OnAvatarMovedDecentDistance.AddListener(this._tutorialController.FinishedMovingTutorial);
+        this._croppingController.OnAvatarResizedAndRotated.AddListener(this._tutorialController.FinishedResizingAndRotatingTutorial);
+
+        this._postPopupWindow.SetActive(false);
+    }
+
+    private void SetLocationStates(GameObject postPopup)
+    {
+        var beach = postPopup.transform.Find("Beach");
+        var beachUnlocked = this._userSerializer.HasBeachBackground;
+        beach.GetComponent<Collider>().enabled = beachUnlocked;
+        beach.transform.Find("BeachMask").Find("DarkTint").GetComponent<SpriteRenderer>().enabled = !beachUnlocked;
+
+        var city = postPopup.transform.Find("City");
+        var cityUnlocked = this._userSerializer.HasCityBackground;
+        city.GetComponent<Collider>().enabled = cityUnlocked;
+        city.transform.Find("CityMask").Find("DarkTint").GetComponent<SpriteRenderer>().enabled = !cityUnlocked;
+
+        var park = postPopup.transform.Find("Park");
+        var parkUnlocked = this._userSerializer.HasParkBackground;
+        park.GetComponent<Collider>().enabled = parkUnlocked;
+        park.transform.Find("ParkMask").Find("DarkTint").GetComponent<SpriteRenderer>().enabled = !parkUnlocked;
+
+        var louvre = postPopup.transform.Find("Louvre");
+        var louvreUnlocked = this._userSerializer.HasLouvreBackground;
+        louvre.GetComponent<Collider>().enabled = louvreUnlocked;
+        louvre.transform.Find("LouvreMask").Find("DarkTint").GetComponent<SpriteRenderer>().enabled = !louvreUnlocked;
+
+        var camRoom = postPopup.transform.Find("CamRoom");
+        var camRoomUnlocked = this._userSerializer.HasCamRoomBackground;
+        camRoom.GetComponent<Collider>().enabled = camRoomUnlocked;
+        camRoom.transform.Find("CamRoomMask").Find("DarkTint").GetComponent<SpriteRenderer>().enabled = !camRoomUnlocked;
+
+        var yacht = postPopup.transform.Find("Yacht");
+        var yachtUnlocked = this._userSerializer.HasYachtBackground;
+        yacht.GetComponent<Collider>().enabled = yachtUnlocked;
+        yacht.transform.Find("YachtMask").Find("DarkTint").GetComponent<SpriteRenderer>().enabled = !yachtUnlocked;
+    }
+
     private void Initialize()
     {
         this._currentPostState = NewPostState.BackgroundSelection;
@@ -156,36 +215,36 @@ public class NewPostController : MonoBehaviour
         this._itemObjects = new List<GameObject>();
     }
 
-    private List<GameObject> SetupItemsInPost(GameObject pictureObject)
+    private List<GameObject> SetupItemsInPost(GameObject picture, GameObject itemsParent)
     {
         if (this._userSerializer.HasBulldog)
         {
             var bulldog = new PictureItem();
             bulldog.name = "Bulldog";
-            bulldog.location = new SerializableVector3(new Vector3(1.2f, -0.5f, 0.0f));
+            bulldog.location = new SerializableVector3(new Vector3(0.69f, -0.41f, 0.0f));
             bulldog.rotation = 0;
-            bulldog.scale = 0.45f;
+            bulldog.scale = (itemsParent.name == "YachtBoat") ? 1f : 0.38f;
             this._items.Add(bulldog);
         }
         if (this._userSerializer.HasCat)
         {
             var cat = new PictureItem();
             cat.name = "Cat";
-            cat.location = new SerializableVector3(new Vector3(1.2f, -0.5f, 0.0f));
+            cat.location = new SerializableVector3(new Vector3(0.66f, -0.7f, 0.0f));
             cat.rotation = 0;
-            cat.scale = 0.45f;
+            cat.scale = (itemsParent.name == "YachtBoat") ? 1f : 0.37f;
             this._items.Add(cat);
         }
         if (this._userSerializer.HasDrone)
         {
             var drone = new PictureItem();
             drone.name = "D-Rone";
-            drone.location = new SerializableVector3(new Vector3(0.0f, 0.245f, 0.0f));
+            drone.location = new SerializableVector3(new Vector3(1.14f, -0.65f, 0.0f));
             drone.rotation = 0;
-            drone.scale = 0.34f;
+            drone.scale = (itemsParent.name == "YachtBoat") ? 0.9f : 0.32f;
             this._items.Add(drone);
         }
-        var itemObjects = this._postHelper.PopulatePostWithItems(pictureObject, this._items);
+        var itemObjects = this._postHelper.PopulatePostWithItems(picture, itemsParent, this._items);
         foreach (var item in itemObjects)
         {
             var components = item.GetComponentsInChildren<SpriteRenderer>(true);
@@ -210,7 +269,7 @@ public class NewPostController : MonoBehaviour
                 break;
             case NewPostState.Cropping:
                 this.DestroyPage();
-                this.CreatePopup(this._postCallBack);
+                this.ShowPopup(this._postCallBack);
                 this.GotoNewState(NewPostState.BackgroundSelection);
                 break;
         }
@@ -230,9 +289,38 @@ public class NewPostController : MonoBehaviour
         this._currentPostState = newState;
     }
 
+    private void EnterBackgroundSelectionStage()
+    {
+        this.SetLocationStates(this._postPopupWindow);
+
+        this._postPopupWindow.transform.Find("BackButton").gameObject.SetActive(false);
+        this._postPopupWindow.transform.Find("Apartment").gameObject.SetActive(true);
+        this._postPopupWindow.transform.Find("Beach").gameObject.SetActive(true);
+        this._postPopupWindow.transform.Find("City").gameObject.SetActive(true);
+        this._postPopupWindow.transform.Find("Louvre").gameObject.SetActive(true);
+        this._postPopupWindow.transform.Find("Park").gameObject.SetActive(true);
+        this._postPopupWindow.transform.Find("CamRoom").gameObject.SetActive(true);
+        this._postPopupWindow.transform.Find("Yacht").gameObject.SetActive(true);
+        this._postPopupWindow.transform.Find("ChooseText").GetComponent<TextMeshPro>().text = "Choose a Location";
+        this._postPopupWindow.transform.Find("NewPostDoneButton").gameObject.SetActive(false);
+        this._postPopupWindow.transform.Find("ChooseFriendSection").gameObject.SetActive(false);
+
+        var post = this._postPopupWindow.transform.Find("NewPost");
+        post.gameObject.SetActive(false);
+        var picture = post.transform.Find("Picture");
+        picture.Find("ApartmentBackground").gameObject.SetActive(false);
+        picture.Find("BeachBackground").gameObject.SetActive(false);
+        picture.Find("CityBackground").gameObject.SetActive(false);
+        picture.Find("LouvreBackground").gameObject.SetActive(false);
+        picture.Find("ParkBackground").gameObject.SetActive(false);
+        picture.Find("CamRoomBackground").gameObject.SetActive(false);
+        picture.Find("YachtBackground").gameObject.SetActive(false);
+    }
+
     private void EnterCroppingStage()
     {
         this._postPopupWindow.transform.Find("BackButton").gameObject.SetActive(true);
+        this._postPopupWindow.transform.Find("Apartment").gameObject.SetActive(false);
         this._postPopupWindow.transform.Find("Beach").gameObject.SetActive(false);
         this._postPopupWindow.transform.Find("City").gameObject.SetActive(false);
         this._postPopupWindow.transform.Find("Louvre").gameObject.SetActive(false);
@@ -243,6 +331,9 @@ public class NewPostController : MonoBehaviour
             = "Edit your photo:";
         this._postPopupWindow.transform.Find("NewPostDoneButton").gameObject.SetActive(true);
 
+        var friendsSection = this._postPopupWindow.transform.Find("ChooseFriendSection");
+        var followedIdsLength = this._userSerializer.GetFollowedIds().Count;
+        friendsSection.gameObject.SetActive(followedIdsLength > 0);
 
         var post = this._postPopupWindow.transform.Find("NewPost");
         post.gameObject.SetActive(true);
@@ -250,23 +341,26 @@ public class NewPostController : MonoBehaviour
         var itemsParent = picture.gameObject;
         switch (this._currentBackground)
         {
+            case "Apartment":
+                picture.Find("ApartmentBackground").gameObject.SetActive(true);
+                break;
             case "Beach":
-                picture.transform.Find("BeachBackground").gameObject.SetActive(true);
+                picture.Find("BeachBackground").gameObject.SetActive(true);
                 break;
             case "City":
-                picture.transform.Find("CityBackground").gameObject.SetActive(true);
+                picture.Find("CityBackground").gameObject.SetActive(true);
                 break;
             case "Louvre":
-                picture.transform.Find("LouvreBackground").gameObject.SetActive(true);
+                picture.Find("LouvreBackground").gameObject.SetActive(true);
                 break;
             case "Park":
-                picture.transform.Find("ParkBackground").gameObject.SetActive(true);
+                picture.Find("ParkBackground").gameObject.SetActive(true);
                 break;
             case "CamRoom":
-                picture.transform.Find("CamRoomBackground").gameObject.SetActive(true);
+                picture.Find("CamRoomBackground").gameObject.SetActive(true);
                 break;
             case "Yacht":
-                var yachtBackground = picture.transform.Find("YachtBackground");
+                var yachtBackground = picture.Find("YachtBackground");
                 if (yachtBackground)
                 {
                     yachtBackground.gameObject.SetActive(true);
@@ -275,14 +369,25 @@ public class NewPostController : MonoBehaviour
                 break;
         }
 
-        this._itemObjects = this.SetupItemsInPost(itemsParent);
+        this._itemObjects = this.SetupItemsInPost(picture.gameObject, itemsParent);
         var movableObjects = new List<GameObject>(this._itemObjects);
         movableObjects.Add(this._avatar);
         this._croppingController.SetMovableItems(movableObjects);
+        this.SetAvatarToDefault(this._currentBackground);
 
         if (!this._userSerializer.PostedPhoto)
         {
             this._tutorialController.ShowMovingTutorialAtPostScreen(this._postPopupWindow);
+        }
+    }
+
+    private void SetAvatarToDefault(string locationName)
+    {
+        if (this._defaultLocationParameters.ContainsKey(locationName))
+        {
+            var currentParameters = this._defaultLocationParameters[locationName];
+            this._avatar.transform.localPosition = currentParameters.AvatarLocation;
+            this._avatar.transform.localScale = currentParameters.AvatarLocalScale;
         }
     }
 
@@ -328,5 +433,51 @@ public class NewPostController : MonoBehaviour
 
         this._userSerializer.SerializePost(newPost);
         return newPost;
+    }
+
+
+    private void SetupDefaultLocationParameters()
+    {
+        var apartmentParameters = new LocationParameters();
+        apartmentParameters.AvatarLocation = new Vector3(-1.43f, -0.35f, 0f);
+        apartmentParameters.AvatarLocalScale = new Vector3(0.36f, 0.36f, 1.0f);
+        this._defaultLocationParameters.Add(
+            "Apartment",
+            apartmentParameters);
+
+        var cityParameters = new LocationParameters();
+        cityParameters.AvatarLocation = new Vector3(-1.43f, -0.39f, 0f);
+        cityParameters.AvatarLocalScale = new Vector3(0.26f, 0.26f, 1.0f);
+        this._defaultLocationParameters.Add(
+            "City",
+            cityParameters);
+
+        var parkParameters = new LocationParameters();
+        parkParameters.AvatarLocation = new Vector3(-0.56f, -0.11f, 0f);
+        parkParameters.AvatarLocalScale = new Vector3(0.33f, 0.33f, 1.0f);
+        this._defaultLocationParameters.Add(
+            "Park",
+            parkParameters);
+
+        var louvreParameters = new LocationParameters();
+        louvreParameters.AvatarLocation = new Vector3(-1.38f, -0.56f, 0f);
+        louvreParameters.AvatarLocalScale = new Vector3(0.42f, 0.42f, 1.0f);
+        this._defaultLocationParameters.Add(
+            "Louvre",
+            louvreParameters);
+
+        var yachtParameters = new LocationParameters();
+        yachtParameters.AvatarLocation = new Vector3(-1.54f, 0.18f, 0f);
+        yachtParameters.AvatarLocalScale = new Vector3(0.38f, 0.38f, 1.0f);
+        this._defaultLocationParameters.Add(
+            "Yacht",
+            yachtParameters);
+
+        var camRoomParameters = new LocationParameters();
+        camRoomParameters.AvatarLocation = new Vector3(-1.44f, -0.43f, 0f);
+        camRoomParameters.AvatarLocalScale = new Vector3(0.44f, 0.44f, 1.0f);
+        this._defaultLocationParameters.Add(
+            "CamRoom",
+            camRoomParameters);
     }
 }

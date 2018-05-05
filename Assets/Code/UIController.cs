@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -58,6 +59,12 @@ public class UIController : MonoBehaviour {
 
     [SerializeField]
     private Button _notificationButton;
+    [SerializeField]
+    private TextMeshProUGUI _notificationText;
+    [SerializeField]
+    private Image _notificationHeartIcon;
+    [SerializeField]
+    private GameObject _notificationAnimation;
 
     private UserSerializer _userSerializer;
     private CharacterSerializer _characterSerializer;
@@ -112,6 +119,11 @@ public class UIController : MonoBehaviour {
         this._ratingController = GetComponent<RatingScreenController>();
         this._worldController = GetComponent<WorldScreenController>();
         this._notificationController = GetComponent<NotificationScreenController>();
+        this._notificationController.NewNotificationsPulled.AddListener(this.UpdateNotificationCount);
+        if (this._userSerializer.PostedPhoto)
+        {
+            this._notificationController.StartGatheringNotifications();
+        }
 
         this._ioController = GetComponent<IOController>();
         this._tutorialController = GetComponent<TutorialScreenController>();
@@ -286,6 +298,33 @@ public class UIController : MonoBehaviour {
         }
     }
 
+    private void UpdateNotificationCount(int newCount)
+    {
+        if (newCount > 0)
+        {
+            var oldCount = Int32.Parse(this._notificationText.text);
+            if (oldCount != newCount)
+            {
+                this._notificationAnimation.GetComponent<Animator>().Play("Moving");
+                StartCoroutine(this.UpdateNotificationColorAfterAnimation(newCount));
+            }
+        }
+        else
+        {
+            this._notificationText.color = new Color(131f / 255f, 126f / 255f, 48f / 255f);
+            this._notificationHeartIcon.color = new Color(131f / 255f, 126f / 255f, 48f / 255f);
+            this._notificationText.text = newCount.ToString();
+        }
+    }
+
+    IEnumerator UpdateNotificationColorAfterAnimation(int newCount)
+    {
+        yield return new WaitForSeconds(1.4f); // animation["throw"].length);
+        this._notificationText.color = new Color(237f / 255f, 30f / 255f, 121f / 255f);
+        this._notificationHeartIcon.color = new Color(237f / 255f, 30f / 255f, 121f / 255f);
+        this._notificationText.text = newCount.ToString();
+    }
+
     private void CreateAvatarTransitionPopup(CharacterProperties previousCharacterProperties)
     {
         this._avatarTransitionPopup = GameObject.Instantiate(Resources.Load("UI/AvatarTransitionPopup") as GameObject);
@@ -382,7 +421,7 @@ public class UIController : MonoBehaviour {
         if (this._currentPage != Page.Post)
         {
             DestroyPage(this._currentPage);
-            this._newPostController.CreatePopup(this.FinishedCreatingPicture);
+            this._newPostController.ShowPopup(this.FinishedCreatingPicture);
             this._currentPage = Page.Post;
         }
     }
@@ -444,8 +483,8 @@ public class UIController : MonoBehaviour {
     }
     private void GenerateNotificationsPage()
     {
-        // Even if we are currently in messages, destroy and refresh inbox
         DestroyPage(this._currentPage);
+        this.UpdateNotificationCount(0);
         this._notificationController.EnterScreen();
         this._currentPage = Page.Notifications;
     }

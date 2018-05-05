@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using UnityEngine.Analytics;
 
 public class UserSerializer
 {
@@ -81,6 +82,11 @@ public class UserSerializer
         {
             this._currentSave.storyProperties.createdCharacter = value;
             this.SaveFile();
+
+            if (value == true)
+            {
+                AnalyticsEvent.TutorialStep(1);
+            }
         }
     }
     public bool PostedPhoto
@@ -89,7 +95,18 @@ public class UserSerializer
         set
         {
             this._currentSave.storyProperties.postedPhoto = value;
+            this._currentSave.storyProperties.hasBeachBackground = true;
+            this._currentSave.storyProperties.hasCityBackground= true;
+            this._currentSave.storyProperties.hasParkBackground = true;
+            this._currentSave.storyProperties.hasLouvreBackground = true;
+            this._currentSave.storyProperties.hasCamRoomBackground = true;
+            this._currentSave.storyProperties.hasYachtBackground = true;
             this.SaveFile();
+
+            if (value == true)
+            {
+                AnalyticsEvent.TutorialStep(2);
+            }
         }
     }
     public bool CompletedTutorial
@@ -99,6 +116,11 @@ public class UserSerializer
         {
             this._currentSave.storyProperties.completedTutorial = value;
             this.SaveFile();
+
+            if (value == true)
+            {
+                AnalyticsEvent.TutorialComplete();
+            }
         }
     }
 
@@ -228,6 +250,15 @@ public class UserSerializer
         }
         return returnList;
     }
+    public List<string> GetFollowedIds()
+    {
+        List<string> returnList = new List<string>();
+        if (this._currentSave.followedIds != null)
+        {
+            returnList = this._currentSave.followedIds;
+        }
+        return returnList;
+    }
 
     public void SerializePost(DelayGramPost newPost)
     {
@@ -293,6 +324,8 @@ public class UserSerializer
                 this._currentSave = (UserSaveVariables)bf.Deserialize(file);
                 Debug.Log("Save game loaded from " + this._savePath);
                 fileLoaded = true;
+
+                AnalyticsEvent.Custom("Loaded game");
             }
 
             file.Close();
@@ -311,19 +344,25 @@ public class UserSerializer
             this._currentSave.storyProperties.createdCharacter = false;
             this._currentSave.storyProperties.postedPhoto = false;
             this._currentSave.storyProperties.completedTutorial = false;
+
             this._currentSave.storyProperties.hasBulldog = false;
             this._currentSave.storyProperties.hasCat = false;
             this._currentSave.storyProperties.hasDrone = false;
+
             this._currentSave.storyProperties.hasBeachBackground = false;
             this._currentSave.storyProperties.hasCityBackground = false;
             this._currentSave.storyProperties.hasParkBackground = false;
+            this._currentSave.storyProperties.hasCamRoomBackground = false;
             this._currentSave.storyProperties.hasLouvreBackground = false;
             this._currentSave.storyProperties.hasYachtBackground = false;
 
             this._currentSave.posts = new List<DelayGramPost>();
             this._currentSave.notifications = new List<DelayGramNotification>();
+            this._currentSave.followedIds = new List<string>();
             this._currentSave.nextPostTime = DateTime.Now;
             this.SaveFile();
+
+            AnalyticsEvent.TutorialStart();
         }
 
         return fileLoaded;
@@ -399,5 +438,6 @@ class UserSaveVariables
 
     public List<DelayGramPost> posts;
     public List<DelayGramNotification> notifications;
+    public List<string> followedIds;
     public DateTime nextPostTime;
 }

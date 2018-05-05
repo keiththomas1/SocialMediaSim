@@ -29,7 +29,7 @@ public class NotificationSerializer
         this._savePath = Application.persistentDataPath + "/NotificationInfo.dat";
     }
 
-    public List<NotificationModelJsonReceive> Notifications
+    public List<Tuple<NotificationModelJsonReceive, bool>> Notifications
     {
         get { return this._currentSave.notifications; }
         set
@@ -38,9 +38,37 @@ public class NotificationSerializer
             this.SaveGame();
         }
     }
-    public void AddNotification(NotificationModelJsonReceive newNotification)
+    public void AddNotification(NotificationModelJsonReceive newNotification, bool viewed)
     {
-        this._currentSave.notifications.Add(newNotification);
+        this._currentSave.notifications.Add(
+            new Tuple<NotificationModelJsonReceive, bool>(newNotification, viewed));
+    }
+    public void SetNotificationsViewed(List<Tuple<NotificationModelJsonReceive, bool>> viewedNotifications)
+    {
+        var currentNotifications = this.Notifications;
+        for (int i=0; i < currentNotifications.Count; i++)
+        {
+            if (viewedNotifications.Contains(currentNotifications[i]))
+            {
+                currentNotifications[i] =
+                    new Tuple<NotificationModelJsonReceive, bool>(
+                        currentNotifications[i].Item1,
+                        true);
+            }
+        }
+        this.Notifications = currentNotifications;
+    }
+    public int GetNewNotificationCount()
+    {
+        var newCount = 0;
+        foreach(var notification in this.Notifications)
+        {
+            if (notification.Item2 == false)
+            {
+                newCount++;
+            }
+        }
+        return newCount;
     }
 
     public void SaveGame()
@@ -58,7 +86,7 @@ public class NotificationSerializer
             BinaryFormatter bf = new BinaryFormatter();
             this._currentSave.lastUpdate = DateTime.Now;
             bf.Serialize(file, this._currentSave);
-            Debug.Log("Saved messages file");
+            Debug.Log("Saved notifications file");
         }
         else
         {
@@ -95,7 +123,7 @@ public class NotificationSerializer
         {
             this._currentSave = new NotificationSaveVariables();
             this._currentSave.lastUpdate = DateTime.Now;
-            this._currentSave.notifications = new List<NotificationModelJsonReceive>();
+            this._currentSave.notifications = new List<Tuple<NotificationModelJsonReceive, bool>>();
             this.SaveGame();
         }
 
@@ -108,5 +136,5 @@ public class NotificationSerializer
 public struct NotificationSaveVariables
 {
     public DateTime lastUpdate;
-    public List<NotificationModelJsonReceive> notifications;
+    public List<Tuple<NotificationModelJsonReceive, bool>> notifications;
 }

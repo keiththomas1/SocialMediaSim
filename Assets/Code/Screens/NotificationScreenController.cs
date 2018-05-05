@@ -3,9 +3,16 @@ using TMPro;
 using UnityEngine;
 using DG.Tweening;
 using System;
+using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class NotificationScreenController : MonoBehaviour
 {
+    public class NotificationEvent : UnityEvent<int>
+    {
+    }
+    public NotificationEvent NewNotificationsPulled = new NotificationEvent();
+
     [SerializeField]
     private GameObject _notificationPopup;
     private Transform _notificationPanel;
@@ -14,6 +21,9 @@ public class NotificationScreenController : MonoBehaviour
     private NotificationSerializer _notificationSerializer;
     private NotificationRequester _notificationRequester;
     private PostHelper _postHelper;
+
+    private const float PullFrequencyInSeconds = 30.0f;
+    private float _pullTimer = 0.0f;
 
     // Use this for initialization
     void Start()
@@ -29,6 +39,15 @@ public class NotificationScreenController : MonoBehaviour
 
     void Update()
     {
+        if (this._pullTimer > 0.0f)
+        {
+            this._pullTimer -= Time.deltaTime;
+            if (this._pullTimer <= 0.0f)
+            {
+                this.PullNotificationsAndSendEvent();
+                this._pullTimer = PullFrequencyInSeconds;
+            }
+        }
     }
 
     public void HandleClick(string colliderName)
@@ -43,16 +62,12 @@ public class NotificationScreenController : MonoBehaviour
     public void EnterScreen()
     {
         this._notificationPopup.SetActive(true);
+        this.PopulatePopupWithNotifications();
+    }
 
-        this._notificationRequester.RequestAllNotificationsForUser(
-            this._userSerializer.PlayerId,
-            (NotificationArrayJson notifications, bool success) => {
-                if (success)
-                {
-                    this.PopulatePopupWithNotifications();
-                }
-            }
-        );
+    public void StartGatheringNotifications()
+    {
+        this._pullTimer = 1.0f;
     }
 
     public bool BackOut()
@@ -65,6 +80,17 @@ public class NotificationScreenController : MonoBehaviour
         this._notificationPopup.SetActive(false);
     }
 
+    private async void PullNotificationsAndSendEvent()
+    {
+        await this._notificationRequester.RequestAllNotificationsForUser(
+            this._userSerializer.PlayerId,
+            (NotificationArrayJson notifications, bool success) => {
+                var newCount = this._notificationSerializer.GetNewNotificationCount();
+                this.NewNotificationsPulled.Invoke(newCount);
+            }
+        );
+    }
+
     private void PopulatePopupWithNotifications()
     {
         // Destroy all of the old notifications
@@ -73,15 +99,20 @@ public class NotificationScreenController : MonoBehaviour
             GameObject.Destroy(child.gameObject);
         }
 
-        var notifications = this._notificationSerializer.Notifications;
+        var notificationPairs = this._notificationSerializer.Notifications;
         // Sort the notifications by timestamp
-        foreach(var notification in notifications)
+        for(int i = (notificationPairs.Count - 1); i>=0; i--)
         {
+            var notification = notificationPairs[i].Item1;
             if (notification.liked)
             {
                 var notificationObject = GameObject.Instantiate(Resources.Load("UI/NotificationMessage") as GameObject);
                 notificationObject.transform.SetParent(this._notificationPanel.transform);
                 notificationObject.transform.localScale = new Vector3(1f, 1f, 1f);
+                if (notificationPairs[i].Item2 == false)
+                {
+                    notificationObject.GetComponent<Image>().color = new Color(94f / 255f, 255f / 255f, 188f / 255f, 116f / 255f);
+                }
 
                 var nameText = notificationObject.transform.Find("NameText");
                 nameText.GetComponent<TextMeshProUGUI>().text = notification.otherUserId;
@@ -94,7 +125,6 @@ public class NotificationScreenController : MonoBehaviour
                 var post = this._userSerializer.FindPost(notification.pictureId);
                 if (post != null)
                 {
-                    Debug.Log("Found id .. trying to setup post");
                     var newPost = notificationObject.transform.Find("NewPost");
                     this._postHelper.SetPostDetails(newPost.gameObject, post, false, true);
                     this._postHelper.PopulatePostFromData(newPost.gameObject, post);
@@ -105,5 +135,6 @@ public class NotificationScreenController : MonoBehaviour
                 }
             }
         }
+        this._notificationSerializer.SetNotificationsViewed(notificationPairs);
     }
 }

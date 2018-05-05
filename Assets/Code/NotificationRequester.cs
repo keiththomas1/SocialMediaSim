@@ -39,12 +39,12 @@ public class NotificationRequester
         this._notificationSerializer = NotificationSerializer.Instance;
     }
 
-    public void RequestAllNotificationsForUser(string userId, GetNotificationsCallback finishCallback)
+    public async Task<NotificationArrayJson> RequestAllNotificationsForUser(string userId, GetNotificationsCallback finishCallback)
     {
         var route = String.Format(@"{0}/notifications/{1}", SERVER_URL, userId);
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(route);
 
-        this.MakeNotificationRequest(request, finishCallback);
+        return await this.MakeNotificationRequest(request, finishCallback);
     }
 
     private async Task<NotificationArrayJson> MakeNotificationRequest(HttpWebRequest request, GetNotificationsCallback finishCallback)
@@ -60,6 +60,7 @@ public class NotificationRequester
                 Debug.Log("Bad/No response from server? Exception making web request:" + exception.ToString());
             }
         });
+
         try
         {
             await Task.Run(sendRequest);
@@ -85,12 +86,18 @@ public class NotificationRequester
                 }
                 else
                 {
-                    // Add notifications to the save file
-                    foreach (var notification in notifications.notificationModels)
+                    if (notifications.notificationModels.Length > 0)
                     {
-                        this._notificationSerializer.AddNotification(notification);
+                        // Add notifications to the save file
+                        foreach (var notification in notifications.notificationModels)
+                        {
+                            if (notification.liked) // For now we aren't showing dislike notifications
+                            {
+                                this._notificationSerializer.AddNotification(notification, false);
+                            }
+                        }
+                        this._notificationSerializer.SaveGame();
                     }
-                    this._notificationSerializer.SaveGame();
                 }
 
                 finishCallback(notifications, true);
