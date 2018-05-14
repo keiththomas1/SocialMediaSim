@@ -148,12 +148,12 @@ public class WorldScreenController : MonoBehaviour {
 
         if (characterProperties.gender == Gender.Female)
         {
-            femaleAvatar.GetComponent<CharacterCustomization>().SetCharacterLook(characterProperties);
+            femaleAvatar.GetComponent<AvatarController>().SetCharacterLook(characterProperties);
             maleAvatar.gameObject.SetActive(false);
         }
         else
         {
-            maleAvatar.GetComponent<CharacterCustomization>().SetCharacterLook(characterProperties);
+            maleAvatar.GetComponent<AvatarController>().SetCharacterLook(characterProperties);
             femaleAvatar.gameObject.SetActive(false);
         }
 
@@ -344,7 +344,7 @@ public class WorldScreenController : MonoBehaviour {
             return;
         }
 
-        if (!success)
+        if (!success || pictures == null)
         {
             if (this._errorText)
             {

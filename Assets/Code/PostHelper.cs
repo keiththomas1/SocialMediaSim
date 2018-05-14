@@ -91,9 +91,16 @@ public class PostHelper {
                 data.avatarPosition.z);
             avatar.transform.Rotate(0, 0, data.avatarRotation);
             avatar.transform.SetParent(itemsParent.transform, true);
-            avatar.GetComponent<Animator>().Play("Standing", -1, UnityEngine.Random.Range(0.0f, 1.0f));
+            if (data.avatarPoseName != null)
+            {
+                avatar.GetComponent<Animator>().SetBool(data.avatarPoseName, true);
+            }
+            else
+            {
+                avatar.GetComponent<Animator>().Play("Standing", -1, UnityEngine.Random.Range(0.0f, 1.0f));
+            }
 
-            var avatarCustomization = avatar.GetComponent<CharacterCustomization>();
+            var avatarCustomization = avatar.GetComponent<AvatarController>();
             avatarCustomization.SetCharacterLook(data.characterProperties);
         }
 
@@ -166,7 +173,7 @@ public class PostHelper {
             default:
                 break;
         }
-        var avatarCustomization = avatar.GetComponent<CharacterCustomization>();
+        var avatarCustomization = avatar.GetComponent<AvatarController>();
         avatarCustomization.SetCharacterLook(properties);
     }
 
@@ -205,6 +212,15 @@ public class PostHelper {
                 }
 
                 itemObjects.Add(itemObject);
+            }
+            else if (item.name == "ApartmentCarpet")
+            {
+                var apartment = picture.transform.Find("ApartmentBackground");
+                var carpet = apartment.Find("ApartmentCarpet");
+                carpet.GetComponent<SpriteRenderer>().color = new Color(
+                    item.color.red,
+                    item.color.green,
+                    item.color.blue);
             }
         }
         return itemObjects;

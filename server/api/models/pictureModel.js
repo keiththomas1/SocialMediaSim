@@ -8,11 +8,17 @@ let Vector3 = new Schema({
 	y: Number,
 	z: Number
 });
+let Color3 = new Schema({
+	red: Number,
+	green: Number,
+	blue: Number
+});
 let PictureItem = new Schema({
 	name: String,
 	location: Vector3,
 	rotation: Number,
-	scale: Number
+	scale: Number,
+	color: Color3
 });
 
 let PictureSchema = new Schema({

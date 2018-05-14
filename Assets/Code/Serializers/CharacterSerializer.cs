@@ -5,10 +5,18 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using UnityEngine;
 
+public enum LevelUpAttribute
+{
+    Happiness,
+    Fitness,
+    Style,
+    Nothing
+}
+
 public class CharacterSerializer
 {
     private static CharacterSerializer instance;
-    private List<CharacterCustomization> _customizationListeners;
+    private List<AvatarController> _customizationListeners;
     private CharacterSaveVariables _currentSave;
     private string _savePath;
     private bool _fileLoaded;
@@ -27,14 +35,14 @@ public class CharacterSerializer
 
     // Use this for initialization
     private CharacterSerializer() {
-        this._customizationListeners = new List<CharacterCustomization>();
+        this._customizationListeners = new List<AvatarController>();
         this._savePath = Application.persistentDataPath + "/Character.dat";
         this._fileLoaded = false;
 
         this.LoadGame();
     }
 
-    public void SetCharacterCustomization(CharacterCustomization characterCustomization)
+    public void SetCharacterCustomization(AvatarController characterCustomization)
     {
         if (!this._customizationListeners.Contains(characterCustomization))
         {
@@ -225,7 +233,7 @@ public class CharacterSerializer
 
     public void UpdateAllCharacters()
     {
-        foreach (CharacterCustomization character in this._customizationListeners)
+        foreach (AvatarController character in this._customizationListeners)
         {
             if (character)
             {
@@ -382,6 +390,7 @@ public class CharacterProperties
     public CharacterProperties(CharacterProperties other)
     {
         gender = other.gender;
+        birthmark = other.birthmark;
         eyeSprite = other.eyeSprite;
         hairSprite = other.hairSprite;
         skinColor = other.skinColor;

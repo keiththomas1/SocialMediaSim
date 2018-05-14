@@ -38,6 +38,7 @@ let CharacterProperties = new Schema({
 	position: Vector3,
 	rotation: Number,
 	scale: Number,
+	poseName: String,
 	spriteProperties: CharacterSpriteProperties,
 	colorProperties: CharacterColorProperties,
 	levelProperties: CharacterLevelProperties

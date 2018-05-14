@@ -12,18 +12,25 @@ using UnityEngine.Networking;
 [Serializable]
 public struct PictureItem
 {
-    public PictureItem(string _name, SerializableVector3 _location, float _rotation, float _scale)
+    public PictureItem(
+        string _name,
+        SerializableVector3 _location,
+        float _rotation,
+        float _scale,
+        SerializableColor _color)
     {
         name = _name;
         location = _location;
         rotation = _rotation;
         scale = _scale;
+        color = _color;
     }
 
     public string name;
     public SerializableVector3 location;
     public float rotation;
     public float scale;
+    public SerializableColor color;
 }
 
 [Serializable]
@@ -61,6 +68,7 @@ public struct CharacterPropertiesModelJson
     public SerializableVector3 position;
     public float rotation;
     public float scale;
+    public string poseName;
     public SpriteProperties spriteProperties;
     public ColorProperties colorProperties;
     public LevelProperties levelProperties;
@@ -128,6 +136,7 @@ public class PostRequester
         newPicture.characterProperties.position = post.avatarPosition;
         newPicture.characterProperties.rotation = post.avatarRotation;
         newPicture.characterProperties.scale = post.avatarScale;
+        newPicture.characterProperties.poseName = post.avatarPoseName;
 
         newPicture.characterProperties.spriteProperties = new CharacterPropertiesModelJson.SpriteProperties();
         newPicture.characterProperties.spriteProperties.hairSprite = post.characterProperties.hairSprite;
@@ -288,6 +297,7 @@ public class PostRequester
         newPost.avatarPosition = picture.characterProperties.position;
         newPost.avatarRotation = picture.characterProperties.rotation;
         newPost.avatarScale = picture.characterProperties.scale;
+        newPost.avatarPoseName = picture.characterProperties.poseName;
 
         newPost.characterProperties.hairSprite = picture.characterProperties.spriteProperties.hairSprite;
         newPost.characterProperties.eyeSprite = picture.characterProperties.spriteProperties.eyeSprite;

@@ -394,6 +394,7 @@ public class DelayGramPost
     public SerializableVector3 avatarPosition;
     public float avatarRotation;
     public float avatarScale;
+    public string avatarPoseName;
     public CharacterProperties characterProperties;
     public int likes;
     public int dislikes;

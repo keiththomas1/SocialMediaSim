@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using DG.Tweening;
+using TMPro;
 
 public class CroppingController : MonoBehaviour {
     public UnityEvent OnAvatarMovedDecentDistance;
@@ -24,7 +26,17 @@ public class CroppingController : MonoBehaviour {
     private GameObject _bottomLeftArrow;
     private GameObject _bottomRightArrow;
 
-    private float _hangingTimer = 0.0f;
+    private const float HangDelay = 1f;
+    private float _hangingTimer = 0f;
+
+    private List<string> _poseStateNames = new List<string>()
+    {
+        "Standing",
+        "RobotDancing",
+        "WaveDancing"
+    };
+    private int _currentPoseIndex = 0;
+    private Tweener _poseTextFadeTweener = null;
 
     // Use this for initialization
     void Start () {
@@ -141,6 +153,11 @@ public class CroppingController : MonoBehaviour {
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit))
         {
+            if (hit.collider.name == "ApartmentCarpet")
+            {
+                hit.collider.GetComponent<SpriteRenderer>().color =
+                    CharacterRandomization.GetRandomColor();
+            }
             foreach (GameObject movable in this._movableObjects)
             {
                 if (hit.collider.gameObject == movable)
@@ -153,7 +170,7 @@ public class CroppingController : MonoBehaviour {
 
                     if (this._currentObject.GetComponent<Animator>())
                     {
-                        this._hangingTimer = 1.0f;
+                        this._hangingTimer = HangDelay;
                     }
                     else
                     {
@@ -179,41 +196,6 @@ public class CroppingController : MonoBehaviour {
         }
     }
 
-    private void RegisterArrowReferences(GameObject arrowParent)
-    {
-        var components = arrowParent.GetComponentsInChildren<SpriteRenderer>(true);
-        foreach (var component in components)
-        {
-            switch (component.name)
-            {
-                case "LeftArrow":
-                    this._leftArrow = component.gameObject;
-                    break;
-                case "RightArrow":
-                    this._rightArrow = component.gameObject;
-                    break;
-                case "TopArrow":
-                    this._upArrow = component.gameObject;
-                    break;
-                case "BottomArrow":
-                    this._downArrow = component.gameObject;
-                    break;
-                case "TopLeftArrow":
-                    this._topLeftArrow = component.gameObject;
-                    break;
-                case "TopRightArrow":
-                    this._topRightArrow = component.gameObject;
-                    break;
-                case "BottomLeftArrow":
-                    this._bottomLeftArrow = component.gameObject;
-                    break;
-                case "BottomRightArrow":
-                    this._bottomRightArrow = component.gameObject;
-                    break;
-            }
-        }
-    }
-
     private void HandleRelease()
     {
         if (this._currentObject)
@@ -221,9 +203,40 @@ public class CroppingController : MonoBehaviour {
             this._currentlyDragging = false;
             if (this._currentObject.GetComponent<Animator>())
             {
+                // If within a certain threshold, change pose state
+                if (this._hangingTimer > (HangDelay - 0.2f))
+                {
+                    var oldPoseName = this._poseStateNames[this._currentPoseIndex];
+                    this._currentPoseIndex =
+                        ((this._currentPoseIndex + 1) >= this._poseStateNames.Count) ?
+                        0 : this._currentPoseIndex + 1;
+
+                    this._currentObject.GetComponent<Animator>().SetBool(oldPoseName, false);
+
+                    // Set pose text to something and tween a fade out?
+                    var poseTextTransform = this._currentObject.transform.Find("PoseText");
+                    poseTextTransform.gameObject.SetActive(true);
+                    var poseText = poseTextTransform.GetComponent<TextMeshPro>();
+                    poseText.text = string.Format("{0}/{1}",
+                        this._currentPoseIndex + 1,
+                        this._poseStateNames.Count);
+                    if (this._poseTextFadeTweener != null && this._poseTextFadeTweener.IsPlaying())
+                    {
+                        this._poseTextFadeTweener.Kill(false);
+                    }
+                    var currentColor = new Color32(0, 0, 0, 255);
+                    poseText.color = currentColor;
+                    currentColor.a = 0;
+                    this._poseTextFadeTweener = ShortcutExtensionsTextMeshPro
+                        .DOColor(poseText, currentColor, 2f)
+                        .SetEase(Ease.OutQuad);
+                }
+
+                var currentPoseName = this._poseStateNames[this._currentPoseIndex];
+                this._currentObject.GetComponent<Animator>().SetBool(currentPoseName, true);
+
                 this._hangingTimer = 0.0f;
                 this._currentObject.GetComponent<Animator>().SetBool("Hanging", false);
-                this._currentObject.GetComponent<Animator>().SetBool("Standing", true);
             }
             else
             {
@@ -267,6 +280,41 @@ public class CroppingController : MonoBehaviour {
         }
     }
 
+    private void RegisterArrowReferences(GameObject arrowParent)
+    {
+        var components = arrowParent.GetComponentsInChildren<SpriteRenderer>(true);
+        foreach (var component in components)
+        {
+            switch (component.name)
+            {
+                case "LeftArrow":
+                    this._leftArrow = component.gameObject;
+                    break;
+                case "RightArrow":
+                    this._rightArrow = component.gameObject;
+                    break;
+                case "TopArrow":
+                    this._upArrow = component.gameObject;
+                    break;
+                case "BottomArrow":
+                    this._downArrow = component.gameObject;
+                    break;
+                case "TopLeftArrow":
+                    this._topLeftArrow = component.gameObject;
+                    break;
+                case "TopRightArrow":
+                    this._topRightArrow = component.gameObject;
+                    break;
+                case "BottomLeftArrow":
+                    this._bottomLeftArrow = component.gameObject;
+                    break;
+                case "BottomRightArrow":
+                    this._bottomRightArrow = component.gameObject;
+                    break;
+            }
+        }
+    }
+
     private void TickTimers()
     {
         if (this._hangingTimer > 0.0f)
@@ -274,7 +322,9 @@ public class CroppingController : MonoBehaviour {
             this._hangingTimer -= Time.deltaTime;
             if (this._hangingTimer <= 0.0f)
             {
-                this._currentObject.GetComponent<Animator>().SetBool("Standing", false);
+                var currentPoseName = this._poseStateNames[this._currentPoseIndex];
+                this._currentObject.GetComponent<Animator>().SetBool(currentPoseName, false);
+                // this._currentObject.GetComponent<Animator>().SetBool("Standing", false);
                 this._currentObject.GetComponent<Animator>().SetBool("Hanging", true);
             }
         }

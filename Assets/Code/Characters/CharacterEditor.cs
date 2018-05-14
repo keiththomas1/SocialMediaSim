@@ -6,8 +6,8 @@ public class CharacterEditor : MonoBehaviour {
     private CharacterSerializer _characterSerializer;
     private CharacterRandomization _characterRandomization;
 
-    private CharacterCustomization _femaleCustomization;
-    private CharacterCustomization _maleCustomization;
+    private AvatarController _femaleCustomization;
+    private AvatarController _maleCustomization;
 
     private CharacterProperties _currentProperties;
 
@@ -36,8 +36,8 @@ public class CharacterEditor : MonoBehaviour {
         var femaleAvatar = this.transform.Find("FemaleAvatar");
         if (maleAvatar && femaleAvatar)
         {
-            this._maleCustomization = maleAvatar.GetComponent<CharacterCustomization>();
-            this._femaleCustomization = femaleAvatar.GetComponent<CharacterCustomization>();
+            this._maleCustomization = maleAvatar.GetComponent<AvatarController>();
+            this._femaleCustomization = femaleAvatar.GetComponent<AvatarController>();
         }
 
         if (this._colorPickerParent == null)
@@ -160,10 +160,10 @@ public class CharacterEditor : MonoBehaviour {
     {
         this.RandomizeHair();
         this._currentProperties.birthmark = this._characterRandomization.GetRandomBirthMark();
-        this._currentProperties.hairColor = new SerializableColor(this._characterRandomization.GetRandomColor());
-        this._currentProperties.shirtColor = new SerializableColor(this._characterRandomization.GetRandomColor());
+        this._currentProperties.hairColor = new SerializableColor(CharacterRandomization.GetRandomColor());
+        this._currentProperties.shirtColor = new SerializableColor(CharacterRandomization.GetRandomColor());
         this._currentProperties.skinColor = new SerializableColor(this._characterRandomization.GetRandomSkinColor(Color.cyan));
-        this._currentProperties.pantsColor = new SerializableColor(this._characterRandomization.GetRandomColor());
+        this._currentProperties.pantsColor = new SerializableColor(CharacterRandomization.GetRandomColor());
     }
 
     private void EnableColorPicker()

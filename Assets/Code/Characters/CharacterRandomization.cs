@@ -7,7 +7,7 @@ using UnityEngine;
 public class CharacterRandomization {
     private static CharacterRandomization instance;
     private CharacterSerializer _characterSerializer;
-    private CharacterSpriteCollection _spriteCollection;
+    private CharacterResourceCollection _spriteCollection;
     private List<Color> _skinColors;
 
     public static CharacterRandomization Instance
@@ -25,15 +25,16 @@ public class CharacterRandomization {
     private CharacterRandomization()
     {
         this._characterSerializer = CharacterSerializer.Instance;
-        this._spriteCollection = GameObject.Find("CONTROLLER").GetComponent<CharacterSpriteCollection>();
+        this._spriteCollection = GameObject.Find("CONTROLLER").GetComponent<CharacterResourceCollection>();
         this._skinColors = new List<Color>();
         this.LoadSkinColors();
 
         if (!this._characterSerializer.Initialized)
         {
             var newProperties = this.GetFullRandomCharacter();
-            newProperties.happinessLevel = 4;
-            newProperties.fitnessLevel = 4;
+            // TODO: As part of story mode, change happiness and fitness here
+            // newProperties.happinessLevel = 4;
+            // newProperties.fitnessLevel = 4;
             this._characterSerializer.CurrentCharacterProperties = newProperties;
         }
     }
@@ -53,9 +54,9 @@ public class CharacterRandomization {
             newProperties.hairSprite = this.GetRandomFemaleHairSprite();
             newProperties.gender = Gender.Female;
         }
-        newProperties.hairColor = new SerializableColor(this.GetRandomColor());
-        newProperties.shirtColor = new SerializableColor(this.GetRandomColor());
-        newProperties.pantsColor = new SerializableColor(this.GetRandomColor());
+        newProperties.hairColor = new SerializableColor(CharacterRandomization.GetRandomColor());
+        newProperties.shirtColor = new SerializableColor(CharacterRandomization.GetRandomColor());
+        newProperties.pantsColor = new SerializableColor(CharacterRandomization.GetRandomColor());
         newProperties.skinColor = new SerializableColor(this.GetRandomSkinColor(Color.cyan));
         newProperties.birthmark = this.GetRandomBirthMark();
         return newProperties;
@@ -177,7 +178,7 @@ public class CharacterRandomization {
         return randomBirthmark;
     }
 
-    public Color GetRandomColor()
+    public static Color GetRandomColor()
     {
         return new Color(
             UnityEngine.Random.Range(0.0f, 1.0f),

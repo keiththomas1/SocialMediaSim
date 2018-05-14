@@ -21,6 +21,7 @@ public class NewPostController : MonoBehaviour
     private CroppingController _croppingController;
 
     private string _currentBackground;
+    private GameObject _currentBackgroundObject = null;
     private List<PictureItem> _items;
     private List<GameObject> _itemObjects;
 
@@ -38,21 +39,26 @@ public class NewPostController : MonoBehaviour
         public Vector3 AvatarLocation;
         public Vector3 AvatarLocalScale;
     }
-    private Dictionary<string, LocationParameters> _defaultLocationParameters;
+    private Dictionary<string, LocationParameters> _defaultLocationParameters
+        = new Dictionary<string, LocationParameters>();
+
+    private void Awake()
+    {
+        this._tutorialController = this.GetComponent<TutorialScreenController>();
+        this._postHelper = new PostHelper();
+        this._restRequester = new PostRequester();
+
+        this.CreatePopup();
+    }
 
     void Start()
     {
         this._userSerializer = UserSerializer.Instance;
         this.characterSerializer = CharacterSerializer.Instance;
-        this._tutorialController = this.GetComponent<TutorialScreenController>();
         this._messagePost = MessagePost.Instance;
-        this._postHelper = new PostHelper();
-        this._restRequester = new PostRequester();
 
-        this._defaultLocationParameters = new Dictionary<string, LocationParameters>();
         this.SetupDefaultLocationParameters();
 
-        this.CreatePopup();
         this.Initialize();
     }
 
@@ -342,32 +348,29 @@ public class NewPostController : MonoBehaviour
         switch (this._currentBackground)
         {
             case "Apartment":
-                picture.Find("ApartmentBackground").gameObject.SetActive(true);
+                this._currentBackgroundObject = picture.Find("ApartmentBackground").gameObject;
                 break;
             case "Beach":
-                picture.Find("BeachBackground").gameObject.SetActive(true);
+                this._currentBackgroundObject = picture.Find("BeachBackground").gameObject;
                 break;
             case "City":
-                picture.Find("CityBackground").gameObject.SetActive(true);
+                this._currentBackgroundObject = picture.Find("CityBackground").gameObject;
                 break;
             case "Louvre":
-                picture.Find("LouvreBackground").gameObject.SetActive(true);
+                this._currentBackgroundObject = picture.Find("LouvreBackground").gameObject;
                 break;
             case "Park":
-                picture.Find("ParkBackground").gameObject.SetActive(true);
+                this._currentBackgroundObject = picture.Find("ParkBackground").gameObject;
                 break;
             case "CamRoom":
-                picture.Find("CamRoomBackground").gameObject.SetActive(true);
+                this._currentBackgroundObject = picture.Find("CamRoomBackground").gameObject;
                 break;
             case "Yacht":
-                var yachtBackground = picture.Find("YachtBackground");
-                if (yachtBackground)
-                {
-                    yachtBackground.gameObject.SetActive(true);
-                    itemsParent = yachtBackground.Find("YachtBoat").gameObject;
-                }
+                this._currentBackgroundObject = picture.Find("YachtBackground").gameObject;
+                itemsParent = this._currentBackgroundObject.transform.Find("YachtBoat").gameObject;
                 break;
         }
+        this._currentBackgroundObject.SetActive(true);
 
         this._itemObjects = this.SetupItemsInPost(picture.gameObject, itemsParent);
         var movableObjects = new List<GameObject>(this._itemObjects);
@@ -414,6 +417,16 @@ public class NewPostController : MonoBehaviour
         newPost.avatarPosition = new SerializableVector3(this._avatar.transform.localPosition);
         newPost.avatarRotation = this._avatar.transform.localRotation.eulerAngles.z;
         newPost.avatarScale = this._avatar.transform.localScale.x;
+        var animationParameters = this._avatar.GetComponent<Animator>().parameters;
+        foreach (var animationParameter in animationParameters)
+        {
+            var valueSet = this._avatar.GetComponent<Animator>().GetBool(animationParameter.name);
+            if (valueSet)
+            {
+                newPost.avatarPoseName = animationParameter.name;
+                break;
+            }
+        }
         newPost.characterProperties = this.characterSerializer.CurrentCharacterProperties;
         newPost.likes = 0;
         newPost.dislikes = 0;
@@ -427,7 +440,20 @@ public class NewPostController : MonoBehaviour
                     item.name,
                     new SerializableVector3(item.transform.localPosition),
                     item.transform.localRotation.eulerAngles.z,
-                    item.transform.localScale.x));
+                    item.transform.localScale.x,
+                    null));
+        }
+        if (this._currentBackground == "Apartment")
+        {
+            var carpet = this._currentBackgroundObject.transform.Find("ApartmentCarpet");
+            var carpetColor = carpet.GetComponent<SpriteRenderer>().color;
+            var carpetItem = new PictureItem(
+                "ApartmentCarpet",
+                null,
+                0f,
+                0f,
+                new SerializableColor(carpetColor));
+            newItems.Add(carpetItem);
         }
         newPost.items = newItems;
 

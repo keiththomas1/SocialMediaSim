@@ -202,9 +202,58 @@ public class UIController : MonoBehaviour {
     {
         this._levelUpPopup = GameObject.Instantiate(Resources.Load("UI/LevelUpPopup") as GameObject);
         this._levelUpPopup.transform.position = new Vector3(0.0f, -0.06f, -5.0f);
+
+        var happinessLevel = this._characterSerializer.HappinessLevel;
+        var happinessBlock = this._levelUpPopup.transform.Find("HappinessBlock");
+        var happinessLevelText = happinessBlock.Find("LevelText");
+        if (happinessLevel < 5)
+        {
+            happinessLevelText.GetComponent<TextMeshPro>().text = happinessLevel.ToString();
+        }
+        else
+        {
+            happinessLevelText.GetComponent<TextMeshPro>().text = 
+                String.Format("{0} (Max)", happinessLevel);
+            happinessBlock.GetComponent<Collider>().enabled = false;
+        }
+
+        var fitnessLevel = this._characterSerializer.FitnessLevel;
+        var fitnessBlock = this._levelUpPopup.transform.Find("FitnessBlock");
+        var fitnessLevelText = fitnessBlock.Find("LevelText");
+        if (fitnessLevel < 5)
+        {
+            fitnessLevelText.GetComponent<TextMeshPro>().text = fitnessLevel.ToString();
+        }
+        else
+        {
+            fitnessLevelText.GetComponent<TextMeshPro>().text =
+                String.Format("{0} (Max)", fitnessLevel);
+            fitnessBlock.GetComponent<Collider>().enabled = false;
+        }
+
+        var styleLevel = this._characterSerializer.StyleLevel;
+        var styleBlock = this._levelUpPopup.transform.Find("StyleBlock");
+        var styleLevelText = styleBlock.Find("LevelText");
+        if (styleLevel < 5)
+        {
+            styleLevelText.GetComponent<TextMeshPro>().text = styleLevel.ToString();
+        }
+        else
+        {
+            styleLevelText.GetComponent<TextMeshPro>().text =
+                String.Format("{0} (Max)", styleLevel);
+            styleBlock.GetComponent<Collider>().enabled = false;
+        }
+
+        if (this._avatarTransitionPopup)
+        {
+            GameObject.Destroy(this._avatarTransitionPopup);
+        }
     }
 
-    public void DestroyLevelPopup(CharacterProperties previousCharacterProperties = null)
+    public void DestroyLevelPopup(
+        CharacterProperties previousCharacterProperties,
+        LevelUpAttribute levelUpAttribute)
     {
         if (this._levelUpPopup)
         {
@@ -212,13 +261,15 @@ public class UIController : MonoBehaviour {
             this._levelUpPopup = null;
             if (previousCharacterProperties != null)
             {
-                this.CreateAvatarTransitionPopup(previousCharacterProperties);
+                this.CreateAvatarTransitionPopup(
+                    previousCharacterProperties, levelUpAttribute);
             }
-            this._profileController.LevelUp();
         }
     }
-    public void DestroyAvatarTransitionPopup()
+
+    public void CompleteAvatarTransition()
     {
+        this._profileController.LevelUp();
         GameObject.Destroy(this._avatarTransitionPopup);
         this._avatarTransitionPopup = null;
     }
@@ -325,7 +376,9 @@ public class UIController : MonoBehaviour {
         this._notificationText.text = newCount.ToString();
     }
 
-    private void CreateAvatarTransitionPopup(CharacterProperties previousCharacterProperties)
+    private void CreateAvatarTransitionPopup(
+        CharacterProperties previousCharacterProperties,
+        LevelUpAttribute levelUpAttribute)
     {
         this._avatarTransitionPopup = GameObject.Instantiate(Resources.Load("UI/AvatarTransitionPopup") as GameObject);
         this._avatarTransitionPopup.transform.position = new Vector3(0.0f, -0.06f, -5.0f);
@@ -346,12 +399,38 @@ public class UIController : MonoBehaviour {
         switch (gender)
         {
             case Gender.Female:
-                oldFemaleAvatar.GetComponent<CharacterCustomization>().SetCharacterLook(previousCharacterProperties);
+                oldFemaleAvatar.GetComponent<AvatarController>().SetCharacterLook(previousCharacterProperties);
                 break;
             case Gender.Male:
-                oldMaleAvatar.GetComponent<CharacterCustomization>().SetCharacterLook(previousCharacterProperties);
+                oldMaleAvatar.GetComponent<AvatarController>().SetCharacterLook(previousCharacterProperties);
+                Debug.Log(previousCharacterProperties.birthmark);
                 break;
         }
+
+        var previousAttributeLevel = 0;
+        switch (levelUpAttribute)
+        {
+            case LevelUpAttribute.Happiness:
+                previousAttributeLevel = previousCharacterProperties.happinessLevel;
+                break;
+            case LevelUpAttribute.Fitness:
+                previousAttributeLevel = previousCharacterProperties.fitnessLevel;
+                break;
+            case LevelUpAttribute.Style:
+                previousAttributeLevel = previousCharacterProperties.styleLevel;
+                break;
+        }
+
+        var leftTopText = this._avatarTransitionPopup.transform.Find("TransitionTextLeftTop");
+        leftTopText.GetComponent<TextMeshPro>().text = levelUpAttribute.ToString();
+        var leftBottomText = this._avatarTransitionPopup.transform.Find("TransitionTextLeftBottom").GetComponent<TextMeshPro>();
+        var leftBottomPrevious = leftBottomText.text;
+        leftBottomText.text = String.Format(leftBottomPrevious, previousAttributeLevel);
+        var rightTopText = this._avatarTransitionPopup.transform.Find("TransitionTextRightTop");
+        rightTopText.GetComponent<TextMeshPro>().text = levelUpAttribute.ToString();
+        var rightBottomText = this._avatarTransitionPopup.transform.Find("TransitionTextRightBottom").GetComponent<TextMeshPro>();
+        var rightBottomPrevious = rightBottomText.text;
+        rightBottomText.text = String.Format(rightBottomPrevious, previousAttributeLevel + 1);
     }
 
     private void OnWorldClick()

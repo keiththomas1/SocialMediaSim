@@ -58,6 +58,7 @@ public class IOController : MonoBehaviour
                     {
                         this.CheckPageMouseClick(hit.collider);
                     }
+                    Debug.Log("Clicked on " + hit.collider.name);
                 }
             }
             else
@@ -84,21 +85,28 @@ public class IOController : MonoBehaviour
             {
                 case "HappinessBlock":
                     this._characterSerializer.HappinessLevel++;
-                    this._uiController.DestroyLevelPopup(previousProperties);
+                    this._uiController.DestroyLevelPopup(
+                        previousProperties, LevelUpAttribute.Happiness);
                     break;
                 case "FitnessBlock":
                     this._characterSerializer.FitnessLevel++;
-                    this._uiController.DestroyLevelPopup(previousProperties);
+                    this._uiController.DestroyLevelPopup(
+                        previousProperties, LevelUpAttribute.Fitness);
                     break;
                 case "StyleBlock":
                     this._characterSerializer.StyleLevel++;
-                    this._uiController.DestroyLevelPopup(previousProperties);
+                    this._uiController.DestroyLevelPopup(
+                        previousProperties, LevelUpAttribute.Style);
                     break;
                 case "NothingBlock":
-                    this._uiController.DestroyLevelPopup(previousProperties);
+                    this._uiController.DestroyLevelPopup(
+                        previousProperties, LevelUpAttribute.Nothing);
                     break;
-                case "OkayButton":
-                    this._uiController.DestroyAvatarTransitionPopup();
+                case "BackButton":
+                    this._uiController.CreateLevelUpPopup();
+                    break;
+                case "ConfirmButton":
+                    this._uiController.CompleteAvatarTransition();
                     break;
             }
         } else {

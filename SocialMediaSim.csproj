@@ -285,11 +285,12 @@
     <Compile Include="Assets\Code\Animations\FollowTextAnimation.cs" />
     <Compile Include="Assets\Code\Animations\LoadingAnimation.cs" />
     <Compile Include="Assets\Code\Animations\PictureRotateAway.cs" />
+    <Compile Include="Assets\Code\Animations\RetainAnimatorParameters.cs" />
     <Compile Include="Assets\Code\Animations\SpeechBubbleFade.cs" />
-    <Compile Include="Assets\Code\Characters\CharacterCustomization.cs" />
+    <Compile Include="Assets\Code\Characters\AvatarController.cs" />
     <Compile Include="Assets\Code\Characters\CharacterEditor.cs" />
     <Compile Include="Assets\Code\Characters\CharacterRandomization.cs" />
-    <Compile Include="Assets\Code\Characters\CharacterSpriteCollection.cs" />
+    <Compile Include="Assets\Code\Characters\CharacterResourceCollection.cs" />
     <Compile Include="Assets\Code\CroppingController.cs" />
     <Compile Include="Assets\Code\DeathByTimer.cs" />
     <Compile Include="Assets\Code\FPS.cs" />
