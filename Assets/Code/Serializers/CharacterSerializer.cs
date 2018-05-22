@@ -9,7 +9,7 @@ public enum LevelUpAttribute
 {
     Happiness,
     Fitness,
-    Style,
+    Hygiene,
     Nothing
 }
 
@@ -162,12 +162,12 @@ public class CharacterSerializer
             this.SaveFile();
         }
     }
-    public int StyleLevel
+    public int HygieneLevel
     {
-        get { return this._currentSave.properties.styleLevel; }
+        get { return this._currentSave.properties.hygieneLevel; }
         set
         {
-            this._currentSave.properties.styleLevel = value;
+            this._currentSave.properties.hygieneLevel = value;
             this.SaveFile();
         }
     }
@@ -181,6 +181,15 @@ public class CharacterSerializer
                 this._currentSave.currentlyCleaningUp = false;
             }
             this._currentSave.properties.smelly = value;
+            this.SaveFile();
+        }
+    }
+    public BirthMarkType Birthmark
+    {
+        get { return this._currentSave.properties.birthmark; }
+        set
+        {
+            this._currentSave.properties.birthmark = value;
             this.SaveFile();
         }
     }
@@ -346,11 +355,16 @@ public enum Gender
 [Serializable]
 public enum BirthMarkType
 {
-    NoseMole,
-    EyeMole,
-    FaceBlotchDarkRight,
-    FaceBlotchRedSquiggleLeft,
-    FaceBlotchRedSpotLeft,
+    MiddleMole,
+    MiddleBlotch,
+    LeftMole,
+    LeftBlotch,
+    BottomMole,
+    BottomBlotch,
+    RightMole,
+    RightBlotch,
+    TopMole,
+    TopBlotch,
     None
 }
 
@@ -368,7 +382,7 @@ public class CharacterProperties
     public int avatarLevel;
     public int happinessLevel;
     public int fitnessLevel;
-    public int styleLevel;
+    public int hygieneLevel;
     public bool smelly;
 
     public CharacterProperties()
@@ -384,7 +398,7 @@ public class CharacterProperties
         avatarLevel = 1;
         happinessLevel = 1;
         fitnessLevel = 1;
-        styleLevel = 1;
+        hygieneLevel = 1;
         smelly = false;
     }
     public CharacterProperties(CharacterProperties other)
@@ -400,7 +414,7 @@ public class CharacterProperties
         avatarLevel = other.avatarLevel;
         happinessLevel = other.happinessLevel;
         fitnessLevel = other.fitnessLevel;
-        styleLevel = other.styleLevel;
+        hygieneLevel = other.hygieneLevel;
         smelly = other.smelly;
     }
 }

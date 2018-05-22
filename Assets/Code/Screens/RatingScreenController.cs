@@ -8,6 +8,7 @@ public class RatingScreenController : MonoBehaviour
     private PostRequester _restRequester;
     private PostHelper _postHelper;
     private UserSerializer _userSerializer;
+    private GoalsController _goalsController;
 
     private GameObject _ratingPage;
     private GameObject _errorText;
@@ -39,10 +40,7 @@ public class RatingScreenController : MonoBehaviour
         this._restRequester = new PostRequester();
         this._postHelper = new PostHelper();
         this._userSerializer = UserSerializer.Instance;
-    }
-
-    void Update()
-    {
+        this._goalsController = this.GetComponent<GoalsController>();
     }
 
     public void HandleClick(string colliderName)
@@ -147,6 +145,7 @@ public class RatingScreenController : MonoBehaviour
 
     private void IterateRatings()
     {
+        this._goalsController.AddRatingsGoalProgress(1);
         this._swipesLeft--;
         if (this._swipesLeft <= 0)
         {

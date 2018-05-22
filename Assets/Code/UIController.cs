@@ -120,10 +120,6 @@ public class UIController : MonoBehaviour {
         this._worldController = GetComponent<WorldScreenController>();
         this._notificationController = GetComponent<NotificationScreenController>();
         this._notificationController.NewNotificationsPulled.AddListener(this.UpdateNotificationCount);
-        if (this._userSerializer.PostedPhoto)
-        {
-            this._notificationController.StartGatheringNotifications();
-        }
 
         this._ioController = GetComponent<IOController>();
         this._tutorialController = GetComponent<TutorialScreenController>();
@@ -231,18 +227,18 @@ public class UIController : MonoBehaviour {
             fitnessBlock.GetComponent<Collider>().enabled = false;
         }
 
-        var styleLevel = this._characterSerializer.StyleLevel;
-        var styleBlock = this._levelUpPopup.transform.Find("StyleBlock");
-        var styleLevelText = styleBlock.Find("LevelText");
-        if (styleLevel < 5)
+        var hygieneLevel = this._characterSerializer.HygieneLevel;
+        var hygieneBlock = this._levelUpPopup.transform.Find("HygieneBlock");
+        var hygieneLevelText = hygieneBlock.Find("LevelText");
+        if (hygieneLevel < 5)
         {
-            styleLevelText.GetComponent<TextMeshPro>().text = styleLevel.ToString();
+            hygieneLevelText.GetComponent<TextMeshPro>().text = hygieneLevel.ToString();
         }
         else
         {
-            styleLevelText.GetComponent<TextMeshPro>().text =
-                String.Format("{0} (Max)", styleLevel);
-            styleBlock.GetComponent<Collider>().enabled = false;
+            hygieneLevelText.GetComponent<TextMeshPro>().text =
+                String.Format("{0} (Max)", hygieneLevel);
+            hygieneBlock.GetComponent<Collider>().enabled = false;
         }
 
         if (this._avatarTransitionPopup)
@@ -416,8 +412,8 @@ public class UIController : MonoBehaviour {
             case LevelUpAttribute.Fitness:
                 previousAttributeLevel = previousCharacterProperties.fitnessLevel;
                 break;
-            case LevelUpAttribute.Style:
-                previousAttributeLevel = previousCharacterProperties.styleLevel;
+            case LevelUpAttribute.Hygiene:
+                previousAttributeLevel = previousCharacterProperties.hygieneLevel;
                 break;
         }
 

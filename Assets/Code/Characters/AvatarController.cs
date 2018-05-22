@@ -6,6 +6,17 @@ public class AvatarController : MonoBehaviour
     private CharacterSerializer _characterSerializer;
     private CharacterResourceCollection _spriteController;
 
+    public SpriteRenderer _middleMole = null;
+    public SpriteRenderer _middleBlotch = null;
+    public SpriteRenderer _leftMole = null;
+    public SpriteRenderer _leftBlotch = null;
+    public SpriteRenderer _bottomMole = null;
+    public SpriteRenderer _bottomBlotch = null;
+    public SpriteRenderer _rightMole = null;
+    public SpriteRenderer _rightBlotch = null;
+    public SpriteRenderer _topMole = null;
+    public SpriteRenderer _topBlotch = null;
+
     [SerializeField]
     private bool _loadFromSave;
     private bool _customizationInitialized = false;
@@ -23,10 +34,6 @@ public class AvatarController : MonoBehaviour
         this._head = this.transform.Find("Head");
         this._face = this._head.transform.Find("Face").GetComponent<SpriteRenderer>();
         this._hair = this._head.transform.Find("Hair").GetComponent<SpriteRenderer>();
-        this._noseMole = this._head.Find("NoseMole").GetComponent<SpriteRenderer>();
-        this._faceBlotchDarkSpotRight = this._head.Find("FaceBlotchDarkSpotRight").GetComponent<SpriteRenderer>();
-        this._faceBlotchRedSquigglyLeft = this._head.Find("FaceBlotchRedSquigglyLeft").GetComponent<SpriteRenderer>();
-        this._faceBlotchRedSpotLeft = this._head.Find("FaceBlotchRedSpotLeft").GetComponent<SpriteRenderer>();
 
         this._leftArmTop = this.transform.Find("LeftArmTop").GetComponent<SpriteRenderer>();
         this._leftArmBottom = this._leftArmTop.transform.Find("LeftArmBottom").GetComponent<SpriteRenderer>();
@@ -143,15 +150,16 @@ public class AvatarController : MonoBehaviour
 
     public void SetBirthmark(BirthMarkType birthmark)
     {
-        this._noseMole.enabled =
-            (birthmark == BirthMarkType.NoseMole
-            || birthmark == BirthMarkType.EyeMole);
-        this._faceBlotchDarkSpotRight.enabled =
-            (birthmark == BirthMarkType.FaceBlotchDarkRight);
-        this._faceBlotchRedSquigglyLeft.enabled =
-            (birthmark == BirthMarkType.FaceBlotchRedSquiggleLeft);
-        this._faceBlotchRedSpotLeft.enabled =
-            (birthmark == BirthMarkType.FaceBlotchRedSpotLeft);
+        this._middleMole.gameObject.SetActive(birthmark == BirthMarkType.MiddleMole);
+        this._middleBlotch.gameObject.SetActive(birthmark == BirthMarkType.MiddleBlotch);
+        this._leftMole.gameObject.SetActive(birthmark == BirthMarkType.LeftMole);
+        this._leftBlotch.gameObject.SetActive(birthmark == BirthMarkType.LeftBlotch);
+        this._bottomMole.gameObject.SetActive(birthmark == BirthMarkType.BottomMole);
+        this._bottomBlotch.gameObject.SetActive(birthmark == BirthMarkType.BottomBlotch);
+        this._rightMole.gameObject.SetActive(birthmark == BirthMarkType.RightMole);
+        this._rightBlotch.gameObject.SetActive(birthmark == BirthMarkType.RightBlotch);
+        this._topMole.gameObject.SetActive(birthmark == BirthMarkType.TopMole);
+        this._topBlotch.gameObject.SetActive(birthmark == BirthMarkType.TopBlotch);
     }
 
     public void SetHappinessLevel(Gender gender, int happinessLevel)
@@ -283,10 +291,6 @@ public class AvatarController : MonoBehaviour
     private Transform _head = null;
     private SpriteRenderer _face = null;
     private SpriteRenderer _hair = null;
-    private SpriteRenderer _noseMole = null;
-    private SpriteRenderer _faceBlotchDarkSpotRight = null;
-    private SpriteRenderer _faceBlotchRedSquigglyLeft = null;
-    private SpriteRenderer _faceBlotchRedSpotLeft = null;
 
     private SpriteRenderer _leftArmTop = null;
     private SpriteRenderer _leftArmBottom = null;

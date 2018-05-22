@@ -13,7 +13,9 @@ public enum GoalStatus
 public enum GoalObjectType
 {
     Location,
-    Item
+    Pet,
+    Ratings,
+    Scrolling
 }
 
 public enum GoalRewardType
@@ -32,15 +34,6 @@ public class GoalsController : MonoBehaviour {
     {
         this._goalSerializer = GoalSerializer.Instance;
         this._userSerializer = UserSerializer.Instance;
-    }
-
-    // Use this for initialization
-    private void Start ()
-    {
-    }
-
-    // Update is called once per frame
-    private void Update () {
     }
 
     public GoalInformation[] GetCurrentGoals()
@@ -71,12 +64,12 @@ public class GoalsController : MonoBehaviour {
 
         var secondGoal = new GoalInformation();
         secondGoal.status = GoalStatus.Active;
-        secondGoal.goalType = GoalObjectType.Location;
-        secondGoal.goalObject = "Apartment";
+        secondGoal.goalType = GoalObjectType.Ratings;
+        secondGoal.goalObject = "";
         secondGoal.rewardType = GoalRewardType.ExperiencePoints;
-        secondGoal.reward = "40";
+        secondGoal.reward = "50";
         secondGoal.stepsCompleted = 0;
-        secondGoal.stepsNeeded = 1;
+        secondGoal.stepsNeeded = 10;
 
         currentGoals[1] = secondGoal;
         this._goalSerializer.CurrentGoals = currentGoals;
@@ -106,6 +99,24 @@ public class GoalsController : MonoBehaviour {
         this._goalSerializer.CurrentGoals = currentGoals;
     }
 
+    public void AddRatingsGoalProgress(int ratings)
+    {
+        var currentGoals = this.GetCurrentGoals();
+        for (int i = 0; i < currentGoals.Length; i++)
+        {
+            if (currentGoals[i].goalType == GoalObjectType.Ratings)
+            {
+                var stepsCompleted = currentGoals[i].stepsCompleted;
+                stepsCompleted = Math.Min(
+                    currentGoals[i].stepsNeeded,
+                    stepsCompleted + ratings);
+                currentGoals[i].stepsCompleted = stepsCompleted;
+            }
+        }
+
+        this._goalSerializer.CurrentGoals = currentGoals;
+    }
+
     public void CheckGoalProgress(DelayGramPost post)
     {
         var items = new List<string>();
@@ -127,7 +138,7 @@ public class GoalsController : MonoBehaviour {
                         goalProgressed = true;
                     }
                     break;
-                case GoalObjectType.Item:
+                case GoalObjectType.Pet:
                     foreach (var item in items)
                     {
                         if (currentGoals[i].goalObject == item)
@@ -135,6 +146,10 @@ public class GoalsController : MonoBehaviour {
                             goalProgressed = true;
                         }
                     }
+                    break;
+                case GoalObjectType.Ratings:
+                    break;
+                case GoalObjectType.Scrolling:
                     break;
             }
 
@@ -211,7 +226,7 @@ public class GoalsController : MonoBehaviour {
         {
             locations.Add("Yacht");
         }
-        List<string> items = new List<string>(); // "Bulldog", "Sylvester", "D-Rone" };
+        List<string> items = new List<string>();
         if (this._userSerializer.HasBulldog)
         {
             items.Add("Bulldog");
@@ -229,7 +244,8 @@ public class GoalsController : MonoBehaviour {
         {
             for (int i = 1; i <= 3; i++)
             {
-                var newGoal = CreateNewGoalInformation(GoalObjectType.Location, location, i);
+                var newGoal = CreateNewGoalInformation(
+                    GoalObjectType.Location, location, i, (ExperiencePerStep * i));
 
                 this._possibleGoals.Add(newGoal);
             }
@@ -239,22 +255,33 @@ public class GoalsController : MonoBehaviour {
         {
             for (int i = 1; i <= 3; i++)
             {
-                var newGoal = CreateNewGoalInformation(GoalObjectType.Item, item, i);
+                var newGoal = CreateNewGoalInformation(
+                    GoalObjectType.Pet, item, i, (ExperiencePerStep * i));
 
                 this._possibleGoals.Add(newGoal);
             }
         }
+
+        var ratingsGoal1 = CreateNewGoalInformation(GoalObjectType.Ratings, null, 10, 10);
+        this._possibleGoals.Add(ratingsGoal1);
+        var ratingsGoal2 = CreateNewGoalInformation(GoalObjectType.Ratings, null, 15, 15);
+        this._possibleGoals.Add(ratingsGoal2);
+        var ratingsGoal3 = CreateNewGoalInformation(GoalObjectType.Ratings, null, 20, 20);
+        this._possibleGoals.Add(ratingsGoal3);
     }
 
-    private GoalInformation CreateNewGoalInformation(GoalObjectType goalType, string goalObject, int steps)
+    private GoalInformation CreateNewGoalInformation(
+        GoalObjectType goalType, string goalObject, int steps, int experienceReward)
     {
         var newGoal = new GoalInformation();
         newGoal.goalType = goalType;
         newGoal.goalObject = goalObject;
         newGoal.rewardType = GoalRewardType.ExperiencePoints;
-        newGoal.reward = (10 * steps).ToString();
+        newGoal.reward = experienceReward.ToString();
         newGoal.stepsCompleted = 0;
         newGoal.stepsNeeded = steps;
         return newGoal;
     }
+
+    private const int ExperiencePerStep = 20;
 }

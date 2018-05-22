@@ -284,51 +284,6 @@
     <Reference Include="UnityEngine.StandardEvents">
       <HintPath>Library\UnityAssemblies\UnityEngine.StandardEvents.dll</HintPath>
     </Reference>
-    <Reference Include="DemiLib">
-      <HintPath>Assets\Demigiant\DemiLib\Core\DemiLib.dll</HintPath>
-    </Reference>
-    <Reference Include="DemiEditor">
-      <HintPath>Assets\Demigiant\DemiLib\Core\Editor\DemiEditor.dll</HintPath>
-    </Reference>
-    <Reference Include="DOTween">
-      <HintPath>Assets\Demigiant\DOTween\DOTween.dll</HintPath>
-    </Reference>
-    <Reference Include="DOTween43">
-      <HintPath>Assets\Demigiant\DOTween\DOTween43.dll</HintPath>
-    </Reference>
-    <Reference Include="DOTween46">
-      <HintPath>Assets\Demigiant\DOTween\DOTween46.dll</HintPath>
-    </Reference>
-    <Reference Include="DOTween50">
-      <HintPath>Assets\Demigiant\DOTween\DOTween50.dll</HintPath>
-    </Reference>
-    <Reference Include="DOTweenEditor">
-      <HintPath>Assets\Demigiant\DOTween\Editor\DOTweenEditor.dll</HintPath>
-    </Reference>
-    <Reference Include="DOTweenPro">
-      <HintPath>Assets\Demigiant\DOTweenPro\DOTweenPro.dll</HintPath>
-    </Reference>
-    <Reference Include="DOTweenProEditor">
-      <HintPath>Assets\Demigiant\DOTweenPro\Editor\DOTweenProEditor.dll</HintPath>
-    </Reference>
-    <Reference Include="NestedPrefabs">
-      <HintPath>Assets\Nested Prefabs\NestedPrefabs.dll</HintPath>
-    </Reference>
-    <Reference Include="NestedPrefabs_Editor">
-      <HintPath>Assets\Nested Prefabs\NestedPrefabs_Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Opencoding.CommandHandlers">
-      <HintPath>Assets\Opencoding\Console\DLLs\Opencoding.CommandHandlers.dll</HintPath>
-    </Reference>
-    <Reference Include="Opencoding.Console">
-      <HintPath>Assets\Opencoding\Console\DLLs\Opencoding.Console.dll</HintPath>
-    </Reference>
-    <Reference Include="Opencoding.LogHistory">
-      <HintPath>Assets\Opencoding\Console\DLLs\Opencoding.LogHistory.dll</HintPath>
-    </Reference>
-    <Reference Include="Opencoding.Shared">
-      <HintPath>Assets\Opencoding\Console\DLLs\Opencoding.Shared.dll</HintPath>
-    </Reference>
     <Reference Include="VisualDesignCafe.Editor.Analytics">
       <HintPath>Assets\Plugins\Visual Design Cafe\Assemblies\VisualDesignCafe.Editor.Analytics.dll</HintPath>
     </Reference>
@@ -338,11 +293,56 @@
     <Reference Include="NestedPrefabs.Package">
       <HintPath>Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.Package.dll</HintPath>
     </Reference>
+    <Reference Include="DemiLib">
+      <HintPath>Assets\ThirdParty\Demigiant\DemiLib\Core\DemiLib.dll</HintPath>
+    </Reference>
+    <Reference Include="DemiEditor">
+      <HintPath>Assets\ThirdParty\Demigiant\DemiLib\Core\Editor\DemiEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween">
+      <HintPath>Assets\ThirdParty\Demigiant\DOTween\DOTween.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween43">
+      <HintPath>Assets\ThirdParty\Demigiant\DOTween\DOTween43.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween46">
+      <HintPath>Assets\ThirdParty\Demigiant\DOTween\DOTween46.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween50">
+      <HintPath>Assets\ThirdParty\Demigiant\DOTween\DOTween50.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTweenEditor">
+      <HintPath>Assets\ThirdParty\Demigiant\DOTween\Editor\DOTweenEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTweenPro">
+      <HintPath>Assets\ThirdParty\Demigiant\DOTweenPro\DOTweenPro.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTweenProEditor">
+      <HintPath>Assets\ThirdParty\Demigiant\DOTweenPro\Editor\DOTweenProEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="NestedPrefabs">
+      <HintPath>Assets\ThirdParty\Nested Prefabs\NestedPrefabs.dll</HintPath>
+    </Reference>
+    <Reference Include="NestedPrefabs_Editor">
+      <HintPath>Assets\ThirdParty\Nested Prefabs\NestedPrefabs_Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Opencoding.CommandHandlers">
+      <HintPath>Assets\ThirdParty\Opencoding\Console\DLLs\Opencoding.CommandHandlers.dll</HintPath>
+    </Reference>
+    <Reference Include="Opencoding.Console">
+      <HintPath>Assets\ThirdParty\Opencoding\Console\DLLs\Opencoding.Console.dll</HintPath>
+    </Reference>
+    <Reference Include="Opencoding.LogHistory">
+      <HintPath>Assets\ThirdParty\Opencoding\Console\DLLs\Opencoding.LogHistory.dll</HintPath>
+    </Reference>
+    <Reference Include="Opencoding.Shared">
+      <HintPath>Assets\ThirdParty\Opencoding\Console\DLLs\Opencoding.Shared.dll</HintPath>
+    </Reference>
     <Reference Include="TextMeshPro-1.0.55.2017.1.0b12">
-      <HintPath>Assets\TextMesh Pro\Plugins\TextMeshPro-1.0.55.2017.1.0b12.dll</HintPath>
+      <HintPath>Assets\ThirdParty\TextMesh Pro\Plugins\TextMeshPro-1.0.55.2017.1.0b12.dll</HintPath>
     </Reference>
     <Reference Include="TextMeshPro-1.0.55.2017.1.0b12-Editor">
-      <HintPath>Assets\TextMesh Pro\Plugins\Editor\TextMeshPro-1.0.55.2017.1.0b12-Editor.dll</HintPath>
+      <HintPath>Assets\ThirdParty\TextMesh Pro\Plugins\Editor\TextMeshPro-1.0.55.2017.1.0b12-Editor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -352,69 +352,69 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Demigiant\DOTweenPro\Editor\DOTweenAnimationInspector.cs" />
     <Compile Include="Assets\Editor\CustomAssetImporter.cs" />
-    <Compile Include="Assets\LeanTouch\Editor\LeanSelectable_Editor.cs" />
-    <Compile Include="Assets\LeanTouch\Editor\LeanTouch_Editor.cs" />
-    <Compile Include="Assets\Nested Prefabs\Editor\CustomBuildPipeline.cs" />
-    <Compile Include="Assets\Nested Prefabs\Editor\NestedPrefabsBuildProcessor.cs" />
-    <Compile Include="Assets\Nested Prefabs\Editor\NestedPrefabsCloudBuildProcessor.cs" />
-    <Compile Include="Assets\Nested Prefabs\Editor\NestedPrefabsPreferences.cs" />
-    <Compile Include="Assets\Opencoding\Console\Editor\AutomaticInstantiator.cs" />
-    <Compile Include="Assets\Opencoding\Console\Editor\BuildPostProcessor.cs" />
-    <Compile Include="Assets\Opencoding\Console\Editor\DebugConsoleEditorSettings.cs" />
-    <Compile Include="Assets\Opencoding\Console\Editor\DebugConsoleInspector.cs" />
-    <Compile Include="Assets\Opencoding\Console\Editor\DetectUpgrade.cs" />
+    <Compile Include="Assets\ThirdParty\Demigiant\DOTweenPro\Editor\DOTweenAnimationInspector.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Editor\LeanSelectable_Editor.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Editor\LeanTouch_Editor.cs" />
+    <Compile Include="Assets\ThirdParty\Nested Prefabs\Editor\CustomBuildPipeline.cs" />
+    <Compile Include="Assets\ThirdParty\Nested Prefabs\Editor\NestedPrefabsBuildProcessor.cs" />
+    <Compile Include="Assets\ThirdParty\Nested Prefabs\Editor\NestedPrefabsCloudBuildProcessor.cs" />
+    <Compile Include="Assets\ThirdParty\Nested Prefabs\Editor\NestedPrefabsPreferences.cs" />
+    <Compile Include="Assets\ThirdParty\Opencoding\Console\Editor\AutomaticInstantiator.cs" />
+    <Compile Include="Assets\ThirdParty\Opencoding\Console\Editor\BuildPostProcessor.cs" />
+    <Compile Include="Assets\ThirdParty\Opencoding\Console\Editor\DebugConsoleEditorSettings.cs" />
+    <Compile Include="Assets\ThirdParty\Opencoding\Console\Editor\DebugConsoleInspector.cs" />
+    <Compile Include="Assets\ThirdParty\Opencoding\Console\Editor\DetectUpgrade.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Demigiant\DOTween\DOTween.XML" />
-    <None Include="Assets\Demigiant\DOTween\DOTween43.xml" />
-    <None Include="Assets\Demigiant\DOTween\DOTween46.xml" />
-    <None Include="Assets\Demigiant\DOTween\DOTween50.xml" />
-    <None Include="Assets\Demigiant\DOTween\Editor\DOTweenEditor.XML" />
-    <None Include="Assets\Demigiant\DOTween\readme.txt" />
-    <None Include="Assets\Demigiant\DOTweenPro\DOTweenPro.XML" />
-    <None Include="Assets\Demigiant\DOTweenPro\Editor\DOTweenProEditor.XML" />
-    <None Include="Assets\Demigiant\DOTweenPro\readme.txt" />
-    <None Include="Assets\Demigiant\DemiLib\Core\DemiLib.xml" />
-    <None Include="Assets\Demigiant\DemiLib\Core\Editor\DemiEditor.xml" />
-    <None Include="Assets\Demigiant\readme_DOTweenPro.txt" />
     <None Include="Assets\Fonts\WoodstampLicense.txt" />
-    <None Include="Assets\LeanTouch\Examples\Fonts\OFL.txt" />
-    <None Include="Assets\LeanTouch\Examples\Shaders\Skybox.shader" />
-    <None Include="Assets\LeanTouch\Examples\Shaders\Smooth.shader" />
-    <None Include="Assets\Nested Prefabs\readme.txt" />
-    <None Include="Assets\Opencoding\Console\EmailTemplates\LogEmailFooter.txt" />
-    <None Include="Assets\Opencoding\Console\EmailTemplates\LogEmailHeader.txt" />
-    <None Include="Assets\Opencoding\Console\Plugins\Android\OpenCoding\AndroidManifest.xml" />
-    <None Include="Assets\Opencoding\Console\Plugins\Android\OpenCoding\res\xml\file_paths.xml" />
-    <None Include="Assets\Opencoding\Console\readme.txt" />
     <None Include="Assets\Plugins\Visual Design Cafe\Assemblies\VisualDesignCafe.Editor.Analytics.xml" />
     <None Include="Assets\Plugins\Visual Design Cafe\Assemblies\VisualDesignCafe.Editor.xml" />
     <None Include="Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.Editor.xml" />
     <None Include="Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.Package.xml" />
     <None Include="Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.xml" />
     <None Include="Assets\Plugins\Visual Design Cafe\Nested Prefabs\README.txt" />
-    <None Include="Assets\TextMesh Pro\Fonts\Anton OFL.txt" />
-    <None Include="Assets\TextMesh Pro\Fonts\Bangers - OFL.txt" />
-    <None Include="Assets\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
-    <None Include="Assets\TextMesh Pro\Fonts\NotoSans - License.txt" />
-    <None Include="Assets\TextMesh Pro\Fonts\Oswald-Bold - OFL.txt" />
-    <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
-    <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap-Mobile.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF Overlay.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Masking.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Overlay.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Sprite.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro.cginc" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro_Properties.cginc" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro_Surface.cginc" />
+    <None Include="Assets\ThirdParty\Demigiant\DOTween\DOTween.XML" />
+    <None Include="Assets\ThirdParty\Demigiant\DOTween\DOTween43.xml" />
+    <None Include="Assets\ThirdParty\Demigiant\DOTween\DOTween46.xml" />
+    <None Include="Assets\ThirdParty\Demigiant\DOTween\DOTween50.xml" />
+    <None Include="Assets\ThirdParty\Demigiant\DOTween\Editor\DOTweenEditor.XML" />
+    <None Include="Assets\ThirdParty\Demigiant\DOTween\readme.txt" />
+    <None Include="Assets\ThirdParty\Demigiant\DOTweenPro\DOTweenPro.XML" />
+    <None Include="Assets\ThirdParty\Demigiant\DOTweenPro\Editor\DOTweenProEditor.XML" />
+    <None Include="Assets\ThirdParty\Demigiant\DOTweenPro\readme.txt" />
+    <None Include="Assets\ThirdParty\Demigiant\DemiLib\Core\DemiLib.xml" />
+    <None Include="Assets\ThirdParty\Demigiant\DemiLib\Core\Editor\DemiEditor.xml" />
+    <None Include="Assets\ThirdParty\Demigiant\readme_DOTweenPro.txt" />
+    <None Include="Assets\ThirdParty\LeanTouch\Examples\Fonts\OFL.txt" />
+    <None Include="Assets\ThirdParty\LeanTouch\Examples\Shaders\Skybox.shader" />
+    <None Include="Assets\ThirdParty\LeanTouch\Examples\Shaders\Smooth.shader" />
+    <None Include="Assets\ThirdParty\Nested Prefabs\readme.txt" />
+    <None Include="Assets\ThirdParty\Opencoding\Console\EmailTemplates\LogEmailFooter.txt" />
+    <None Include="Assets\ThirdParty\Opencoding\Console\EmailTemplates\LogEmailHeader.txt" />
+    <None Include="Assets\ThirdParty\Opencoding\Console\Plugins\Android\OpenCoding\AndroidManifest.xml" />
+    <None Include="Assets\ThirdParty\Opencoding\Console\Plugins\Android\OpenCoding\res\xml\file_paths.xml" />
+    <None Include="Assets\ThirdParty\Opencoding\Console\readme.txt" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Fonts\Anton OFL.txt" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Fonts\Bangers - OFL.txt" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Fonts\NotoSans - License.txt" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Fonts\Oswald-Bold - OFL.txt" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_Bitmap-Mobile.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_Bitmap.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF Overlay.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Masking.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Overlay.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_Sprite.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMPro.cginc" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMPro_Properties.cginc" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\link.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -17,6 +17,8 @@ public class IOController : MonoBehaviour
 
     private EventSystem _eventSystem;
 
+    private LevelUpAttribute _currentAttribute;
+
     // Use this for initialization
     void Start ()
     {
@@ -84,19 +86,19 @@ public class IOController : MonoBehaviour
             switch (colliderName)
             {
                 case "HappinessBlock":
-                    this._characterSerializer.HappinessLevel++;
+                    this._currentAttribute = LevelUpAttribute.Happiness;
                     this._uiController.DestroyLevelPopup(
                         previousProperties, LevelUpAttribute.Happiness);
                     break;
                 case "FitnessBlock":
-                    this._characterSerializer.FitnessLevel++;
+                    this._currentAttribute = LevelUpAttribute.Fitness;
                     this._uiController.DestroyLevelPopup(
                         previousProperties, LevelUpAttribute.Fitness);
                     break;
-                case "StyleBlock":
-                    this._characterSerializer.StyleLevel++;
+                case "HygieneBlock":
+                    this._currentAttribute = LevelUpAttribute.Hygiene;
                     this._uiController.DestroyLevelPopup(
-                        previousProperties, LevelUpAttribute.Style);
+                        previousProperties, LevelUpAttribute.Hygiene);
                     break;
                 case "NothingBlock":
                     this._uiController.DestroyLevelPopup(
@@ -106,6 +108,18 @@ public class IOController : MonoBehaviour
                     this._uiController.CreateLevelUpPopup();
                     break;
                 case "ConfirmButton":
+                    switch (this._currentAttribute)
+                    {
+                        case LevelUpAttribute.Happiness:
+                            this._characterSerializer.HappinessLevel++;
+                            break;
+                        case LevelUpAttribute.Fitness:
+                            this._characterSerializer.FitnessLevel++;
+                            break;
+                        case LevelUpAttribute.Hygiene:
+                            this._characterSerializer.HygieneLevel++;
+                            break;
+                    }
                     this._uiController.CompleteAvatarTransition();
                     break;
             }

@@ -230,42 +230,6 @@
     <Reference Include="UnityEngine.StandardEvents">
       <HintPath>Library\UnityAssemblies\UnityEngine.StandardEvents.dll</HintPath>
     </Reference>
-    <Reference Include="DemiLib">
-      <HintPath>Assets\Demigiant\DemiLib\Core\DemiLib.dll</HintPath>
-    </Reference>
-    <Reference Include="DOTween">
-      <HintPath>Assets\Demigiant\DOTween\DOTween.dll</HintPath>
-    </Reference>
-    <Reference Include="DOTween43">
-      <HintPath>Assets\Demigiant\DOTween\DOTween43.dll</HintPath>
-    </Reference>
-    <Reference Include="DOTween46">
-      <HintPath>Assets\Demigiant\DOTween\DOTween46.dll</HintPath>
-    </Reference>
-    <Reference Include="DOTween50">
-      <HintPath>Assets\Demigiant\DOTween\DOTween50.dll</HintPath>
-    </Reference>
-    <Reference Include="DOTweenPro">
-      <HintPath>Assets\Demigiant\DOTweenPro\DOTweenPro.dll</HintPath>
-    </Reference>
-    <Reference Include="NestedPrefabs">
-      <HintPath>Assets\Nested Prefabs\NestedPrefabs.dll</HintPath>
-    </Reference>
-    <Reference Include="NestedPrefabs_Editor">
-      <HintPath>Assets\Nested Prefabs\NestedPrefabs_Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Opencoding.CommandHandlers">
-      <HintPath>Assets\Opencoding\Console\DLLs\Opencoding.CommandHandlers.dll</HintPath>
-    </Reference>
-    <Reference Include="Opencoding.Console">
-      <HintPath>Assets\Opencoding\Console\DLLs\Opencoding.Console.dll</HintPath>
-    </Reference>
-    <Reference Include="Opencoding.LogHistory">
-      <HintPath>Assets\Opencoding\Console\DLLs\Opencoding.LogHistory.dll</HintPath>
-    </Reference>
-    <Reference Include="Opencoding.Shared">
-      <HintPath>Assets\Opencoding\Console\DLLs\Opencoding.Shared.dll</HintPath>
-    </Reference>
     <Reference Include="VisualDesignCafe.Editor.Analytics">
       <HintPath>Assets\Plugins\Visual Design Cafe\Assemblies\VisualDesignCafe.Editor.Analytics.dll</HintPath>
     </Reference>
@@ -275,8 +239,44 @@
     <Reference Include="NestedPrefabs.Package">
       <HintPath>Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.Package.dll</HintPath>
     </Reference>
+    <Reference Include="DemiLib">
+      <HintPath>Assets\ThirdParty\Demigiant\DemiLib\Core\DemiLib.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween">
+      <HintPath>Assets\ThirdParty\Demigiant\DOTween\DOTween.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween43">
+      <HintPath>Assets\ThirdParty\Demigiant\DOTween\DOTween43.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween46">
+      <HintPath>Assets\ThirdParty\Demigiant\DOTween\DOTween46.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween50">
+      <HintPath>Assets\ThirdParty\Demigiant\DOTween\DOTween50.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTweenPro">
+      <HintPath>Assets\ThirdParty\Demigiant\DOTweenPro\DOTweenPro.dll</HintPath>
+    </Reference>
+    <Reference Include="NestedPrefabs">
+      <HintPath>Assets\ThirdParty\Nested Prefabs\NestedPrefabs.dll</HintPath>
+    </Reference>
+    <Reference Include="NestedPrefabs_Editor">
+      <HintPath>Assets\ThirdParty\Nested Prefabs\NestedPrefabs_Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Opencoding.CommandHandlers">
+      <HintPath>Assets\ThirdParty\Opencoding\Console\DLLs\Opencoding.CommandHandlers.dll</HintPath>
+    </Reference>
+    <Reference Include="Opencoding.Console">
+      <HintPath>Assets\ThirdParty\Opencoding\Console\DLLs\Opencoding.Console.dll</HintPath>
+    </Reference>
+    <Reference Include="Opencoding.LogHistory">
+      <HintPath>Assets\ThirdParty\Opencoding\Console\DLLs\Opencoding.LogHistory.dll</HintPath>
+    </Reference>
+    <Reference Include="Opencoding.Shared">
+      <HintPath>Assets\ThirdParty\Opencoding\Console\DLLs\Opencoding.Shared.dll</HintPath>
+    </Reference>
     <Reference Include="TextMeshPro-1.0.55.2017.1.0b12">
-      <HintPath>Assets\TextMesh Pro\Plugins\TextMeshPro-1.0.55.2017.1.0b12.dll</HintPath>
+      <HintPath>Assets\ThirdParty\TextMesh Pro\Plugins\TextMeshPro-1.0.55.2017.1.0b12.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -285,6 +285,7 @@
     <Compile Include="Assets\Code\Animations\FollowTextAnimation.cs" />
     <Compile Include="Assets\Code\Animations\LoadingAnimation.cs" />
     <Compile Include="Assets\Code\Animations\PictureRotateAway.cs" />
+    <Compile Include="Assets\Code\Animations\RandomizeStartTimeBehavior.cs" />
     <Compile Include="Assets\Code\Animations\RetainAnimatorParameters.cs" />
     <Compile Include="Assets\Code\Animations\SpeechBubbleFade.cs" />
     <Compile Include="Assets\Code\Characters\AvatarController.cs" />
@@ -298,8 +299,8 @@
     <Compile Include="Assets\Code\IOController.cs" />
     <Compile Include="Assets\Code\LevelingController.cs" />
     <Compile Include="Assets\Code\LoadController.cs" />
-    <Compile Include="Assets\Code\MessageCollection.cs" />
-    <Compile Include="Assets\Code\MessagePost.cs" />
+    <Compile Include="Assets\Code\Messages\MessageCollection.cs" />
+    <Compile Include="Assets\Code\Messages\MessagePost.cs" />
     <Compile Include="Assets\Code\NotificationRequester.cs" />
     <Compile Include="Assets\Code\PostHelper.cs" />
     <Compile Include="Assets\Code\PostRequester.cs" />
@@ -323,131 +324,131 @@
     <Compile Include="Assets\Code\TextTypingAnimation.cs" />
     <Compile Include="Assets\Code\UIController.cs" />
     <Compile Include="Assets\Code\UserRequester.cs" />
-    <Compile Include="Assets\ColorPicker\Examples\ExampleScript\ExampleVariable.cs" />
-    <Compile Include="Assets\ColorPicker\Source\Additional\ImageResizer.cs" />
-    <Compile Include="Assets\ColorPicker\Source\ColorPicker.cs" />
-    <Compile Include="Assets\Demigiant\DOTweenPro\DOTweenAnimation.cs" />
-    <Compile Include="Assets\Demigiant\DOTweenPro\DOTweenTextMeshPro.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanAddForce.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanCameraMove.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanCameraMoveSmooth.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanCameraZoom.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanCameraZoomSmooth.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanDestroy.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanFingerDown.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanFingerDrag.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanFingerHeld.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanFingerLine.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanFingerSet.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanFingerSwipe.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanFingerTap.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanFingerTrail.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanFingerUp.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanMultiTap.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanMultiTapInfo.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanOpenUrl.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanPitchYaw.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanPitchYawSmooth.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanRotate.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanScale.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanSelect.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanSelectableBehaviour.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanSelectableGraphicColor.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanSelectableRendererColor.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanSelectableSpriteRendererColor.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanSpawn.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanTouchEvents.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanTranslate.cs" />
-    <Compile Include="Assets\LeanTouch\Examples\Scripts\LeanTranslateSmooth.cs" />
-    <Compile Include="Assets\LeanTouch\Scripts\LeanFinger.cs" />
-    <Compile Include="Assets\LeanTouch\Scripts\LeanGesture.cs" />
-    <Compile Include="Assets\LeanTouch\Scripts\LeanSelectable.cs" />
-    <Compile Include="Assets\LeanTouch\Scripts\LeanSnapshot.cs" />
-    <Compile Include="Assets\LeanTouch\Scripts\LeanTouch.cs" />
-    <Compile Include="Assets\Opencoding\Console\NativeMethods.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\Benchmark01.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\Benchmark01_UGUI.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\Benchmark02.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\Benchmark03.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\Benchmark04.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\CameraController.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\ChatController.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\EnvMapAnimator.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\ObjectSpin.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\ShaderPropAnimator.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\SimpleScript.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\SkewTextExample.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TeleType.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TextConsoleSimulator.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TextMeshProFloatingText.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TextMeshSpawner.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TMP_DigitValidator.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TMP_ExampleScript_01.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TMP_FrameRateCounter.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TMP_PhoneNumberValidator.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TMP_TextEventCheck.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TMP_TextEventHandler.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TMP_TextInfoDebugTool.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TMP_TextSelector_A.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TMP_TextSelector_B.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TMP_UiFrameRateCounter.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\TMPro_InstructionOverlay.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\VertexColorCycler.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\VertexJitter.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\VertexShakeA.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\VertexShakeB.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\VertexZoom.cs" />
-    <Compile Include="Assets\TextMesh Pro\Examples\Scripts\WarpTextExample.cs" />
+    <Compile Include="Assets\ThirdParty\ColorPicker\Examples\ExampleScript\ExampleVariable.cs" />
+    <Compile Include="Assets\ThirdParty\ColorPicker\Source\Additional\ImageResizer.cs" />
+    <Compile Include="Assets\ThirdParty\ColorPicker\Source\ColorPicker.cs" />
+    <Compile Include="Assets\ThirdParty\Demigiant\DOTweenPro\DOTweenAnimation.cs" />
+    <Compile Include="Assets\ThirdParty\Demigiant\DOTweenPro\DOTweenTextMeshPro.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanAddForce.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanCameraMove.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanCameraMoveSmooth.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanCameraZoom.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanCameraZoomSmooth.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanDestroy.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanFingerDown.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanFingerDrag.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanFingerHeld.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanFingerLine.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanFingerSet.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanFingerSwipe.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanFingerTap.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanFingerTrail.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanFingerUp.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanMultiTap.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanMultiTapInfo.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanOpenUrl.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanPitchYaw.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanPitchYawSmooth.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanRotate.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanScale.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanSelect.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanSelectableBehaviour.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanSelectableGraphicColor.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanSelectableRendererColor.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanSelectableSpriteRendererColor.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanSpawn.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanTouchEvents.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanTranslate.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Examples\Scripts\LeanTranslateSmooth.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Scripts\LeanFinger.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Scripts\LeanGesture.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Scripts\LeanSelectable.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Scripts\LeanSnapshot.cs" />
+    <Compile Include="Assets\ThirdParty\LeanTouch\Scripts\LeanTouch.cs" />
+    <Compile Include="Assets\ThirdParty\Opencoding\Console\NativeMethods.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\Benchmark01.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\Benchmark01_UGUI.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\Benchmark02.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\Benchmark03.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\Benchmark04.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\CameraController.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\ChatController.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\EnvMapAnimator.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\ObjectSpin.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\ShaderPropAnimator.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\SimpleScript.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\SkewTextExample.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\TeleType.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\TextConsoleSimulator.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\TextMeshProFloatingText.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\TextMeshSpawner.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\TMP_DigitValidator.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\TMP_ExampleScript_01.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\TMP_FrameRateCounter.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\TMP_PhoneNumberValidator.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\TMP_TextEventCheck.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\TMP_TextEventHandler.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\TMP_TextInfoDebugTool.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\TMP_TextSelector_A.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\TMP_TextSelector_B.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\TMP_UiFrameRateCounter.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\TMPro_InstructionOverlay.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\VertexColorCycler.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\VertexJitter.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\VertexShakeA.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\VertexShakeB.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\VertexZoom.cs" />
+    <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\WarpTextExample.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Demigiant\DOTween\DOTween.XML" />
-    <None Include="Assets\Demigiant\DOTween\DOTween43.xml" />
-    <None Include="Assets\Demigiant\DOTween\DOTween46.xml" />
-    <None Include="Assets\Demigiant\DOTween\DOTween50.xml" />
-    <None Include="Assets\Demigiant\DOTween\Editor\DOTweenEditor.XML" />
-    <None Include="Assets\Demigiant\DOTween\readme.txt" />
-    <None Include="Assets\Demigiant\DOTweenPro\DOTweenPro.XML" />
-    <None Include="Assets\Demigiant\DOTweenPro\Editor\DOTweenProEditor.XML" />
-    <None Include="Assets\Demigiant\DOTweenPro\readme.txt" />
-    <None Include="Assets\Demigiant\DemiLib\Core\DemiLib.xml" />
-    <None Include="Assets\Demigiant\DemiLib\Core\Editor\DemiEditor.xml" />
-    <None Include="Assets\Demigiant\readme_DOTweenPro.txt" />
     <None Include="Assets\Fonts\WoodstampLicense.txt" />
-    <None Include="Assets\LeanTouch\Examples\Fonts\OFL.txt" />
-    <None Include="Assets\LeanTouch\Examples\Shaders\Skybox.shader" />
-    <None Include="Assets\LeanTouch\Examples\Shaders\Smooth.shader" />
-    <None Include="Assets\Nested Prefabs\readme.txt" />
-    <None Include="Assets\Opencoding\Console\EmailTemplates\LogEmailFooter.txt" />
-    <None Include="Assets\Opencoding\Console\EmailTemplates\LogEmailHeader.txt" />
-    <None Include="Assets\Opencoding\Console\Plugins\Android\OpenCoding\AndroidManifest.xml" />
-    <None Include="Assets\Opencoding\Console\Plugins\Android\OpenCoding\res\xml\file_paths.xml" />
-    <None Include="Assets\Opencoding\Console\readme.txt" />
     <None Include="Assets\Plugins\Visual Design Cafe\Assemblies\VisualDesignCafe.Editor.Analytics.xml" />
     <None Include="Assets\Plugins\Visual Design Cafe\Assemblies\VisualDesignCafe.Editor.xml" />
     <None Include="Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.Editor.xml" />
     <None Include="Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.Package.xml" />
     <None Include="Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.xml" />
     <None Include="Assets\Plugins\Visual Design Cafe\Nested Prefabs\README.txt" />
-    <None Include="Assets\TextMesh Pro\Fonts\Anton OFL.txt" />
-    <None Include="Assets\TextMesh Pro\Fonts\Bangers - OFL.txt" />
-    <None Include="Assets\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
-    <None Include="Assets\TextMesh Pro\Fonts\NotoSans - License.txt" />
-    <None Include="Assets\TextMesh Pro\Fonts\Oswald-Bold - OFL.txt" />
-    <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
-    <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap-Mobile.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF Overlay.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Masking.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Overlay.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Sprite.shader" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro.cginc" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro_Properties.cginc" />
-    <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro_Surface.cginc" />
+    <None Include="Assets\ThirdParty\Demigiant\DOTween\DOTween.XML" />
+    <None Include="Assets\ThirdParty\Demigiant\DOTween\DOTween43.xml" />
+    <None Include="Assets\ThirdParty\Demigiant\DOTween\DOTween46.xml" />
+    <None Include="Assets\ThirdParty\Demigiant\DOTween\DOTween50.xml" />
+    <None Include="Assets\ThirdParty\Demigiant\DOTween\Editor\DOTweenEditor.XML" />
+    <None Include="Assets\ThirdParty\Demigiant\DOTween\readme.txt" />
+    <None Include="Assets\ThirdParty\Demigiant\DOTweenPro\DOTweenPro.XML" />
+    <None Include="Assets\ThirdParty\Demigiant\DOTweenPro\Editor\DOTweenProEditor.XML" />
+    <None Include="Assets\ThirdParty\Demigiant\DOTweenPro\readme.txt" />
+    <None Include="Assets\ThirdParty\Demigiant\DemiLib\Core\DemiLib.xml" />
+    <None Include="Assets\ThirdParty\Demigiant\DemiLib\Core\Editor\DemiEditor.xml" />
+    <None Include="Assets\ThirdParty\Demigiant\readme_DOTweenPro.txt" />
+    <None Include="Assets\ThirdParty\LeanTouch\Examples\Fonts\OFL.txt" />
+    <None Include="Assets\ThirdParty\LeanTouch\Examples\Shaders\Skybox.shader" />
+    <None Include="Assets\ThirdParty\LeanTouch\Examples\Shaders\Smooth.shader" />
+    <None Include="Assets\ThirdParty\Nested Prefabs\readme.txt" />
+    <None Include="Assets\ThirdParty\Opencoding\Console\EmailTemplates\LogEmailFooter.txt" />
+    <None Include="Assets\ThirdParty\Opencoding\Console\EmailTemplates\LogEmailHeader.txt" />
+    <None Include="Assets\ThirdParty\Opencoding\Console\Plugins\Android\OpenCoding\AndroidManifest.xml" />
+    <None Include="Assets\ThirdParty\Opencoding\Console\Plugins\Android\OpenCoding\res\xml\file_paths.xml" />
+    <None Include="Assets\ThirdParty\Opencoding\Console\readme.txt" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Fonts\Anton OFL.txt" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Fonts\Bangers - OFL.txt" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Fonts\NotoSans - License.txt" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Fonts\Oswald-Bold - OFL.txt" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_Bitmap-Mobile.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_Bitmap.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF Overlay.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Masking.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Overlay.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_Sprite.shader" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMPro.cginc" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMPro_Properties.cginc" />
+    <None Include="Assets\ThirdParty\TextMesh Pro\Resources\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\link.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

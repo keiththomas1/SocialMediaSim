@@ -62,7 +62,7 @@ public struct CharacterPropertiesModelJson
         public int avatarLevel;
         public int happinessLevel;
         public int fitnessLevel;
-        public int styleLevel;
+        public int hygieneLevel;
     }
     public string gender;
     public SerializableVector3 position;
@@ -147,7 +147,7 @@ public class PostRequester
         newPicture.characterProperties.levelProperties.avatarLevel = post.characterProperties.avatarLevel;
         newPicture.characterProperties.levelProperties.happinessLevel = post.characterProperties.happinessLevel;
         newPicture.characterProperties.levelProperties.fitnessLevel = post.characterProperties.fitnessLevel;
-        newPicture.characterProperties.levelProperties.styleLevel = post.characterProperties.styleLevel;
+        newPicture.characterProperties.levelProperties.hygieneLevel = post.characterProperties.hygieneLevel;
 
         newPicture.characterProperties.colorProperties = new CharacterPropertiesModelJson.ColorProperties();
         newPicture.characterProperties.colorProperties.skinColor = post.characterProperties.skinColor;
@@ -314,7 +314,7 @@ public class PostRequester
         newPost.characterProperties.avatarLevel = picture.characterProperties.levelProperties.avatarLevel;
         newPost.characterProperties.happinessLevel = picture.characterProperties.levelProperties.happinessLevel;
         newPost.characterProperties.fitnessLevel = picture.characterProperties.levelProperties.fitnessLevel;
-        newPost.characterProperties.styleLevel = picture.characterProperties.levelProperties.styleLevel;
+        newPost.characterProperties.hygieneLevel = picture.characterProperties.levelProperties.hygieneLevel;
 
         newPost.characterProperties.skinColor = picture.characterProperties.colorProperties.skinColor;
         newPost.characterProperties.hairColor = picture.characterProperties.colorProperties.hairColor;

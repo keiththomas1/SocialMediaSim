@@ -14,6 +14,8 @@ public class NotificationScreenController : MonoBehaviour
     public NotificationEvent NewNotificationsPulled = new NotificationEvent();
 
     [SerializeField]
+    private GameObject _notificationButton;
+    [SerializeField]
     private GameObject _notificationPopup;
     private Transform _notificationPanel;
 
@@ -35,6 +37,9 @@ public class NotificationScreenController : MonoBehaviour
 
         var viewport = this._notificationPopup.transform.Find("Viewport");
         this._notificationPanel = viewport.transform.Find("NotificationPanel");
+
+        var enableNotifications = (this._userSerializer.PostedPhoto && this._userSerializer.NotificationsEnabled);
+        this.SetNotificationButtonEnabled(enableNotifications);
     }
 
     void Update()
@@ -44,7 +49,10 @@ public class NotificationScreenController : MonoBehaviour
             this._pullTimer -= Time.deltaTime;
             if (this._pullTimer <= 0.0f)
             {
-                this.PullNotificationsAndSendEvent();
+                if (this._notificationButton.activeSelf)
+                {
+                    this.PullNotificationsAndSendEvent();
+                }
                 this._pullTimer = PullFrequencyInSeconds;
             }
         }
@@ -78,6 +86,21 @@ public class NotificationScreenController : MonoBehaviour
     public void DestroyPage()
     {
         this._notificationPopup.SetActive(false);
+    }
+
+    public void CreateNotificationButton()
+    {
+        this.SetNotificationButtonEnabled(true);
+        this._notificationButton.GetComponent<Animator>().Play("Creation");
+    }
+
+    private void SetNotificationButtonEnabled(bool enabled)
+    {
+        this._notificationButton.SetActive(enabled);
+        if (enabled)
+        {
+            this.StartGatheringNotifications();
+        }
     }
 
     private async void PullNotificationsAndSendEvent()

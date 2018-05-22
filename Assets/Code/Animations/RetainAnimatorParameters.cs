@@ -22,10 +22,13 @@ public class RetainAnimatorParameters : MonoBehaviour {
         var paramaters = this._animator.parameters;
         foreach (var parameter in paramaters)
         {
-            var boolParameter = new AnimatorBoolParameter();
-            boolParameter.name = parameter.name;
-            boolParameter.value = this._animator.GetBool(parameter.name);
-            this._boolParameters.Add(boolParameter);
+            if (parameter.type == AnimatorControllerParameterType.Bool)
+            {
+                var boolParameter = new AnimatorBoolParameter();
+                boolParameter.name = parameter.name;
+                boolParameter.value = this._animator.GetBool(parameter.name);
+                this._boolParameters.Add(boolParameter);
+            }
         }
     }
 

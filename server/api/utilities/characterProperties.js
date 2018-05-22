@@ -30,7 +30,7 @@ let CharacterLevelProperties = new Schema({
 	avatarLevel: Number,
 	happinessLevel: Number,
 	fitnessLevel: Number,
-	styleLevel: Number
+	hygieneLevel: Number
 });
 
 let CharacterProperties = new Schema({

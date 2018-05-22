@@ -13,7 +13,10 @@ public class MessagesScreenController : MonoBehaviour {
 
     private MessagesSerializer _messagesSerializer;
     private CharacterSerializer _characterSerializer;
+    private UserSerializer _userSerializer;
     private MessagePost _messagePost;
+
+    private NotificationScreenController _notificationScreenController;
     private MessageCollection _messageCollection;
     private PostHelper _postHelper;
 
@@ -29,13 +32,17 @@ public class MessagesScreenController : MonoBehaviour {
     private const float STUB_STARTING_X = 0.0f;
     private const float STUB_STARTING_Y = -.2f;
 
-    private Queue<GameObject> _messageQueue;
+    private Queue<MessageReference> _messageQueue;
     private List<GameObject> _messageObjects;
     private const float TYPING_TIME = 1.5f;
     private bool _messageDotsVisible = false;
     private float _messageWritingTimer = 0.0f;
     private GameObject _currentTypingBubble;
     private Tweener _currentTypingTween;
+
+    private Color32 STORY_COLOR = new Color32(75, 195, 255, 255);
+    private Color32 CHOICE_COLOR = new Color32(223, 28, 194, 255);
+    private Color32 FINISHED_COLOR = new Color32(167, 167, 167, 255);
 
     private enum MessageScreenState
     {
@@ -44,11 +51,20 @@ public class MessagesScreenController : MonoBehaviour {
     }
     private MessageScreenState _currentState;
 
-	// Use this for initialization
-	void Start () {
+    private class MessageReference
+    {
+        public Message message;
+        public GameObject gameObject;
+    }
+
+    // Use this for initialization
+    void Start() {
         this._messagesSerializer = MessagesSerializer.Instance;
         this._characterSerializer = CharacterSerializer.Instance;
+        this._userSerializer = UserSerializer.Instance;
         this._messagePost = MessagePost.Instance;
+
+        this._notificationScreenController = this.GetComponent<NotificationScreenController>();
         this._messageCollection = new MessageCollection();
         this._postHelper = new PostHelper();
         this.activeConversations = new List<Conversation>();
@@ -59,11 +75,11 @@ public class MessagesScreenController : MonoBehaviour {
         this._messageHeader.GetComponent<Button>().onClick.AddListener(this.MessageBackClicked);
         this._currentState = MessageScreenState.MessageStubs;
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update() {
         // TODO: This section is too large to understand, refactor it into methods
-	    if (this._messageWritingTimer > 0.0f)
+        if (this._messageWritingTimer > 0.0f)
         {
             this._messageWritingTimer -= Time.deltaTime;
             if (this._messageWritingTimer <= 0.0f)
@@ -71,7 +87,11 @@ public class MessagesScreenController : MonoBehaviour {
                 if (this._messageDotsVisible)
                 {
                     this._messageDotsVisible = false;
-                    this._messageQueue.Dequeue();
+                    var currentMessage = this._messageQueue.Dequeue();
+                    if (currentMessage.message.action != MessageCollection.MessageAction.None)
+                    {
+                        this.HandleMessageActions(currentMessage.message.action);
+                    }
 
                     if (this._messageQueue.Count != 0)
                     {
@@ -80,19 +100,31 @@ public class MessagesScreenController : MonoBehaviour {
                         if (!this._currentConversation.viewed)
                         {
                             this._currentConversation.viewed = true;
-                            this._messagesSerializer.UpdateConversation(this._currentConversation);
                         }
+                        if (!this._currentConversation.finished
+                            && this._currentConversation.choiceCount == 0)
+                        {
+                            this._currentConversation.finished = true;
+                        }
+                        this._messagesSerializer.UpdateConversation(this._currentConversation);
                     }
                 } else {
                     this.StartNextMessageAnimation();
                 }
             }
         }
+
+#if UNITY_EDITOR
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            this._messagePost.CreateNextMessage();
+        }
+#endif
     }
 
     public void HandleClick(string colliderName)
     {
-        if (this._messageWritingTimer > 0.0f)
+                if (this._messageWritingTimer > 0.0f)
         {
             this._messageWritingTimer = 0.01f;
             if (this._currentTypingBubble)
@@ -176,7 +208,7 @@ public class MessagesScreenController : MonoBehaviour {
 
     private void StartNextMessageAnimation()
     {
-        GameObject nextMessage = null;
+        MessageReference nextMessage = null;
         try
         {
             nextMessage = this._messageQueue.Peek();
@@ -188,13 +220,47 @@ public class MessagesScreenController : MonoBehaviour {
         }
 
         this._messageDotsVisible = true;
-        if (nextMessage)
+        if (nextMessage != null && nextMessage.gameObject != null)
         {
-            nextMessage.SetActive(true);
+            nextMessage.gameObject.SetActive(true);
 
-            this.CreateTypingBackground(nextMessage);
+            this.CreateTypingBackground(nextMessage.gameObject);
 
             this._messageWritingTimer = 2.0f;
+        }
+    }
+
+    private void HandleMessageActions(MessageCollection.MessageAction action)
+    {
+        switch (action)
+        {
+            case MessageCollection.MessageAction.EnableNotifications:
+                this._userSerializer.NotificationsEnabled = true;
+                this._notificationScreenController.CreateNotificationButton();
+                break;
+            case MessageCollection.MessageAction.BotchBirthmark:
+                switch (this._characterSerializer.Birthmark)
+                {
+                    case BirthMarkType.MiddleMole:
+                        this._characterSerializer.Birthmark = BirthMarkType.MiddleBlotch;
+                        break;
+                    case BirthMarkType.LeftMole:
+                        this._characterSerializer.Birthmark = BirthMarkType.LeftBlotch;
+                        break;
+                    case BirthMarkType.BottomMole:
+                        this._characterSerializer.Birthmark = BirthMarkType.BottomBlotch;
+                        break;
+                    case BirthMarkType.RightMole:
+                        this._characterSerializer.Birthmark = BirthMarkType.RightBlotch;
+                        break;
+                    case BirthMarkType.TopMole:
+                        this._characterSerializer.Birthmark = BirthMarkType.TopBlotch;
+                        break;
+                }
+                break;
+            case MessageCollection.MessageAction.None:
+            default:
+                break;
         }
     }
 
@@ -294,11 +360,11 @@ public class MessagesScreenController : MonoBehaviour {
 
             var messageCount = this._messageObjects.Count;
             var choicesCount = this._currentConversation.choiceCount;
-			var lastNonChoiceMessage = this._messageObjects[messageCount - 1 - choicesCount];
+            var lastNonChoiceMessage = this._messageObjects[messageCount - 1 - choicesCount];
             var yLocation = this._messageObjects[messageCount - choicesCount].transform.localPosition.y;
 
             // Hard-coded to destroy the last two messages (choices)
-            for (int i=1; i<=this._currentConversation.choiceCount; i++)
+            for (int i = 1; i <= this._currentConversation.choiceCount; i++)
             {
                 messageCount = this._messageObjects.Count;
                 GameObject.Destroy(this._messageObjects[messageCount - 1]);
@@ -371,6 +437,32 @@ public class MessagesScreenController : MonoBehaviour {
         var profileBubble = messageStub.transform.Find("ProfilePicBubble");
         this.SetNPCMessageAvatarMask(profileBubble, conversation);
 
+        var stubBackground = messageStub.transform.Find("StubBackground");
+        if (stubBackground)
+        {
+            if (conversation.finished)
+            {
+                stubBackground.GetComponent<SpriteRenderer>().color = FINISHED_COLOR;
+            }
+            else
+            {
+                switch (conversation.conversationType)
+                {
+                    case DelaygramConversationType.Choice:
+                        stubBackground.GetComponent<SpriteRenderer>().color = CHOICE_COLOR;
+                        break;
+                    case DelaygramConversationType.Story:
+                    default:
+                        stubBackground.GetComponent<SpriteRenderer>().color = STORY_COLOR;
+                        break;
+                }
+            }
+        }
+        var typeText = messageStub.transform.Find("TypeText");
+        if (typeText)
+        {
+            typeText.GetComponent<TextMeshPro>().text = conversation.conversationType.ToString();
+        }
         var nameText = messageStub.transform.Find("NameText");
         if (nameText)
         {
@@ -384,7 +476,8 @@ public class MessagesScreenController : MonoBehaviour {
         var timeText = messageStub.transform.Find("TimeText");
         if (timeText)
         {
-            timeText.GetComponent<TextMeshPro>().text = this._postHelper.GetMessageTimeFromDateTime(message.timeSent);
+            timeText.GetComponent<TextMeshPro>().text = this._postHelper.GetMessageTimeFromDateTime(
+                conversation.timeSent);
         }
 
         if (!conversation.viewed)
@@ -404,7 +497,7 @@ public class MessagesScreenController : MonoBehaviour {
 
     private void DestroyMessageStubs()
     {
-        foreach(var stub in this.createdStubs)
+        foreach (var stub in this.createdStubs)
         {
             GameObject.Destroy(stub);
         }
@@ -417,7 +510,7 @@ public class MessagesScreenController : MonoBehaviour {
         this.SetTypeText("Choice", true);
         var currentYPosition = yPosition;
 
-        this._messageQueue = new Queue<GameObject>();
+        this._messageQueue = new Queue<MessageReference>();
         foreach (Message message in messages)
         {
             switch (message.type)
@@ -427,9 +520,10 @@ public class MessagesScreenController : MonoBehaviour {
                     break;
                 case DelaygramMessageType.Choice:
                     int choiceCount = 1;
-                    foreach(string choice in message.choices)
+                    foreach (string choice in message.choices)
                     {
-                        currentYPosition -= this.AddPlayerChoiceObject(conversation, choice, "Choice" + choiceCount.ToString(), currentYPosition);
+                        currentYPosition -= this.AddPlayerChoiceObject(
+                            conversation, message, choice, "Choice" + choiceCount.ToString(), currentYPosition);
                         choiceCount++;
                     }
                     break;
@@ -438,7 +532,7 @@ public class MessagesScreenController : MonoBehaviour {
                     break;
                 case DelaygramMessageType.Result:
                     var prefabName = this._messageCollection.GetResultPrefabName(message.text);
-                    currentYPosition -= this.AddResultMessageObject(conversation, prefabName, currentYPosition);
+                    currentYPosition -= this.AddResultMessageObject(conversation, message, prefabName, currentYPosition);
                     break;
             }
         }
@@ -450,7 +544,7 @@ public class MessagesScreenController : MonoBehaviour {
         }
 
         this._currentConversation = conversation;
-        conversation.viewed = true;
+        // conversation.viewed = true;
 
         return (yPosition - currentYPosition);
     }
@@ -472,11 +566,12 @@ public class MessagesScreenController : MonoBehaviour {
         this._postHelper.SetupAvatarMask(profileBubble.gameObject, this._characterSerializer.CurrentCharacterProperties);
 
         var textHeight = this.SetupText(popupMessage, message.text);
-        this.StoreMessageObject(conversation, popupMessage);
+        this.StoreMessageObject(conversation, message, popupMessage);
         return DEFAULT_MESSAGE_SIZE + textHeight;
     }
 
-    private float AddPlayerChoiceObject(Conversation conversation, string choiceText, string nameText, float yPosition)
+    private float AddPlayerChoiceObject(
+        Conversation conversation, Message message, string choiceText, string nameText, float yPosition)
     {
         var popupMessage = GameObject.Instantiate(Resources.Load("Messages/Player/PlayerChoice") as GameObject);
         popupMessage.name = nameText;
@@ -484,7 +579,7 @@ public class MessagesScreenController : MonoBehaviour {
         popupMessage.transform.localPosition = new Vector3(0.0f, yPosition, 0.0f);
 
         var textHeight = this.SetupText(popupMessage, choiceText);
-        this.StoreMessageObject(conversation, popupMessage);
+        this.StoreMessageObject(conversation, message, popupMessage);
         return 0.35f + textHeight;
     }
 
@@ -498,19 +593,39 @@ public class MessagesScreenController : MonoBehaviour {
         this.SetNPCMessageAvatarMask(profileBubble, conversation);
 
         var textHeight = this.SetupText(popupMessage, message.text);
-        this.StoreMessageObject(conversation, popupMessage);
+        this.StoreMessageObject(conversation, message, popupMessage);
 
         var messageHeight = DEFAULT_MESSAGE_SIZE + textHeight;
         return messageHeight;
     }
 
-    private float AddResultMessageObject(Conversation conversation, string prefabName, float yPosition)
+    private float AddResultMessageObject(
+        Conversation conversation, Message message, string prefabName, float yPosition)
     {
         var popupMessage = GameObject.Instantiate(Resources.Load(prefabName) as GameObject);
         popupMessage.transform.parent = this._pageScrollArea;
         popupMessage.transform.localPosition = new Vector3(0.0f, yPosition, 0.0f);
 
-        this.StoreMessageObject(conversation, popupMessage);
+        var profilePicBubble = popupMessage.transform.Find("ProfilePicBubble");
+        var maleAvatar = profilePicBubble.Find("MaleAvatar");
+        if (maleAvatar)
+        {
+            var femaleAvatar = profilePicBubble.Find("FemaleAvatar");
+            var gender = this._characterSerializer.Gender;
+            switch (gender)
+            {
+                case Gender.Male:
+                    maleAvatar.gameObject.SetActive(true);
+                    femaleAvatar.gameObject.SetActive(false);
+                    break;
+                case Gender.Female:
+                    maleAvatar.gameObject.SetActive(false);
+                    femaleAvatar.gameObject.SetActive(true);
+                    break;
+            }
+        }
+
+        this.StoreMessageObject(conversation, message, popupMessage);
 
         // TODO: Figure out the size dynamically somehow, or just make all the results the same height
         return 1.6f;
@@ -521,17 +636,26 @@ public class MessagesScreenController : MonoBehaviour {
         profileBubble.Find("MaleAvatar").gameObject.SetActive(false);
         profileBubble.Find("FemaleAvatar").gameObject.SetActive(false);
         profileBubble.Find("Professor").gameObject.SetActive(conversation.npcName == MessageCollection.PROFESSOR_NAME);
-        profileBubble.Find("ProductEngineer").gameObject.SetActive(conversation.npcName == MessageCollection.PRODUCT_ENGINEER_NAME);
+        profileBubble.Find("ProductEngineer").gameObject.SetActive(
+            conversation.npcName == MessageCollection.PRODUCT_ENGINEER_NAME);
+        profileBubble.Find("PlasticSurgeon").gameObject.SetActive(
+            conversation.npcName == MessageCollection.PLASTIC_SURGERY_NAME);
 
         if (conversation.npcName != MessageCollection.PROFESSOR_NAME
-            && conversation.npcName != MessageCollection.PRODUCT_ENGINEER_NAME)
+            && conversation.npcName != MessageCollection.PRODUCT_ENGINEER_NAME
+            && conversation.npcName != MessageCollection.PLASTIC_SURGERY_NAME)
         {
             this._postHelper.SetupAvatarMask(profileBubble.gameObject, conversation.npcProperties);
         }
     }
 
-    private void StoreMessageObject(Conversation conversation, GameObject messageObject)
+    private void StoreMessageObject(Conversation conversation, Message message, GameObject messageObject)
     {
+        var messageReference = new MessageReference()
+        {
+            message = message,
+            gameObject = messageObject
+        };
         if (!conversation.viewed)
         {
             var messageText = messageObject.transform.Find("MessageText");
@@ -546,7 +670,7 @@ public class MessagesScreenController : MonoBehaviour {
             }
             messageObject.SetActive(false);
 
-            this._messageQueue.Enqueue(messageObject);
+            this._messageQueue.Enqueue(messageReference);
         }
         this._messageObjects.Add(messageObject);
     }

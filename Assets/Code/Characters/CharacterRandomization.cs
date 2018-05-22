@@ -168,14 +168,22 @@ public class CharacterRandomization {
 
     public BirthMarkType GetRandomBirthMark()
     {
-        var randomBirthmark = BirthMarkType.None;
-        while (randomBirthmark == BirthMarkType.None)
+        var randomNumber = UnityEngine.Random.Range(0, 5);
+        switch (randomNumber)
         {
-            var birthmarkEnumLength = Enum.GetValues(typeof(BirthMarkType)).Length;
-            randomBirthmark = (BirthMarkType)UnityEngine.Random.Range(0, birthmarkEnumLength);
+            case 0:
+                return BirthMarkType.MiddleMole;
+            case 1:
+                return BirthMarkType.LeftMole;
+            case 2:
+                return BirthMarkType.BottomMole;
+            case 3:
+                return BirthMarkType.RightMole;
+            case 4:
+                return BirthMarkType.TopMole;
+            default:
+                return BirthMarkType.None;
         }
-
-        return randomBirthmark;
     }
 
     public static Color GetRandomColor()

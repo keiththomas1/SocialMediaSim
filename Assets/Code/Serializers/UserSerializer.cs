@@ -205,6 +205,15 @@ public class UserSerializer
             this.SaveFile();
         }
     }
+    public bool NotificationsEnabled
+    {
+        get { return this._currentSave.storyProperties.notificationsEnabled; }
+        set
+        {
+            this._currentSave.storyProperties.notificationsEnabled = value;
+            this.SaveFile();
+        }
+    }
 
     public int PostCount
     {
@@ -341,20 +350,6 @@ public class UserSerializer
             this._currentSave.levelExperience = 0;
 
             this._currentSave.storyProperties = new StoryProperties();
-            this._currentSave.storyProperties.createdCharacter = false;
-            this._currentSave.storyProperties.postedPhoto = false;
-            this._currentSave.storyProperties.completedTutorial = false;
-
-            this._currentSave.storyProperties.hasBulldog = false;
-            this._currentSave.storyProperties.hasCat = false;
-            this._currentSave.storyProperties.hasDrone = false;
-
-            this._currentSave.storyProperties.hasBeachBackground = false;
-            this._currentSave.storyProperties.hasCityBackground = false;
-            this._currentSave.storyProperties.hasParkBackground = false;
-            this._currentSave.storyProperties.hasCamRoomBackground = false;
-            this._currentSave.storyProperties.hasLouvreBackground = false;
-            this._currentSave.storyProperties.hasYachtBackground = false;
 
             this._currentSave.posts = new List<DelayGramPost>();
             this._currentSave.notifications = new List<DelayGramNotification>();
@@ -414,15 +409,19 @@ public class StoryProperties
     public bool createdCharacter;
     public bool postedPhoto;
     public bool completedTutorial;
+
     public bool hasBulldog;
     public bool hasCat;
     public bool hasDrone;
+
     public bool hasBeachBackground;
     public bool hasCityBackground;
     public bool hasParkBackground;
     public bool hasCamRoomBackground;
     public bool hasLouvreBackground;
     public bool hasYachtBackground;
+
+    public bool notificationsEnabled;
 }
 
 // Can speed up in the future by turning bought items into a bool array.

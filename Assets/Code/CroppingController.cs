@@ -9,6 +9,8 @@ public class CroppingController : MonoBehaviour {
     public UnityEvent OnAvatarMovedDecentDistance;
     public UnityEvent OnAvatarResizedAndRotated;
 
+    private UserSerializer _userSerializer;
+
     private List<GameObject> _movableObjects;
     private GameObject _currentObject = null;
     private bool _currentlyDragging = false;
@@ -37,6 +39,11 @@ public class CroppingController : MonoBehaviour {
     };
     private int _currentPoseIndex = 0;
     private Tweener _poseTextFadeTweener = null;
+
+    private void Awake()
+    {
+        this._userSerializer = UserSerializer.Instance;
+    }
 
     // Use this for initialization
     void Start () {
@@ -203,6 +210,17 @@ public class CroppingController : MonoBehaviour {
             this._currentlyDragging = false;
             if (this._currentObject.GetComponent<Animator>())
             {
+                // If outside the photo and still within tutorial,
+                // then place the object at center of screen
+                if (!this._userSerializer.PostedPhoto
+                    && (this._currentObject.transform.position.x <= -1.4f
+                    || this._currentObject.transform.position.x >= 1.3f
+                    || this._currentObject.transform.position.y <= -0.05f
+                    || this._currentObject.transform.position.y >= 2.6f))
+                {
+                    this._currentObject.transform.position = new Vector3(0f, 1.2f);
+                }
+
                 // If within a certain threshold, change pose state
                 if (this._hangingTimer > (HangDelay - 0.2f))
                 {
@@ -213,30 +231,19 @@ public class CroppingController : MonoBehaviour {
 
                     this._currentObject.GetComponent<Animator>().SetBool(oldPoseName, false);
 
-                    // Set pose text to something and tween a fade out?
                     var poseTextTransform = this._currentObject.transform.Find("PoseText");
-                    poseTextTransform.gameObject.SetActive(true);
-                    var poseText = poseTextTransform.GetComponent<TextMeshPro>();
-                    poseText.text = string.Format("{0}/{1}",
-                        this._currentPoseIndex + 1,
-                        this._poseStateNames.Count);
-                    if (this._poseTextFadeTweener != null && this._poseTextFadeTweener.IsPlaying())
+                    if (poseTextTransform)
                     {
-                        this._poseTextFadeTweener.Kill(false);
+                        this.SetPoseText(poseTextTransform);
                     }
-                    var currentColor = new Color32(0, 0, 0, 255);
-                    poseText.color = currentColor;
-                    currentColor.a = 0;
-                    this._poseTextFadeTweener = ShortcutExtensionsTextMeshPro
-                        .DOColor(poseText, currentColor, 2f)
-                        .SetEase(Ease.OutQuad);
                 }
 
                 var currentPoseName = this._poseStateNames[this._currentPoseIndex];
-                this._currentObject.GetComponent<Animator>().SetBool(currentPoseName, true);
+                var animator = this._currentObject.GetComponent<Animator>();
+                animator.SetBool(currentPoseName, true);
 
                 this._hangingTimer = 0.0f;
-                this._currentObject.GetComponent<Animator>().SetBool("Hanging", false);
+                animator.SetBool("Hanging", false);
             }
             else
             {
@@ -250,6 +257,25 @@ public class CroppingController : MonoBehaviour {
                 }
             }
         }
+    }
+
+    private void SetPoseText(Transform poseTextTransform)
+    {
+        poseTextTransform.gameObject.SetActive(true);
+        var poseText = poseTextTransform.GetComponent<TextMeshPro>();
+        poseText.text = string.Format("{0}/{1}",
+            this._currentPoseIndex + 1,
+            this._poseStateNames.Count);
+        if (this._poseTextFadeTweener != null && this._poseTextFadeTweener.IsPlaying())
+        {
+            this._poseTextFadeTweener.Kill(false);
+        }
+        var currentColor = new Color32(0, 0, 0, 255);
+        poseText.color = currentColor;
+        currentColor.a = 0;
+        this._poseTextFadeTweener = ShortcutExtensionsTextMeshPro
+            .DOColor(poseText, currentColor, 2f)
+            .SetEase(Ease.OutQuad);
     }
 
     private void HandleDrag()

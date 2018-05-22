@@ -155,6 +155,7 @@ public struct Conversation
     public List<int> choicesMade;
     public bool viewed;
     public bool finished;
+    public DateTime timeSent;
 }
 
 [Serializable]
@@ -163,5 +164,5 @@ public struct Message
     public DelaygramMessageType type;
     public string text;
     public List<string> choices;
-    public DateTime timeSent;
+    public MessageCollection.MessageAction action;
 }

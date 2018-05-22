@@ -204,6 +204,9 @@ public class ProfileScreenController : MonoBehaviour
         this._scrollArea = _page.transform.Find("ScrollArea").gameObject;
         this._scrollController = _scrollArea.GetComponent<ScrollController>();
 
+        var nameText = this._scrollArea.transform.Find("NameText");
+        nameText.GetComponent<TextMeshPro>().text = this._userSerializer.PlayerName;
+
         var characterSection = _scrollArea.transform.Find("CharacterSection").gameObject;
         this._levelingController = characterSection.transform.Find("LevelInformation").GetComponent<LevelingController>();
         this._spriteMask = characterSection.transform.Find("SpriteMask").gameObject;
@@ -554,9 +557,15 @@ public class ProfileScreenController : MonoBehaviour
                             textDescription = String.Format("Post {0} {1} at the {2}",
                                 currentGoal.stepsNeeded, timesText, currentGoal.goalObject);
                             break;
-                        case GoalObjectType.Item:
+                        case GoalObjectType.Pet:
                             textDescription = String.Format("Post {0} {1} with your {2}",
                                 currentGoal.stepsNeeded, timesText, currentGoal.goalObject);
+                            break;
+                        case GoalObjectType.Ratings:
+                            textDescription = String.Format("Rate other people's posts");
+                            break;
+                        case GoalObjectType.Scrolling:
+                            textDescription = String.Format("Scroll through the world feed");
                             break;
                     }
                     goalParent.transform.Find("GoalText").GetComponent<TextMeshPro>().text =

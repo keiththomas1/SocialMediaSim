@@ -97,8 +97,10 @@ public class PostHelper {
             }
             else
             {
-                avatar.GetComponent<Animator>().Play("Standing", -1, UnityEngine.Random.Range(0.0f, 1.0f));
+                avatar.GetComponent<Animator>().SetBool("Standing", true);
+                //avatar.GetComponent<Animator>().Play("Standing", -1, UnityEngine.Random.Range(0.0f, 1.0f));
             }
+            avatar.GetComponent<Animator>().SetFloat("TransitionOffset", UnityEngine.Random.Range(0f, 1f));
 
             var avatarCustomization = avatar.GetComponent<AvatarController>();
             avatarCustomization.SetCharacterLook(data.characterProperties);
