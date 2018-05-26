@@ -257,12 +257,6 @@
     <Reference Include="DOTweenPro">
       <HintPath>Assets\ThirdParty\Demigiant\DOTweenPro\DOTweenPro.dll</HintPath>
     </Reference>
-    <Reference Include="NestedPrefabs">
-      <HintPath>Assets\ThirdParty\Nested Prefabs\NestedPrefabs.dll</HintPath>
-    </Reference>
-    <Reference Include="NestedPrefabs_Editor">
-      <HintPath>Assets\ThirdParty\Nested Prefabs\NestedPrefabs_Editor.dll</HintPath>
-    </Reference>
     <Reference Include="Opencoding.CommandHandlers">
       <HintPath>Assets\ThirdParty\Opencoding\Console\DLLs\Opencoding.CommandHandlers.dll</HintPath>
     </Reference>
@@ -277,6 +271,12 @@
     </Reference>
     <Reference Include="TextMeshPro-1.0.55.2017.1.0b12">
       <HintPath>Assets\ThirdParty\TextMesh Pro\Plugins\TextMeshPro-1.0.55.2017.1.0b12.dll</HintPath>
+    </Reference>
+    <Reference Include="NestedPrefabs">
+      <HintPath>Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.dll</HintPath>
+    </Reference>
+    <Reference Include="NestedPrefabs.Editor">
+      <HintPath>Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.Editor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -423,7 +423,6 @@
     <None Include="Assets\ThirdParty\LeanTouch\Examples\Fonts\OFL.txt" />
     <None Include="Assets\ThirdParty\LeanTouch\Examples\Shaders\Skybox.shader" />
     <None Include="Assets\ThirdParty\LeanTouch\Examples\Shaders\Smooth.shader" />
-    <None Include="Assets\ThirdParty\Nested Prefabs\readme.txt" />
     <None Include="Assets\ThirdParty\Opencoding\Console\EmailTemplates\LogEmailFooter.txt" />
     <None Include="Assets\ThirdParty\Opencoding\Console\EmailTemplates\LogEmailHeader.txt" />
     <None Include="Assets\ThirdParty\Opencoding\Console\Plugins\Android\OpenCoding\AndroidManifest.xml" />

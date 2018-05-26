@@ -722,6 +722,172 @@ ModelImporter:
     7400004: Idle
     9500000: //RootNode
     11100000: //RootNode
+    11400000: Ankle
+    11400002: Ankle1
+    11400004: Armor
+    11400006: Armor1
+    11400008: Armor2
+    11400010: Armor3
+    11400012: Armor4
+    11400014: Armor5
+    11400016: Armor6
+    11400018: Armor7
+    11400020: average1
+    11400022: average2
+    11400024: Bottom
+    11400026: Bottom 1
+    11400028: Bottom 2
+    11400030: Bottom 3
+    11400032: Bottom 4
+    11400034: Cage1
+    11400036: Cage10
+    11400038: Cage11
+    11400040: Cage12
+    11400042: Cage13
+    11400044: Cage14
+    11400046: Cage2
+    11400048: Cage3
+    11400050: Cage4
+    11400052: Cage5
+    11400054: Cage6
+    11400056: Cage7
+    11400058: Cage8
+    11400060: Cage9
+    11400062: Geo
+    11400064: Geo_Jaw
+    11400066: Head_Grp
+    11400068: Jaw_Grp
+    11400070: L_Chin
+    11400072: L_Chin_2
+    11400074: L_Leg
+    11400076: Left
+    11400078: Left 1
+    11400080: Left 2
+    11400082: Left 3
+    11400084: LeftLeg
+    11400086: LeftLeg1
+    11400088: pCube1
+    11400090: pCube10
+    11400092: pCube11
+    11400094: pCube12
+    11400096: pCube13
+    11400098: pCube14
+    11400100: pCube17
+    11400102: pCube18
+    11400104: pCube19
+    11400106: pCube19 1
+    11400108: pCube1_Upper10
+    11400110: pCube1_Upper11
+    11400112: pCube1_Upper12
+    11400114: pCube1_Upper4
+    11400116: pCube1_Upper5
+    11400118: pCube1_Upper6
+    11400120: pCube1_Upper7
+    11400122: pCube1_Upper8
+    11400124: pCube1_Upper9
+    11400126: pCube2
+    11400128: pCube20
+    11400130: pCube21
+    11400132: pCube22
+    11400134: pCube23
+    11400136: pCube24
+    11400138: pCube25
+    11400140: pCube26
+    11400142: pCube3
+    11400144: pCube39
+    11400146: pCube4
+    11400148: pCube45
+    11400150: pCube5
+    11400152: pCube50
+    11400154: pCube50 1
+    11400156: pCube51
+    11400158: pCube51 1
+    11400160: pCube52
+    11400162: pCube52 1
+    11400164: pCube58
+    11400166: pCube58 1
+    11400168: pCube59
+    11400170: pCube6
+    11400172: pCube60
+    11400174: pCube61
+    11400176: pCube7
+    11400178: pCube8
+    11400180: pCube9
+    11400182: pCylinder10
+    11400184: pCylinder10 1
+    11400186: pCylinder11
+    11400188: pCylinder11 1
+    11400190: pCylinder2
+    11400192: pCylinder3
+    11400194: pCylinder6
+    11400196: pCylinder6 1
+    11400198: pCylinder7
+    11400200: pCylinder7 1
+    11400202: PistonShock
+    11400204: PistonShock2
+    11400206: PistonShock5
+    11400208: PistonShock6
+    11400210: polySurface13
+    11400212: polySurface14
+    11400214: polySurface15
+    11400216: polySurface16
+    11400218: polySurface17
+    11400220: polySurface18
+    11400222: polySurface19
+    11400224: polySurface20
+    11400226: polySurface21
+    11400228: polySurface22
+    11400230: polySurface23
+    11400232: polySurface24
+    11400234: polySurface25
+    11400236: polySurface26
+    11400238: polySurface27
+    11400240: polySurface28
+    11400242: polySurface29
+    11400244: polySurface30
+    11400246: polySurface43
+    11400248: polySurface45
+    11400250: polySurface46
+    11400252: polySurface47
+    11400254: polySurface48
+    11400256: polySurface49
+    11400258: polySurface50
+    11400260: polySurface51
+    11400262: polySurface52
+    11400264: polySurface53
+    11400266: polySurface54
+    11400268: polySurface55
+    11400270: polySurface56
+    11400272: polySurface57
+    11400274: pPipe2
+    11400276: pPipe2 1
+    11400278: pSphere1
+    11400280: pSphere2
+    11400282: pSphere3
+    11400284: pSphere4
+    11400286: pSphere5
+    11400288: pSphere6
+    11400290: R_Chin
+    11400292: R_Chin_2
+    11400294: R_Leg
+    11400296: Right
+    11400298: Right 1
+    11400300: Right 2
+    11400302: Right 3
+    11400304: Shocks
+    11400306: Shocks 1
+    11400308: Side_Cage
+    11400310: Side_Cage 1
+    11400312: Toes
+    11400314: Toes1
+    11400316: Top
+    11400318: Top 1
+    11400320: Top 2
+    11400322: Top 3
+    11400324: Top 4
+    11400326: //RootNode
+    11400328: //RootNode
+    11400330: WholeHead
   externalObjects: {}
   materials:
     importMaterials: 1

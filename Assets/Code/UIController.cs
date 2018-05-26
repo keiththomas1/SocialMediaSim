@@ -386,6 +386,24 @@ public class UIController : MonoBehaviour {
         var newMaleAvatar = spriteMask.transform.Find("NewMaleAvatar");
         var newFemaleAvatar = spriteMask.transform.Find("NewFemaleAvatar");
 
+        var newCharacterProperties = new CharacterProperties(previousCharacterProperties);
+        var previousAttributeLevel = 0;
+        switch (levelUpAttribute)
+        {
+            case LevelUpAttribute.Happiness:
+                previousAttributeLevel = previousCharacterProperties.happinessLevel;
+                newCharacterProperties.happinessLevel = previousAttributeLevel + 1;
+                break;
+            case LevelUpAttribute.Fitness:
+                previousAttributeLevel = previousCharacterProperties.fitnessLevel;
+                newCharacterProperties.fitnessLevel = previousAttributeLevel + 1;
+                break;
+            case LevelUpAttribute.Hygiene:
+                previousAttributeLevel = previousCharacterProperties.hygieneLevel;
+                newCharacterProperties.hygieneLevel = previousAttributeLevel + 1;
+                break;
+        }
+
         var gender = previousCharacterProperties.gender;
         oldMaleAvatar.gameObject.SetActive(gender == Gender.Male);
         oldFemaleAvatar.gameObject.SetActive(gender == Gender.Female);
@@ -396,24 +414,11 @@ public class UIController : MonoBehaviour {
         {
             case Gender.Female:
                 oldFemaleAvatar.GetComponent<AvatarController>().SetCharacterLook(previousCharacterProperties);
+                newFemaleAvatar.GetComponent<AvatarController>().SetCharacterLook(newCharacterProperties);
                 break;
             case Gender.Male:
                 oldMaleAvatar.GetComponent<AvatarController>().SetCharacterLook(previousCharacterProperties);
-                Debug.Log(previousCharacterProperties.birthmark);
-                break;
-        }
-
-        var previousAttributeLevel = 0;
-        switch (levelUpAttribute)
-        {
-            case LevelUpAttribute.Happiness:
-                previousAttributeLevel = previousCharacterProperties.happinessLevel;
-                break;
-            case LevelUpAttribute.Fitness:
-                previousAttributeLevel = previousCharacterProperties.fitnessLevel;
-                break;
-            case LevelUpAttribute.Hygiene:
-                previousAttributeLevel = previousCharacterProperties.hygieneLevel;
+                newMaleAvatar.GetComponent<AvatarController>().SetCharacterLook(newCharacterProperties);
                 break;
         }
 
