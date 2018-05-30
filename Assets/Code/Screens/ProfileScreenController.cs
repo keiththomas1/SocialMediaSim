@@ -20,6 +20,7 @@ public class ProfileScreenController : MonoBehaviour
     private UserSerializer _userSerializer = null;
     private GoalsController _goalsController = null;
     private TutorialScreenController _tutorialController = null;
+    private PostRequester _restRequester = null;
 
     private ScrollController _scrollController = null;
     private RandomNameGenerator _randomNameGenerator = null;
@@ -29,6 +30,7 @@ public class ProfileScreenController : MonoBehaviour
     private GameObject _scrollArea = null;
     private GameObject _spriteMask = null;
     private List<DelayGramPostObject> _youPostObjects;
+    private Dictionary<string, int> _postDictionary;
     private bool _firstPostNew;
     private DelayGramPost _latestPost;
 
@@ -42,7 +44,6 @@ public class ProfileScreenController : MonoBehaviour
 
     private float _randomSpeechBubbleTimer = 0.0f;
     private float _checkingPhoneTimer = 0.0f;
-    private float _cleaningUpTimer = 0.0f;
     private bool _createdName = false;
 
     private enum ProfileScreenState
@@ -64,11 +65,13 @@ public class ProfileScreenController : MonoBehaviour
         this._userSerializer = UserSerializer.Instance;
         this._goalsController = this.GetComponent<GoalsController>();
         this._tutorialController = this.GetComponent<TutorialScreenController>();
+        this._restRequester = new PostRequester();
 
         this._randomNameGenerator = new RandomNameGenerator();
         this._postHelper = new PostHelper();
 
         this._youPostObjects = new List<DelayGramPostObject>();
+        this._postDictionary = new Dictionary<string, int>();
         this._firstPostNew = false;
         this._previousGoals = new GoalInformation[] { null, null, null, null, null };
 
@@ -86,7 +89,6 @@ public class ProfileScreenController : MonoBehaviour
         this.TickGoals();
         this.TickRandomSpeech();
         this.TickCheckingPhone();
-        this.TickCleaningUp();
     }
 
     public void FinishedCreatingPicture(DelayGramPost post)
@@ -166,12 +168,6 @@ public class ProfileScreenController : MonoBehaviour
                 case "RewardButton3":
                     this.CollectGoalReward(2);
                     break;
-                case "CleanButton":
-                    var cleanButton = this._scrollArea.transform.Find("CleanButton");
-                    cleanButton.gameObject.SetActive(false);
-                    this._characterSerializer.CleanUpTime = DateTime.Now + TimeSpan.FromMinutes(10f);
-                    this._cleaningUpTimer = 0.1f;
-                    break;
                 default:
                     foreach (DelayGramPostObject post in this._youPostObjects)
                     {
@@ -213,26 +209,6 @@ public class ProfileScreenController : MonoBehaviour
         this.SetAvatar(this._spriteMask);
         this.SetupItems(this._spriteMask);
 
-        if (this._characterSerializer.Smelly)
-        {
-            if (this._characterSerializer.CleanUpTime < DateTime.Now)
-            {
-                if (this._characterSerializer.CleaningUp)
-                {
-                    this._characterSerializer.Smelly = false;
-                }
-                else
-                {
-                    var cleanButton = this._scrollArea.transform.Find("CleanButton");
-                    cleanButton.gameObject.SetActive(true);
-                }
-            }
-            else
-            {
-                this._cleaningUpTimer = 0.1f;
-            }
-        }
-
         this.SetupGoalSection();
 
         var statsSection = _scrollArea.transform.Find("StatsSection").gameObject;
@@ -243,7 +219,9 @@ public class ProfileScreenController : MonoBehaviour
             this._tutorialController.ShowGoToPostScreenPopup();
         }
 
-        this.GenerateProfilePosts();
+        this.GenerateLocalProfilePosts();
+        this._restRequester.RequestAllUserPosts(
+            this._userSerializer.PlayerName, this.GenerateServerProfilePosts);
     }
 
     public bool BackOut()
@@ -268,6 +246,7 @@ public class ProfileScreenController : MonoBehaviour
             }
         }
         this._youPostObjects.Clear();
+        this._postDictionary.Clear();
 
         if (this._editScreen)
         {
@@ -358,33 +337,6 @@ public class ProfileScreenController : MonoBehaviour
                 {
                     this._currentAvatar.GetComponent<Animator>().Play("CheckingPhone");
                     this._checkingPhoneTimer = UnityEngine.Random.Range(10.0f, 20.0f);
-                }
-            }
-        }
-    }
-    private void TickCleaningUp()
-    {
-        if (this._cleaningUpTimer > 0.0f && this._scrollArea != null)
-        {   // If scroll area is null, the screen is disabled or deleted
-            this._cleaningUpTimer -= Time.deltaTime;
-
-            var cleanText = this._scrollArea.transform.Find("CleanText");
-            if (this._cleaningUpTimer <= 0.0f)
-            {
-                if (this._characterSerializer.CleanUpTime > DateTime.Now)
-                {
-                    var timeTillClean = this._characterSerializer.CleanUpTime - DateTime.Now;
-                    var formattedTime = timeTillClean.ToString(@"mm\:ss");
-
-                    cleanText.gameObject.SetActive(true);
-                    cleanText.GetComponent<TextMeshPro>().text = String.Format("Clean in {0}", formattedTime);
-
-                    this._cleaningUpTimer = 1.0f;
-                }
-                else
-                {
-                    cleanText.gameObject.SetActive(false);
-                    this._characterSerializer.Smelly = false;
                 }
             }
         }
@@ -591,12 +543,17 @@ public class ProfileScreenController : MonoBehaviour
         this._previousGoals = currentGoals;
     }
 
-    private void GenerateProfilePosts()
+    private void GenerateLocalProfilePosts()
     {
         var posts = this._userSerializer.GetReverseChronologicalPosts();
-        posts.Sort((a, b) => b.dateTime.CompareTo(a.dateTime));
         var feedLength = this._postHelper.GeneratePostFeed(
             this._scrollArea, posts, this._youPostObjects, POST_X_OFFSET, POST_Y_OFFSET);
+        for (int i=0; i < this._youPostObjects.Count; i++)
+        {
+            var post = this._youPostObjects[i].post;
+            this._postDictionary.Add(post.pictureID, i);
+        }
+
         var scrollController = this._scrollArea.GetComponent<ScrollController>();
         var sizeBeforeFeed = POST_Y_OFFSET * -1;
         scrollController.UpdateScrollArea(sizeBeforeFeed + feedLength);
@@ -617,6 +574,44 @@ public class ProfileScreenController : MonoBehaviour
             postAnimation.transform.parent = this._scrollArea.transform;
 
             this._firstPostNew = false;
+        }
+    }
+
+    private void GenerateServerProfilePosts(PictureArrayJson pictures, bool success)
+    {
+        if (success)
+        {
+            var dirty = false;
+            foreach (PictureModelJsonReceive picture in pictures.pictureModels)
+            {
+                // Create a picture with information from picture
+                var convertedPost = this._restRequester.ConvertJsonPictureIntoDelayGramPost(picture);
+
+                if (this._postDictionary.ContainsKey(convertedPost.pictureID))
+                {
+                    var postIndex = this._postDictionary[convertedPost.pictureID];
+                    var post = this._youPostObjects[postIndex];
+                    if (post.post.likes != convertedPost.likes
+                        || post.post.dislikes != convertedPost.dislikes)
+                    {
+                        post.post.likes = convertedPost.likes;
+                        post.post.dislikes = convertedPost.dislikes;
+                        this._youPostObjects[postIndex] = post;
+
+                        dirty = true;
+                    }
+                }
+            }
+
+            if (dirty)
+            {
+                for (int i = 0; i < this._youPostObjects.Count; i++)
+                {
+                    var post = this._youPostObjects[i];
+                    this._userSerializer.UpdatePost(post.post, false);
+                }
+                this._userSerializer.SaveFile();
+            }
         }
     }
 

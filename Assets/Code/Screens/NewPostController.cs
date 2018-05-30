@@ -396,7 +396,7 @@ public class NewPostController : MonoBehaviour
 
     private void CreateNewPost()
     {
-        this._userSerializer.NextPostTime = DateTime.Now.AddMinutes(5.0f); // 10.0f);
+        this._userSerializer.NextPostTime = DateTime.Now.AddMinutes(5.0f);
 
         var newPost = this.CreateNewPostDataStructure();
 
@@ -457,7 +457,6 @@ public class NewPostController : MonoBehaviour
         }
         newPost.items = newItems;
 
-        this._userSerializer.SerializePost(newPost);
         return newPost;
     }
 

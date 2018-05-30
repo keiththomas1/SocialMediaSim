@@ -432,6 +432,95 @@ public class UIController : MonoBehaviour {
         var rightBottomText = this._avatarTransitionPopup.transform.Find("TransitionTextRightBottom").GetComponent<TextMeshPro>();
         var rightBottomPrevious = rightBottomText.text;
         rightBottomText.text = String.Format(rightBottomPrevious, previousAttributeLevel + 1);
+
+        var upgradeText = this.GetUpgradeText(previousCharacterProperties, levelUpAttribute);
+        var upgradesPanel = this._avatarTransitionPopup.transform.Find("UpgradesPanel");
+        var background1 = upgradesPanel.Find("Background1");
+        background1.gameObject.SetActive(upgradeText.Count == 1);
+        var background2 = upgradesPanel.Find("Background2");
+        background2.gameObject.SetActive(upgradeText.Count == 2);
+        var upgradeText1 = upgradesPanel.Find("UpgradeText1");
+        upgradeText1.GetComponent<TextMeshPro>().text = upgradeText[0];
+        var upgradeText2 = upgradesPanel.Find("UpgradeText2");
+        upgradeText2.gameObject.SetActive(upgradeText.Count >= 2);
+        if (upgradeText.Count >= 2)
+        {
+            upgradeText2.GetComponent<TextMeshPro>().text = upgradeText[1];
+        }
+    }
+
+    private List<string> GetUpgradeText(
+        CharacterProperties previousCharacterProperties,
+        LevelUpAttribute levelUpAttribute)
+    {
+        var upgradeText = new List<string>();
+
+        switch (levelUpAttribute)
+        {
+            case LevelUpAttribute.Happiness:
+                switch(previousCharacterProperties.happinessLevel)
+                {
+                    case 1:
+                        upgradeText.Add("+ Happier face");
+                        break;
+                    case 2:
+                        upgradeText.Add("+ Happier face");
+                        break;
+                    case 3:
+                        upgradeText.Add("+ Better posture");
+                        upgradeText.Add("+ Happier face");
+                        break;
+                    case 4:
+                        upgradeText.Add("+ Happier face");
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case LevelUpAttribute.Fitness:
+                switch (previousCharacterProperties.fitnessLevel)
+                {
+                    case 1:
+                        upgradeText.Add("+ Lose weight");
+                        break;
+                    case 2:
+                        upgradeText.Add("+ Lose weight");
+                        break;
+                    case 3:
+                        upgradeText.Add("+ Lose weight");
+                        break;
+                    case 4:
+                        upgradeText.Add("+ Get shredded");
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case LevelUpAttribute.Hygiene:
+                switch (previousCharacterProperties.hygieneLevel)
+                {
+                    case 1:
+                        upgradeText.Add("+ Chase away flies");
+                        break;
+                    case 2:
+                        upgradeText.Add("+ Shower, get rid of smell");
+                        break;
+                    case 3:
+                        upgradeText.Add("+ Wash face, no more acne");
+                        break;
+                    case 4:
+                        upgradeText.Add("+ White teeth");
+                        upgradeText.Add("+ Clean clothes");
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+
+        return upgradeText;
     }
 
     private void OnWorldClick()
@@ -618,6 +707,7 @@ public class UIController : MonoBehaviour {
 #endif
         this._nextPostText.SetActive(true);
 
+        this._userSerializer.SerializePost(post);
         this._profileController.FinishedCreatingPicture(post);
         this.GoToProfilePage();
     }

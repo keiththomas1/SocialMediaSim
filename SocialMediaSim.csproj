@@ -230,11 +230,29 @@
     <Reference Include="UnityEngine.StandardEvents">
       <HintPath>Library\UnityAssemblies\UnityEngine.StandardEvents.dll</HintPath>
     </Reference>
+    <Reference Include="Opencoding.CommandHandlers">
+      <HintPath>Assets\OpenCoding\Console\DLLs\Opencoding.CommandHandlers.dll</HintPath>
+    </Reference>
+    <Reference Include="Opencoding.Console">
+      <HintPath>Assets\OpenCoding\Console\DLLs\Opencoding.Console.dll</HintPath>
+    </Reference>
+    <Reference Include="Opencoding.LogHistory">
+      <HintPath>Assets\OpenCoding\Console\DLLs\Opencoding.LogHistory.dll</HintPath>
+    </Reference>
+    <Reference Include="Opencoding.Shared">
+      <HintPath>Assets\OpenCoding\Console\DLLs\Opencoding.Shared.dll</HintPath>
+    </Reference>
     <Reference Include="VisualDesignCafe.Editor.Analytics">
       <HintPath>Assets\Plugins\Visual Design Cafe\Assemblies\VisualDesignCafe.Editor.Analytics.dll</HintPath>
     </Reference>
     <Reference Include="VisualDesignCafe.Editor">
       <HintPath>Assets\Plugins\Visual Design Cafe\Assemblies\VisualDesignCafe.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="NestedPrefabs">
+      <HintPath>Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.dll</HintPath>
+    </Reference>
+    <Reference Include="NestedPrefabs.Editor">
+      <HintPath>Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.Editor.dll</HintPath>
     </Reference>
     <Reference Include="NestedPrefabs.Package">
       <HintPath>Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.Package.dll</HintPath>
@@ -257,26 +275,8 @@
     <Reference Include="DOTweenPro">
       <HintPath>Assets\ThirdParty\Demigiant\DOTweenPro\DOTweenPro.dll</HintPath>
     </Reference>
-    <Reference Include="Opencoding.CommandHandlers">
-      <HintPath>Assets\ThirdParty\Opencoding\Console\DLLs\Opencoding.CommandHandlers.dll</HintPath>
-    </Reference>
-    <Reference Include="Opencoding.Console">
-      <HintPath>Assets\ThirdParty\Opencoding\Console\DLLs\Opencoding.Console.dll</HintPath>
-    </Reference>
-    <Reference Include="Opencoding.LogHistory">
-      <HintPath>Assets\ThirdParty\Opencoding\Console\DLLs\Opencoding.LogHistory.dll</HintPath>
-    </Reference>
-    <Reference Include="Opencoding.Shared">
-      <HintPath>Assets\ThirdParty\Opencoding\Console\DLLs\Opencoding.Shared.dll</HintPath>
-    </Reference>
     <Reference Include="TextMeshPro-1.0.55.2017.1.0b12">
       <HintPath>Assets\ThirdParty\TextMesh Pro\Plugins\TextMeshPro-1.0.55.2017.1.0b12.dll</HintPath>
-    </Reference>
-    <Reference Include="NestedPrefabs">
-      <HintPath>Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.dll</HintPath>
-    </Reference>
-    <Reference Include="NestedPrefabs.Editor">
-      <HintPath>Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.Editor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -324,6 +324,8 @@
     <Compile Include="Assets\Code\TextTypingAnimation.cs" />
     <Compile Include="Assets\Code\UIController.cs" />
     <Compile Include="Assets\Code\UserRequester.cs" />
+    <Compile Include="Assets\GPGSIds.cs" />
+    <Compile Include="Assets\OpenCoding\Console\NativeMethods.cs" />
     <Compile Include="Assets\ThirdParty\ColorPicker\Examples\ExampleScript\ExampleVariable.cs" />
     <Compile Include="Assets\ThirdParty\ColorPicker\Source\Additional\ImageResizer.cs" />
     <Compile Include="Assets\ThirdParty\ColorPicker\Source\ColorPicker.cs" />
@@ -365,7 +367,6 @@
     <Compile Include="Assets\ThirdParty\LeanTouch\Scripts\LeanSelectable.cs" />
     <Compile Include="Assets\ThirdParty\LeanTouch\Scripts\LeanSnapshot.cs" />
     <Compile Include="Assets\ThirdParty\LeanTouch\Scripts\LeanTouch.cs" />
-    <Compile Include="Assets\ThirdParty\Opencoding\Console\NativeMethods.cs" />
     <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\Benchmark01.cs" />
     <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\Benchmark01_UGUI.cs" />
     <Compile Include="Assets\ThirdParty\TextMesh Pro\Examples\Scripts\Benchmark02.cs" />
@@ -402,6 +403,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Fonts\WoodstampLicense.txt" />
+    <None Include="Assets\OpenCoding\Console\EmailTemplates\LogEmailFooter.txt" />
+    <None Include="Assets\OpenCoding\Console\EmailTemplates\LogEmailHeader.txt" />
+    <None Include="Assets\OpenCoding\Console\Plugins\Android\OpenCoding\AndroidManifest.xml" />
+    <None Include="Assets\OpenCoding\Console\Plugins\Android\OpenCoding\res\xml\file_paths.xml" />
+    <None Include="Assets\OpenCoding\Console\readme.txt" />
     <None Include="Assets\Plugins\Visual Design Cafe\Assemblies\VisualDesignCafe.Editor.Analytics.xml" />
     <None Include="Assets\Plugins\Visual Design Cafe\Assemblies\VisualDesignCafe.Editor.xml" />
     <None Include="Assets\Plugins\Visual Design Cafe\Nested Prefabs\NestedPrefabs.Editor.xml" />
@@ -423,11 +429,6 @@
     <None Include="Assets\ThirdParty\LeanTouch\Examples\Fonts\OFL.txt" />
     <None Include="Assets\ThirdParty\LeanTouch\Examples\Shaders\Skybox.shader" />
     <None Include="Assets\ThirdParty\LeanTouch\Examples\Shaders\Smooth.shader" />
-    <None Include="Assets\ThirdParty\Opencoding\Console\EmailTemplates\LogEmailFooter.txt" />
-    <None Include="Assets\ThirdParty\Opencoding\Console\EmailTemplates\LogEmailHeader.txt" />
-    <None Include="Assets\ThirdParty\Opencoding\Console\Plugins\Android\OpenCoding\AndroidManifest.xml" />
-    <None Include="Assets\ThirdParty\Opencoding\Console\Plugins\Android\OpenCoding\res\xml\file_paths.xml" />
-    <None Include="Assets\ThirdParty\Opencoding\Console\readme.txt" />
     <None Include="Assets\ThirdParty\TextMesh Pro\Fonts\Anton OFL.txt" />
     <None Include="Assets\ThirdParty\TextMesh Pro\Fonts\Bangers - OFL.txt" />
     <None Include="Assets\ThirdParty\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />

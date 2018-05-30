@@ -30,6 +30,10 @@ public class AvatarController : MonoBehaviour
         {
             this._boobs = this.transform.Find("Boobs").GetComponent<SpriteRenderer>();
         }
+        this._dirtMarks.Add(this._body.transform.Find("DirtMark1").gameObject);
+        this._dirtMarks.Add(this._body.transform.Find("DirtMark2").gameObject);
+        this._dirtMarks.Add(this._body.transform.Find("DirtMark3").gameObject);
+        this._dirtMarks.Add(this._body.transform.Find("DirtMark4").gameObject);
 
         this._head = this.transform.Find("Head");
         this._face = this._head.transform.Find("Face").GetComponent<SpriteRenderer>();
@@ -41,8 +45,10 @@ public class AvatarController : MonoBehaviour
         this._rightArmBottom = this._rightArmTop.transform.Find("RightArmBottom").GetComponent<SpriteRenderer>();
 
         this._leftLegTop = this.transform.Find("LeftLegTop").GetComponent<SpriteRenderer>();
+        this._dirtMarks.Add(this._leftLegTop.transform.Find("DirtMark").gameObject);
         this._leftLegBottom = this._leftLegTop.transform.Find("LeftLegBottom").GetComponent<SpriteRenderer>();
         this._rightLegTop = this.transform.Find("RightLegTop").GetComponent<SpriteRenderer>();
+        this._dirtMarks.Add(this._rightLegTop.transform.Find("DirtMark").gameObject);
         this._rightLegBottom = this._rightLegTop.transform.Find("RightLegBottom").GetComponent<SpriteRenderer>();
     }
 
@@ -67,8 +73,9 @@ public class AvatarController : MonoBehaviour
         this.SetHairColor(properties.hairColor.GetColor());
         this.SetShirtColor(properties.gender, properties.shirtColor.GetColor());
         this.SetPantsColor(properties.pantsColor.GetColor());
-        this.SetHappinessLevel(properties.gender, properties.happinessLevel);
-        this.SetSmelly(properties.smelly);
+        this.SetHappinessLevel(
+            properties.gender, properties.happinessLevel, properties.hygieneLevel);
+        this.SetHygieneLevel(properties.hygieneLevel);
 
         this._customizationInitialized = true;
     }
@@ -162,7 +169,7 @@ public class AvatarController : MonoBehaviour
         this._topBlotch.gameObject.SetActive(birthmark == BirthMarkType.TopBlotch);
     }
 
-    public void SetHappinessLevel(Gender gender, int happinessLevel)
+    public void SetHappinessLevel(Gender gender, int happinessLevel, int hygieneLevel)
     {
         if (this._spriteController)
         {
@@ -170,18 +177,22 @@ public class AvatarController : MonoBehaviour
             switch (gender)
             {
                 case Gender.Female:
-                    faceSprites = this._spriteController.FemaleFaceSprites;
+                    faceSprites = (hygieneLevel > 4) ?
+                        this._spriteController.FemaleWhiteFaceSprites
+                        : this._spriteController.FemaleYellowFaceSprites;
 
-                    if (happinessLevel >= 3)
+                    if (happinessLevel > 3)
                     {
                         this.GetComponent<Animator>().runtimeAnimatorController =
                             this._spriteController._femaleAnimatorControllerLevel2;
                     }
                     break;
                 case Gender.Male:
-                    faceSprites = this._spriteController.MaleFaceSprites;
+                    faceSprites = (hygieneLevel > 4) ?
+                        this._spriteController.MaleWhiteFaceSprites
+                        : this._spriteController.MaleYellowFaceSprites;
 
-                    if (happinessLevel >= 3)
+                    if (happinessLevel > 3)
                     {
                         this.GetComponent<Animator>().runtimeAnimatorController =
                             this._spriteController._maleAnimatorControllerLevel2;
@@ -199,11 +210,31 @@ public class AvatarController : MonoBehaviour
             }
         }
     }
-    public void SetSmelly(bool smelly)
+
+    public void SetHygieneLevel(int hygieneLevel)
     {
-        var smellyAnimation = this.transform.Find("SmellyAnimation");
-        smellyAnimation.gameObject.SetActive(smelly);
-        smellyAnimation.GetComponent<ParticleSystem>().time = 10.0f;
+        if (hygieneLevel > 1)
+        {
+            var flyAnimation = this.transform.Find("FlyAnimation");
+            flyAnimation.gameObject.SetActive(false);
+        }
+        if (hygieneLevel > 2)
+        {
+            var smellyAnimation = this.transform.Find("SmellyAnimation");
+            smellyAnimation.gameObject.SetActive(false);
+        }
+        if (hygieneLevel > 3)
+        {
+            var acne = this._head.transform.Find("Acne");
+            acne.gameObject.SetActive(false);
+        }
+        if (hygieneLevel > 4)
+        {
+            foreach (var dirtMark in this._dirtMarks)
+            {
+                dirtMark.SetActive(false);
+            }
+        }
     }
 
     public void SetBodySprite(Gender gender, int fitnessLevel)
@@ -301,4 +332,7 @@ public class AvatarController : MonoBehaviour
     private SpriteRenderer _leftLegBottom = null;
     private SpriteRenderer _rightLegTop = null;
     private SpriteRenderer _rightLegBottom = null;
+
+    private List<GameObject> _dirtMarks =
+        new List<GameObject>();
 }

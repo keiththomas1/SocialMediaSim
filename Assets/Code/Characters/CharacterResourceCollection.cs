@@ -9,9 +9,13 @@ public class CharacterResourceCollection : MonoBehaviour
     [SerializeField]
     private List<Sprite> _femaleBodySprites;
     [SerializeField]
-    private List<Sprite> _maleFaceSprites;
+    private List<Sprite> _maleYellowFaceSprites;
     [SerializeField]
-    private List<Sprite> _femaleFaceSprites;
+    private List<Sprite> _maleWhiteFaceSprites;
+    [SerializeField]
+    private List<Sprite> _femaleYellowFaceSprites;
+    [SerializeField]
+    private List<Sprite> _femaleWhiteFaceSprites;
     [SerializeField]
     private List<Sprite> _maleHairSprites;
     [SerializeField]
@@ -51,13 +55,21 @@ public class CharacterResourceCollection : MonoBehaviour
         get { return this._femaleHairSprites; }
     }
 
-    public List<Sprite> MaleFaceSprites
+    public List<Sprite> MaleYellowFaceSprites
     {
-        get { return this._maleFaceSprites; }
+        get { return this._maleYellowFaceSprites; }
     }
-    public List<Sprite> FemaleFaceSprites
+    public List<Sprite> MaleWhiteFaceSprites
     {
-        get { return this._femaleFaceSprites; }
+        get { return this._maleWhiteFaceSprites; }
+    }
+    public List<Sprite> FemaleYellowFaceSprites
+    {
+        get { return this._femaleYellowFaceSprites; }
+    }
+    public List<Sprite> FemaleWhiteFaceSprites
+    {
+        get { return this._femaleWhiteFaceSprites; }
     }
 
     public List<string> MaleEyeSprites

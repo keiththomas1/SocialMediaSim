@@ -323,7 +323,6 @@ public class PostRequester
 
         newPost.likes = picture.likes;
         newPost.dislikes = picture.dislikes;
-        newPost.pictureID = picture._id; // this.newPostController.GetRandomImageID();
         newPost.items = picture.items;
 
         newPost.dateTime = ParseDateTimeFromServer(picture.createdDate);

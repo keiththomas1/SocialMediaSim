@@ -62,33 +62,6 @@ public class CharacterRandomization {
         return newProperties;
     }
 
-    public string GetRandomMaleFaceSprite(string oldSprite = "")
-    {
-        var faceSprites = this._spriteCollection.MaleFaceSprites;
-        var finalSprite = oldSprite;
-        if (faceSprites.Count > 1)
-        {
-            while (finalSprite == oldSprite)
-            {
-                finalSprite = faceSprites[UnityEngine.Random.Range(0, faceSprites.Count)].name;
-            }
-        }
-        return faceSprites[0].name;
-    }
-    public string GetRandomFemaleFaceSprite(string oldSprite = "")
-    {
-        var faceSprites = this._spriteCollection.FemaleFaceSprites;
-        var finalSprite = oldSprite;
-        if (faceSprites.Count > 1)
-        {
-            while (finalSprite == oldSprite)
-            {
-                finalSprite = faceSprites[UnityEngine.Random.Range(0, faceSprites.Count)].name;
-            }
-        }
-        return faceSprites[0].name;
-    }
-
     public string GetRandomMaleEyeSprite(string oldSprite = "")
     {
         var eyeSprites = this._spriteCollection.MaleEyeSprites;

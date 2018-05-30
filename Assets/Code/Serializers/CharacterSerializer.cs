@@ -171,19 +171,6 @@ public class CharacterSerializer
             this.SaveFile();
         }
     }
-    public bool Smelly
-    {
-        get { return this._currentSave.properties.smelly; }
-        set
-        {
-            if (value == false)
-            {
-                this._currentSave.currentlyCleaningUp = false;
-            }
-            this._currentSave.properties.smelly = value;
-            this.SaveFile();
-        }
-    }
     public BirthMarkType Birthmark
     {
         get { return this._currentSave.properties.birthmark; }
@@ -213,30 +200,6 @@ public class CharacterSerializer
         get
         {
             return this._currentSave.initialized;
-        }
-    }
-
-    public bool CleaningUp
-    {
-        get
-        {
-            return this._currentSave.currentlyCleaningUp;
-        }
-    }
-    public DateTime CleanUpTime
-    {
-        get
-        {
-            return this._currentSave.cleanUpTime;
-        }
-        set
-        {
-            if (value > DateTime.Now)
-            {
-                this._currentSave.currentlyCleaningUp = true;
-            }
-            this._currentSave.cleanUpTime = value;
-            this.SaveFile();
         }
     }
 
@@ -293,7 +256,6 @@ public class CharacterSerializer
             this._currentSave.lastUpdate = DateTime.Now;
             this._currentSave.properties = new CharacterProperties();
             this._currentSave.cleanUpTime = DateTime.Now;
-            this._currentSave.currentlyCleaningUp = false;
             this._currentSave.initialized = false;
             this.SaveFile();
         }
@@ -383,7 +345,6 @@ public class CharacterProperties
     public int happinessLevel;
     public int fitnessLevel;
     public int hygieneLevel;
-    public bool smelly;
 
     public CharacterProperties()
     {
@@ -399,7 +360,6 @@ public class CharacterProperties
         happinessLevel = 1;
         fitnessLevel = 1;
         hygieneLevel = 1;
-        smelly = false;
     }
     public CharacterProperties(CharacterProperties other)
     {
@@ -415,7 +375,6 @@ public class CharacterProperties
         happinessLevel = other.happinessLevel;
         fitnessLevel = other.fitnessLevel;
         hygieneLevel = other.hygieneLevel;
-        smelly = other.smelly;
     }
 }
 
@@ -425,6 +384,5 @@ class CharacterSaveVariables
     public DateTime lastUpdate;
     public CharacterProperties properties;
     public DateTime cleanUpTime;
-    public bool currentlyCleaningUp;
     public bool initialized;
 }

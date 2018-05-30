@@ -228,8 +228,8 @@ public class UserSerializer
         List<DelayGramPost> returnList = new List<DelayGramPost>();
         if (this._currentSave.posts != null)
         {
-            returnList = this._currentSave.posts;
-            returnList.Reverse();
+            returnList = new List<DelayGramPost>(this._currentSave.posts);
+            returnList.Sort((a, b) => b.dateTime.CompareTo(a.dateTime));
         }
         return returnList;
     }
@@ -293,6 +293,22 @@ public class UserSerializer
     {
         this._currentSave.nextPostTime = nextPostTime;
         this.SaveFile();
+    }
+
+    public void UpdatePost(DelayGramPost newPost, bool saveAfter)
+    {
+        for (int i = 0; i < this._currentSave.posts.Count; i++)
+        {
+            if (this._currentSave.posts[i].pictureID == newPost.pictureID)
+            {
+                this._currentSave.posts[i] = newPost;
+            }
+        }
+
+        if (saveAfter)
+        {
+            this.SaveFile();
+        }
     }
 
     public void SaveFile()

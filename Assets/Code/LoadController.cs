@@ -62,11 +62,6 @@ public class LoadController : MonoBehaviour {
             this._notificationSerializer = NotificationSerializer.Instance;
             this._notificationSerializer.LoadGame();
 
-            if (this._userSerializer.PostedPhoto && ((DateTime.Now - this._userSerializer.LastUpdate) > TimeSpan.FromDays(1f)))
-            {
-                this._characterSerializer.Smelly = true;
-            }
-
             this._gameLoaded = true;
         }
     }
