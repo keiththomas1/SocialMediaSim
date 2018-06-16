@@ -479,13 +479,12 @@ public class ProfileScreenController : MonoBehaviour
                         goalParent.transform.Find("RewardText").gameObject.SetActive(true);
                         goalParent.transform.Find("FinishText").gameObject.SetActive(true);
 
-                        var progressText = goalParent.transform.Find("ProgressText");
-                        progressText.gameObject.SetActive(true);
-                        var originalScale = progressText.localScale.x;
+                        var finishText = goalParent.transform.Find("FinishText");
+                        finishText.gameObject.SetActive(true);
+                        var originalScale = finishText.localScale.x;
                         var newScale = originalScale * 1.5f;
 
-                        progressText.DOPunchScale(new Vector3(newScale, newScale, 1.0f), 0.7f);
-                        goalParent.transform.Find("FinishText").DOPunchScale(new Vector3(newScale, newScale, 1.0f), 0.7f);
+                        finishText.DOPunchScale(new Vector3(newScale, newScale, 1.0f), 0.7f);
                     }
                     else
                     {
@@ -499,7 +498,6 @@ public class ProfileScreenController : MonoBehaviour
                     goalParent.transform.Find("GoalText").gameObject.SetActive(true);
                     goalParent.transform.Find("RewardText").gameObject.SetActive(true);
                     goalParent.transform.Find("FinishText").gameObject.SetActive(true);
-                    goalParent.transform.Find("ProgressText").gameObject.SetActive(true);
 
                     var timesText = (currentGoal.stepsNeeded == 1) ? "time" : "times";
                     string textDescription = "";
@@ -529,8 +527,11 @@ public class ProfileScreenController : MonoBehaviour
                             String.Format("Reward: {0} exp", currentGoal.reward);
                     }
 
-                    goalParent.transform.Find("ProgressText").GetComponent<TextMeshPro>().text = currentGoal.stepsCompleted.ToString();
-                    goalParent.transform.Find("FinishText").GetComponent<TextMeshPro>().text = "/" + currentGoal.stepsNeeded.ToString();
+                    goalParent.transform.Find("FinishText").GetComponent<TextMeshPro>().text =
+                        String.Format(
+                        "<#FADC13FF>{0}</color>/{1}",
+                        currentGoal.stepsCompleted.ToString(),
+                        currentGoal.stepsNeeded.ToString());
                 }
             } else if (currentGoal.status == GoalStatus.Waiting) { // There's a countdown, so hide the background and show time remaining
                 goalParent.transform.Find("NextGoalText").gameObject.SetActive(true);

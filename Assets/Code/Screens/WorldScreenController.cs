@@ -312,6 +312,10 @@ public class WorldScreenController : MonoBehaviour {
         {
             GameObject.Destroy(this._userStub);
         }
+        if (this._loadingIcon)
+        {
+            GameObject.Destroy(this._loadingIcon);
+        }
     }
 
     public bool BackOut()

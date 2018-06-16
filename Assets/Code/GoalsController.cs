@@ -242,7 +242,8 @@ public class GoalsController : MonoBehaviour {
 
         foreach (var location in locations)
         {
-            for (int i = 1; i <= 3; i++)
+            const int MaxPostsPerGoal = 1; // Only allowing goals with one post for now, to speed up gameplay
+            for (int i = 1; i <= MaxPostsPerGoal; i++)
             {
                 var newGoal = CreateNewGoalInformation(
                     GoalObjectType.Location, location, i, (ExperiencePerStep * i));
@@ -253,7 +254,8 @@ public class GoalsController : MonoBehaviour {
 
         foreach(var item in items)
         {
-            for (int i = 1; i <= 3; i++)
+            const int MaxPostsPerGoal = 1; // Only allowing goals with one post for now, to speed up gameplay
+            for (int i = 1; i <= MaxPostsPerGoal; i++)
             {
                 var newGoal = CreateNewGoalInformation(
                     GoalObjectType.Pet, item, i, (ExperiencePerStep * i));

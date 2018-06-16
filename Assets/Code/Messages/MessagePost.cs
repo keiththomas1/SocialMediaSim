@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public enum MessageTriggerType
 {
@@ -20,6 +21,10 @@ public class MessagePost
     private bool _seenProfessorPartnerConvo = false;
     private bool _seenProductEngineerConvo = false;
     private bool _seenBirthmarkConvo = false;
+
+    public class TriggerEventType : UnityEvent<MessageTriggerType> {
+    }
+    public TriggerEventType OnTriggerActivated = new TriggerEventType();
 
     public static MessagePost Instance
     {
@@ -76,6 +81,8 @@ public class MessagePost
             default:
                 break;
         }
+
+        this.OnTriggerActivated.Invoke(trigger);
     }
 
     public bool CreateNextMessage()

@@ -38,6 +38,7 @@ public class NewPostController : MonoBehaviour
     {
         public Vector3 AvatarLocation;
         public Vector3 AvatarLocalScale;
+        public Vector3 AvatarRotation;
     }
     private Dictionary<string, LocationParameters> _defaultLocationParameters
         = new Dictionary<string, LocationParameters>();
@@ -60,10 +61,6 @@ public class NewPostController : MonoBehaviour
         this.SetupDefaultLocationParameters();
 
         this.Initialize();
-    }
-
-    void Update()
-    {
     }
 
     public bool PopupActive()
@@ -391,21 +388,46 @@ public class NewPostController : MonoBehaviour
             var currentParameters = this._defaultLocationParameters[locationName];
             this._avatar.transform.localPosition = currentParameters.AvatarLocation;
             this._avatar.transform.localScale = currentParameters.AvatarLocalScale;
+            this._avatar.transform.localRotation = Quaternion.Euler(currentParameters.AvatarRotation);
         }
     }
 
     private void CreateNewPost()
     {
-        this._userSerializer.NextPostTime = DateTime.Now.AddMinutes(5.0f);
+        var delayTime = this.GetDelayTime(this._currentBackground);
+        this._userSerializer.NextPostTime = DateTime.Now.AddMinutes(delayTime);
 
         var newPost = this.CreateNewPostDataStructure();
-
-        this._messagePost.TriggerActivated(MessageTriggerType.NewPost);
 
         var postPicture = this._restRequester.PostPicture(newPost);
         StartCoroutine(postPicture);
 
         this._postCallBack(newPost);
+
+        this._messagePost.TriggerActivated(MessageTriggerType.NewPost);
+    }
+
+    private float GetDelayTime(string backgroundName)
+    {
+        switch (backgroundName)
+        {
+            case "Apartment":
+                return 3f;
+            case "Beach":
+                return 5f;
+            case "City":
+                return 5f;
+            case "Park":
+                return 10f;
+            case "CamRoom":
+                return 10f;
+            case "Louvre":
+                return 30f;
+            case "Yacht":
+                return 30f;
+            default:
+                return 0f;
+        }
     }
 
     private DelayGramPost CreateNewPostDataStructure()
@@ -466,6 +488,7 @@ public class NewPostController : MonoBehaviour
         var apartmentParameters = new LocationParameters();
         apartmentParameters.AvatarLocation = new Vector3(-1.43f, -0.35f, 0f);
         apartmentParameters.AvatarLocalScale = new Vector3(0.36f, 0.36f, 1.0f);
+        apartmentParameters.AvatarRotation = new Vector3(0f, 0f, 0f);
         this._defaultLocationParameters.Add(
             "Apartment",
             apartmentParameters);
@@ -473,13 +496,23 @@ public class NewPostController : MonoBehaviour
         var cityParameters = new LocationParameters();
         cityParameters.AvatarLocation = new Vector3(-1.43f, -0.39f, 0f);
         cityParameters.AvatarLocalScale = new Vector3(0.26f, 0.26f, 1.0f);
+        cityParameters.AvatarRotation = new Vector3(0f, 0f, 0f);
         this._defaultLocationParameters.Add(
             "City",
             cityParameters);
 
+        var beachParameters = new LocationParameters();
+        beachParameters.AvatarLocation = new Vector3(-1.43f, -0.39f, 0f);
+        beachParameters.AvatarLocalScale = new Vector3(0.26f, 0.26f, 1.0f);
+        beachParameters.AvatarRotation = new Vector3(0f, 0f, 0f);
+        this._defaultLocationParameters.Add(
+            "Beach",
+            beachParameters);
+
         var parkParameters = new LocationParameters();
         parkParameters.AvatarLocation = new Vector3(-0.56f, -0.11f, 0f);
         parkParameters.AvatarLocalScale = new Vector3(0.33f, 0.33f, 1.0f);
+        parkParameters.AvatarRotation = new Vector3(0f, 0f, 0f);
         this._defaultLocationParameters.Add(
             "Park",
             parkParameters);
@@ -487,6 +520,7 @@ public class NewPostController : MonoBehaviour
         var louvreParameters = new LocationParameters();
         louvreParameters.AvatarLocation = new Vector3(-1.38f, -0.56f, 0f);
         louvreParameters.AvatarLocalScale = new Vector3(0.42f, 0.42f, 1.0f);
+        louvreParameters.AvatarRotation = new Vector3(0f, 0f, 0f);
         this._defaultLocationParameters.Add(
             "Louvre",
             louvreParameters);
@@ -494,6 +528,7 @@ public class NewPostController : MonoBehaviour
         var yachtParameters = new LocationParameters();
         yachtParameters.AvatarLocation = new Vector3(-1.54f, 0.18f, 0f);
         yachtParameters.AvatarLocalScale = new Vector3(0.38f, 0.38f, 1.0f);
+        yachtParameters.AvatarRotation = new Vector3(0f, 0f, 0f);
         this._defaultLocationParameters.Add(
             "Yacht",
             yachtParameters);
@@ -501,6 +536,7 @@ public class NewPostController : MonoBehaviour
         var camRoomParameters = new LocationParameters();
         camRoomParameters.AvatarLocation = new Vector3(-1.44f, -0.43f, 0f);
         camRoomParameters.AvatarLocalScale = new Vector3(0.44f, 0.44f, 1.0f);
+        camRoomParameters.AvatarRotation = new Vector3(0f, 0f, 0f);
         this._defaultLocationParameters.Add(
             "CamRoom",
             camRoomParameters);

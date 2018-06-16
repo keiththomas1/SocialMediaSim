@@ -356,10 +356,10 @@ public class CharacterProperties
         hairColor = new SerializableColor(255, 255, 255);
         shirtColor = new SerializableColor(255, 255, 255);
         pantsColor = new SerializableColor(255, 255, 255);
-        avatarLevel = 1;
-        happinessLevel = 1;
-        fitnessLevel = 1;
-        hygieneLevel = 1;
+        avatarLevel = 16;
+        happinessLevel = 5;
+        fitnessLevel = 5;
+        hygieneLevel = 5;
     }
     public CharacterProperties(CharacterProperties other)
     {

@@ -93,6 +93,8 @@ public class UIController : MonoBehaviour {
     private GameObject _levelUpPopup = null;
     private GameObject _avatarTransitionPopup = null;
 
+    public Button.ButtonClickedEvent MessageButtonClicked = new Button.ButtonClickedEvent();
+
     // Use this for initialization
     void Start () {
         this._bottomNavBackground.transform.Find("BottomNavImage").GetComponent<Image>().enabled = true;
@@ -621,6 +623,7 @@ public class UIController : MonoBehaviour {
 
     private void OnMessagesClick()
     {
+        this.MessageButtonClicked.Invoke();
         if (this._userSerializer.PostedPhoto && this._ioController.CanClick())
         {
             this.UpdateLastVisited();
@@ -658,7 +661,7 @@ public class UIController : MonoBehaviour {
         this._currentPage = Page.Notifications;
     }
 
-    private void GoToTutorialPage()
+    public void GoToTutorialPage()
     {
         this._tutorialController.EnterScreen();
         this._currentPage = Page.Tutorial;

@@ -141,6 +141,11 @@ public class RatingScreenController : MonoBehaviour
     public void DestroyPage()
     {
         GameObject.Destroy(this._ratingPage);
+
+        if (this._loadingIcon)
+        {
+            GameObject.Destroy(this._loadingIcon);
+        }
     }
 
     private void IterateRatings()
