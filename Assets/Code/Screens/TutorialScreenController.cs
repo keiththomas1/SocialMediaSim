@@ -110,7 +110,7 @@ public class TutorialScreenController : MonoBehaviour {
             var tutorialBubble = this._introductionObject.transform.Find("TutorialBubble");
             this._introTextAnimation = tutorialBubble.Find("TutorialText").GetComponent<TextTypingAnimation>();
 
-            this.ShowNextDialog();
+            StartCoroutine(this.DelayShowingNextDialog());
         }
         else if (this._currentState == TutorialState.ShowingComic)
         {
@@ -336,6 +336,13 @@ public class TutorialScreenController : MonoBehaviour {
                 this.ShowNextDialog();
             }
         }
+    }
+
+    private IEnumerator DelayShowingNextDialog()
+    {
+        yield return new WaitForEndOfFrame();
+
+        this.ShowNextDialog();
     }
 
     private void ShowNextDialog()
