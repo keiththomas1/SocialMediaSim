@@ -47,10 +47,10 @@ public class SceneLoader : MonoBehaviour {
         AsyncOperation unloadAsync = SceneManager.UnloadSceneAsync("loading");
         yield return unloadAsync;
 
-        var uiController = GameObject.FindObjectOfType<UIController>();
-        if (uiController)
-        {
-            uiController.EnterGame();
-        }
+        // var uiController = GameObject.FindObjectOfType<UIController>();
+        // if (uiController)
+        // {
+        //     uiController.EnterGame();
+        // }
     }
 }

@@ -142,6 +142,15 @@ public class UIController : MonoBehaviour {
 #endif
             this._nextPostText.SetActive(true);
         }
+
+        StartCoroutine(this.StartGameEndOfFrame());
+    }
+
+    private IEnumerator StartGameEndOfFrame()
+    {
+        yield return new WaitForEndOfFrame();
+
+        this.EnterGame();
     }
 	
 	// Update is called once per frame

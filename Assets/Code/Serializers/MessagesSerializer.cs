@@ -46,7 +46,17 @@ public class MessagesSerializer
 
     public List<Conversation> ActiveConversations
     {
-        get { return this.currentSave.activeConversations; }
+        get {
+            if (this.currentSave.activeConversations != null)
+            {
+                return this.currentSave.activeConversations;
+            }
+            else
+            {
+                Debug.LogWarning("Unable to access activeConversations, it's null.");
+                return new List<Conversation>();
+            }
+        }
     }
     public Conversation? GetConversationByNPCName(string npcName)
     {

@@ -23,7 +23,7 @@ public class TutorialScreenController : MonoBehaviour {
 
     [SerializeField]
     private List<Sprite> _introAvatarFaces;
-    private List<string> _introDialog;
+    private List<string> _introDialog = new List<string>();
     private int _currentDialogPosition = 0;
 
     [SerializeField]
@@ -31,6 +31,8 @@ public class TutorialScreenController : MonoBehaviour {
     private bool _comicPanelShown = false;
     private int _currentComicPanel = 0;
     private GameObject _avatarTransitionPopup;
+
+    private bool _displayTutorialAtStart = false;
 
     private enum TutorialState
     {
@@ -69,7 +71,6 @@ public class TutorialScreenController : MonoBehaviour {
         this._comicPanel.SetActive(false);
 
         this._profileController = GetComponent<ProfileScreenController>();
-        this._introDialog = new List<string>();
         this._introDialog.Add("Hello! Welcome to <size=\"3\"><#790CB2>Delaygram</color></size>, a new type of social network.");
         this._introDialog.Add("<size=\"3\"><#0076FFFF>Post</color></size> pictures of yourself and get <#982409FF>ratings</color> from other real people.");
         // this._introDialog.Add("Participate in <size=\"3\"><#09982DFF>challenges</color></size> to win special items.");
@@ -91,6 +92,11 @@ public class TutorialScreenController : MonoBehaviour {
         {
             this._currentState = TutorialState.Introduction;
         }
+
+        if (this._displayTutorialAtStart)
+        {
+            this.ShowNextDialog();
+        }
     }
 
     // Update is called once per frame
@@ -110,7 +116,14 @@ public class TutorialScreenController : MonoBehaviour {
             var tutorialBubble = this._introductionObject.transform.Find("TutorialBubble");
             this._introTextAnimation = tutorialBubble.Find("TutorialText").GetComponent<TextTypingAnimation>();
 
-            StartCoroutine(this.DelayShowingNextDialog());
+            if (this._introDialog.Count > 0)
+            {
+                this.ShowNextDialog();
+            }
+            else
+            {
+                this._displayTutorialAtStart = true;
+            }
         }
         else if (this._currentState == TutorialState.ShowingComic)
         {
@@ -138,6 +151,12 @@ public class TutorialScreenController : MonoBehaviour {
                 }
                 break;
         }
+    }
+
+    public void OnDisable()
+    {
+        Debug.Log("Here");
+        Debug.Log("OnDisable()");
     }
 
     public void ShowGoToPostScreenPopup()
@@ -336,13 +355,6 @@ public class TutorialScreenController : MonoBehaviour {
                 this.ShowNextDialog();
             }
         }
-    }
-
-    private IEnumerator DelayShowingNextDialog()
-    {
-        yield return new WaitForEndOfFrame();
-
-        this.ShowNextDialog();
     }
 
     private void ShowNextDialog()
