@@ -75,53 +75,31 @@ public class UserSerializer
         }
     }
 
-    public bool CreatedCharacter
+    public TutorialState TutorialState
     {
-        get { return this._currentSave.storyProperties.createdCharacter; }
+        get { return this._currentSave.storyProperties.tutorialState; }
         set
         {
-            this._currentSave.storyProperties.createdCharacter = value;
+            this._currentSave.storyProperties.tutorialState = value;
             this.SaveFile();
 
-            if (value == true)
-            {
-                AnalyticsEvent.TutorialStep(1);
-            }
+            AnalyticsEvent.TutorialStep((int)value);
+        }
+    }
+    public bool CreatedCharacter
+    {
+        get
+        {
+            return this._currentSave.storyProperties.tutorialState >= TutorialState.ProfileScreenAboutToPostPhoto;
         }
     }
     public bool PostedPhoto
     {
-        get { return this._currentSave.storyProperties.postedPhoto; }
-        set
-        {
-            this._currentSave.storyProperties.postedPhoto = value;
-            this._currentSave.storyProperties.hasBeachBackground = true;
-            this._currentSave.storyProperties.hasCityBackground= true;
-            this._currentSave.storyProperties.hasParkBackground = true;
-            this._currentSave.storyProperties.hasLouvreBackground = true;
-            this._currentSave.storyProperties.hasCamRoomBackground = true;
-            this._currentSave.storyProperties.hasYachtBackground = true;
-            this.SaveFile();
-
-            if (value == true)
-            {
-                AnalyticsEvent.TutorialStep(2);
-            }
-        }
+        get { return this._currentSave.storyProperties.tutorialState >= TutorialState.PostedFirstPhoto; }
     }
     public bool CompletedTutorial
     {
-        get { return this._currentSave.storyProperties.completedTutorial; }
-        set
-        {
-            this._currentSave.storyProperties.completedTutorial = value;
-            this.SaveFile();
-
-            if (value == true)
-            {
-                AnalyticsEvent.TutorialComplete();
-            }
-        }
+        get { return this._currentSave.storyProperties.tutorialState >= TutorialState.Finished; }
     }
 
     public bool HasBulldog
@@ -148,6 +126,15 @@ public class UserSerializer
         set
         {
             this._currentSave.storyProperties.hasDrone = value;
+            this.SaveFile();
+        }
+    }
+    public bool ApartmentEmpty
+    {
+        get { return this._currentSave.storyProperties.apartmentEmpty; }
+        set
+        {
+            this._currentSave.storyProperties.apartmentEmpty = value;
             this.SaveFile();
         }
     }
@@ -359,17 +346,7 @@ public class UserSerializer
         if (!fileLoaded)
         {
             this._currentSave = new UserSaveVariables();
-            this._currentSave.playerName = "Temp.Name";
-            this._currentSave.playerId = "Temp.Name";
             this._currentSave.lastUpdate = DateTime.Now;
-
-            this._currentSave.levelExperience = 0;
-
-            this._currentSave.storyProperties = new StoryProperties();
-
-            this._currentSave.posts = new List<DelayGramPost>();
-            this._currentSave.notifications = new List<DelayGramNotification>();
-            this._currentSave.followedIds = new List<string>();
             this._currentSave.nextPostTime = DateTime.Now;
             this.SaveFile();
 
@@ -422,38 +399,37 @@ public class DelayGramNotification
 [Serializable]
 public class StoryProperties
 {
-    public bool createdCharacter;
-    public bool postedPhoto;
-    public bool completedTutorial;
+    public TutorialState tutorialState = TutorialState.Introduction;
 
-    public bool hasBulldog;
-    public bool hasCat;
-    public bool hasDrone;
+    public bool hasBulldog = false;
+    public bool hasCat = false;
+    public bool hasDrone = false;
 
-    public bool hasBeachBackground;
-    public bool hasCityBackground;
-    public bool hasParkBackground;
-    public bool hasCamRoomBackground;
-    public bool hasLouvreBackground;
-    public bool hasYachtBackground;
+    public bool apartmentEmpty = false;
+    public bool hasBeachBackground = false;
+    public bool hasCityBackground = false;
+    public bool hasParkBackground = false;
+    public bool hasCamRoomBackground = false;
+    public bool hasLouvreBackground = false;
+    public bool hasYachtBackground = false;
 
-    public bool notificationsEnabled;
+    public bool notificationsEnabled = false;
 }
 
 // Can speed up in the future by turning bought items into a bool array.
 [Serializable]
-class UserSaveVariables
+public class UserSaveVariables
 {
     public DateTime lastUpdate;
-    public String playerName;
-    public String playerId;
+    public String playerName = "Temp.Name";
+    public String playerId = "Temp.Name";
 
-    public int levelExperience;
+    public int levelExperience = 0;
 
-    public StoryProperties storyProperties;
+    public StoryProperties storyProperties = new StoryProperties();
 
-    public List<DelayGramPost> posts;
-    public List<DelayGramNotification> notifications;
-    public List<string> followedIds;
+    public List<DelayGramPost> posts = new List<DelayGramPost>();
+    public List<DelayGramNotification> notifications = new List<DelayGramNotification>();
+    public List<string> followedIds = new List<string>();
     public DateTime nextPostTime;
 }

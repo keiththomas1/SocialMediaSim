@@ -126,6 +126,10 @@ public class GoalsController : MonoBehaviour {
         }
 
         var location = post.backgroundName;
+        if (location == "ApartmentEmpty")
+        {
+            location = "Apartment";
+        }
         var currentGoals = this.GetCurrentGoals();
         for (int i = 0; i < currentGoals.Length; i++)
         {
@@ -201,7 +205,7 @@ public class GoalsController : MonoBehaviour {
     {
         this._possibleGoals.Clear();
 
-        List<string> locations = new List<string>() { "Apartment"}; //  "Beach", "City", "Park" 
+        List<string> locations = new List<string>() { "Apartment"};
         if (this._userSerializer.HasBeachBackground)
         {
             locations.Add("Beach");

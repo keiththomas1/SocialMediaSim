@@ -5,6 +5,18 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum TutorialState
+{
+    Introduction = 0,
+    ProfileScreenAboutToPostPhoto = 1,
+    MovingAvatar = 2,
+    RotatingResizingAvatar = 3,
+    PostedFirstPhoto = 4,
+    ReadingMessage = 5,
+    ShowingComic = 6,
+    Finished = 7
+}
+
 public class TutorialScreenController : MonoBehaviour {
     [SerializeField]
     private GameObject _goToPostScreenPopup;
@@ -34,17 +46,6 @@ public class TutorialScreenController : MonoBehaviour {
 
     private bool _displayTutorialAtStart = false;
 
-    private enum TutorialState
-    {
-        Introduction,
-        ProfileScreenAboutToPostPhoto,
-        MovingAvatar,
-        RotatingResizingAvatar,
-        PostedFirstPhoto,
-        ReadingMessage,
-        ShowingComic,
-        Finished
-    }
     private TutorialState _currentState;
 
 	// Use this for initialization
@@ -80,18 +81,7 @@ public class TutorialScreenController : MonoBehaviour {
 
     private void Start()
     {
-        if (this._userSerializer.PostedPhoto)
-        {
-            this._currentState = TutorialState.PostedFirstPhoto;
-        }
-        else if (this._userSerializer.CreatedCharacter)
-        {
-            this._currentState = TutorialState.Introduction;
-        }
-        else
-        {
-            this._currentState = TutorialState.Introduction;
-        }
+        this._currentState = this._userSerializer.TutorialState;
 
         if (this._displayTutorialAtStart)
         {
@@ -153,17 +143,12 @@ public class TutorialScreenController : MonoBehaviour {
         }
     }
 
-    public void OnDisable()
-    {
-        Debug.Log("Here");
-        Debug.Log("OnDisable()");
-    }
-
     public void ShowGoToPostScreenPopup()
     {
         if (this._currentState == TutorialState.Introduction)
         {
             this._currentState = TutorialState.ProfileScreenAboutToPostPhoto;
+            this._userSerializer.TutorialState = this._currentState;
             this._goToPostScreenPopup.SetActive(true);
         }
     }
@@ -172,8 +157,16 @@ public class TutorialScreenController : MonoBehaviour {
         if (this._currentState == TutorialState.ProfileScreenAboutToPostPhoto)
         {
             this._currentState = TutorialState.MovingAvatar;
+            this._userSerializer.TutorialState = this._currentState;
             this._goToPostScreenPopup.SetActive(false);
         }
+    }
+    
+    public bool ComicPopupVisible()
+    {
+        var visible = (this._comicPanel.activeSelf || this._avatarTransitionPopup != null);
+        Debug.Log(visible);
+        return visible;
     }
 
     public void ShowMovingTutorialAtPostScreen(GameObject postPopupWindow)
@@ -194,6 +187,7 @@ public class TutorialScreenController : MonoBehaviour {
         if (this._currentState == TutorialState.MovingAvatar)
         {
             this._currentState = TutorialState.RotatingResizingAvatar;
+            this._userSerializer.TutorialState = this._currentState;
             this.ShowResizingTutorialAtPostScreen();
         }
     }
@@ -213,6 +207,7 @@ public class TutorialScreenController : MonoBehaviour {
         if (this._currentState == TutorialState.RotatingResizingAvatar)
         {
             this._currentState = TutorialState.PostedFirstPhoto;
+            this._userSerializer.TutorialState = this._currentState;
             var tutorialPopup = this._postPopupWindow.transform.Find("TutorialPopup");
             tutorialPopup.gameObject.SetActive(false);
         }
@@ -223,6 +218,7 @@ public class TutorialScreenController : MonoBehaviour {
         if (this._currentState == TutorialState.PostedFirstPhoto)
         {
             this._currentState = TutorialState.ReadingMessage;
+            this._userSerializer.TutorialState = this._currentState;
             this._goToMessageScreenPopup.SetActive(true);
         }
     }
@@ -231,6 +227,7 @@ public class TutorialScreenController : MonoBehaviour {
         if (this._currentState == TutorialState.ReadingMessage)
         {
             this._currentState = TutorialState.ShowingComic;
+            this._userSerializer.TutorialState = this._currentState;
             this._goToMessageScreenPopup.SetActive(false);
         }
     }
@@ -262,11 +259,19 @@ public class TutorialScreenController : MonoBehaviour {
                 break;
             case 6:
                 GameObject.Destroy(this._avatarTransitionPopup);
+                this._avatarTransitionPopup = null;
                 this._characterSerializer.AvatarLevel = 1;
                 this._characterSerializer.HappinessLevel = 1;
                 this._characterSerializer.FitnessLevel = 1;
                 this._characterSerializer.HygieneLevel = 1;
                 this._currentState = TutorialState.Finished;
+                this._userSerializer.TutorialState = this._currentState;
+                this._userSerializer.ApartmentEmpty = true;
+                this._userSerializer.HasParkBackground = true;
+                this._userSerializer.HasCamRoomBackground = true;
+                this._userSerializer.HasLouvreBackground = true;
+                this._userSerializer.HasYachtBackground = true;
+                this._uiController.GoToProfilePage();
                 break;
         }
     }
@@ -282,6 +287,11 @@ public class TutorialScreenController : MonoBehaviour {
         var oldFemaleAvatar = spriteMask.transform.Find("OldFemaleAvatar");
         var newMaleAvatar = spriteMask.transform.Find("NewMaleAvatar");
         var newFemaleAvatar = spriteMask.transform.Find("NewFemaleAvatar");
+
+        var titleText = this._avatarTransitionPopup.transform.Find("TitleText");
+        titleText.GetComponent<TextMeshPro>().text =
+            "Depression!";
+        titleText.gameObject.SetActive(true);
 
         var previousCharacterProperties = this._characterSerializer.CurrentCharacterProperties;
         var newCharacterProperties = new CharacterProperties(previousCharacterProperties);
@@ -308,6 +318,11 @@ public class TutorialScreenController : MonoBehaviour {
                 break;
         }
 
+        var backButton = avatarSection.Find("BackButton");
+        backButton.gameObject.SetActive(false);
+        var confirmButton = avatarSection.Find("ConfirmButton");
+        confirmButton.Find("StyleText").GetComponent<TextMeshPro>().text = "Next";
+
         var leftTopText = this._avatarTransitionPopup.transform.Find("TransitionTextLeftTop");
         leftTopText.GetComponent<TextMeshPro>().text = "";
         var leftBottomText = this._avatarTransitionPopup.transform.Find("TransitionTextLeftBottom").GetComponent<TextMeshPro>();
@@ -320,21 +335,29 @@ public class TutorialScreenController : MonoBehaviour {
         rightBottomText.text = String.Format(rightBottomPrevious, newCharacterProperties.avatarLevel);
 
         var upgradesPanel = this._avatarTransitionPopup.transform.Find("UpgradesPanel");
-        var background1 = upgradesPanel.Find("Background1");
-        background1.gameObject.SetActive(false);
-        var background2 = upgradesPanel.Find("Background2");
-        background2.gameObject.SetActive(false);
+        var background1 = upgradesPanel.Find("Background1").GetComponent<SpriteRenderer>();
+        background1.color =
+            new Color32(197, 22, 98, 255);
+        var background2 = upgradesPanel.Find("Background2").GetComponent<SpriteRenderer>();
+        background2.color =
+            new Color32(197, 22, 98, 255);
+        var background3 = upgradesPanel.Find("Background3").GetComponent<SpriteRenderer>();
+        background3.color =
+            new Color32(197, 22, 98, 255);
         var upgradeText1 = upgradesPanel.Find("UpgradeText1");
-        upgradeText1.gameObject.SetActive(false);
+        upgradeText1.GetComponent<TextMeshPro>().text = "- Fitness";
         var upgradeText2 = upgradesPanel.Find("UpgradeText2");
-        upgradeText2.gameObject.SetActive(false);
+        upgradeText2.GetComponent<TextMeshPro>().text = "- Happiness";
+        var upgradeText3 = upgradesPanel.Find("UpgradeText3");
+        upgradeText3.GetComponent<TextMeshPro>().text = "- Hygiene";
     }
 
     private void OnMessagePosted(MessageTriggerType triggerType)
     {
         if (this._currentState == TutorialState.PostedFirstPhoto)
         {
-            this._userSerializer.PostedPhoto = true;
+            this._userSerializer.HasBeachBackground = true;
+            this._userSerializer.HasCityBackground = true;
             this.ShowGoToMessageScreenPopup();
         }
         if (triggerType == MessageTriggerType.NewPost && this._currentState == TutorialState.ShowingComic)

@@ -38,6 +38,9 @@ public class PostHelper {
             case "Apartment":
                 background = postPicture.Find("ApartmentBackground").gameObject;
                 break;
+            case "ApartmentEmpty":
+                background = postPicture.Find("ApartmentEmptyBackground").gameObject;
+                break;
             case "City":
                 background = postPicture.Find("CityBackground").gameObject;
                 break;

@@ -73,7 +73,7 @@ public class IOController : MonoBehaviour
     public bool CanClick()
     {
         var canClick = true;
-        canClick = !this._uiController.LevelPopupVisible();
+        canClick = (!this._uiController.LevelPopupVisible() && !this._tutorialController.ComicPopupVisible());
         return canClick;
     }
 

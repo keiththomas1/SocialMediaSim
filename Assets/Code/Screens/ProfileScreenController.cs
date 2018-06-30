@@ -32,6 +32,7 @@ public class ProfileScreenController : MonoBehaviour
     private List<DelayGramPostObject> _youPostObjects;
     private Dictionary<string, int> _postDictionary;
     private bool _firstPostNew;
+    private DelayGramPost _lastDelayGramPost;
     private DelayGramPost _latestPost;
 
     private GameObject _currentAvatar = null;
@@ -94,6 +95,7 @@ public class ProfileScreenController : MonoBehaviour
     public void FinishedCreatingPicture(DelayGramPost post)
     {
         this._firstPostNew = true;
+        this._lastDelayGramPost = post;
         this._latestPost = post;
     }
 
@@ -138,7 +140,6 @@ public class ProfileScreenController : MonoBehaviour
                             // Show a 'Please enter a username' prompt
                             return;
                         }
-                        this._userSerializer.CreatedCharacter = true;
                         this._tutorialController.ShowGoToPostScreenPopup();
                     }
                     this._editScreen.GetComponent<CharacterEditor>().FinalizeCharacter();
@@ -561,11 +562,13 @@ public class ProfileScreenController : MonoBehaviour
 
         if (this._firstPostNew)
         {
+            var expPoints = this.GetExperiencePointsForPost(this._lastDelayGramPost);
             this._scrollController.ScrollToPosition(
                 NEW_POST_SCROLL_POSITION,
                 (() => {
-                    this._levelingController.AddExperience(10);
-                    this.CheckGoalProgress(); }));
+                    this._levelingController.AddExperience(expPoints);
+                    this.CheckGoalProgress();
+                }));
 
             var postAnimation = GameObject.Instantiate(Resources.Load("Posts/NewPostAnimation") as GameObject);
             var animationPosition = this._youPostObjects[0].postObject.transform.position;
@@ -575,6 +578,30 @@ public class ProfileScreenController : MonoBehaviour
             postAnimation.transform.parent = this._scrollArea.transform;
 
             this._firstPostNew = false;
+        }
+    }
+
+    private int GetExperiencePointsForPost(DelayGramPost post)
+    {
+        switch (post.backgroundName)
+        {
+            case "Apartment":
+            case "ApartmentEmpty":
+                return 10;
+            case "Beach":
+                return 15;
+            case "City":
+                return 15;
+            case "Park":
+                return 20;
+            case "CamRoom":
+                return 20;
+            case "Louvre":
+                return 40;
+            case "Yacht":
+                return 60;
+            default:
+                return 0;
         }
     }
 

@@ -100,7 +100,14 @@ public class NewPostController : MonoBehaviour
                 this.DestroyPage();
                 break;
             case "Apartment":
-                this._currentBackground = "Apartment";
+                if (this._userSerializer.ApartmentEmpty)
+                {
+                    this._currentBackground = "ApartmentEmpty";
+                }
+                else
+                {
+                    this._currentBackground = "Apartment";
+                }
                 this.GotoNewState(NewPostState.Cropping);
                 break;
             case "Beach":
@@ -347,6 +354,9 @@ public class NewPostController : MonoBehaviour
             case "Apartment":
                 this._currentBackgroundObject = picture.Find("ApartmentBackground").gameObject;
                 break;
+            case "ApartmentEmpty":
+                this._currentBackgroundObject = picture.Find("ApartmentEmptyBackground").gameObject;
+                break;
             case "Beach":
                 this._currentBackgroundObject = picture.Find("BeachBackground").gameObject;
                 break;
@@ -412,6 +422,7 @@ public class NewPostController : MonoBehaviour
         switch (backgroundName)
         {
             case "Apartment":
+            case "ApartmentEmpty":
                 return 3f;
             case "Beach":
                 return 5f;
@@ -424,7 +435,7 @@ public class NewPostController : MonoBehaviour
             case "Louvre":
                 return 30f;
             case "Yacht":
-                return 30f;
+                return 60f;
             default:
                 return 0f;
         }
@@ -465,17 +476,21 @@ public class NewPostController : MonoBehaviour
                     item.transform.localScale.x,
                     null));
         }
-        if (this._currentBackground == "Apartment")
+        if (this._currentBackground == "Apartment" || this._currentBackground == "ApartmentEmpty")
         {
+            // TODO: Reward player with carpet which you can enable here
             var carpet = this._currentBackgroundObject.transform.Find("ApartmentCarpet");
-            var carpetColor = carpet.GetComponent<SpriteRenderer>().color;
-            var carpetItem = new PictureItem(
-                "ApartmentCarpet",
-                null,
-                0f,
-                0f,
-                new SerializableColor(carpetColor));
-            newItems.Add(carpetItem);
+            if (carpet)
+            {
+                var carpetColor = carpet.GetComponent<SpriteRenderer>().color;
+                var carpetItem = new PictureItem(
+                    "ApartmentCarpet",
+                    null,
+                    0f,
+                    0f,
+                    new SerializableColor(carpetColor));
+                newItems.Add(carpetItem);
+            }
         }
         newPost.items = newItems;
 
@@ -491,6 +506,9 @@ public class NewPostController : MonoBehaviour
         apartmentParameters.AvatarRotation = new Vector3(0f, 0f, 0f);
         this._defaultLocationParameters.Add(
             "Apartment",
+            apartmentParameters);
+        this._defaultLocationParameters.Add(
+            "ApartmentEmpty",
             apartmentParameters);
 
         var cityParameters = new LocationParameters();

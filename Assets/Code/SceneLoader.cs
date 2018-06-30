@@ -13,14 +13,16 @@ public class SceneLoader : MonoBehaviour {
     private float _currentProgress = 0.0f;
     private float _loadingBarWidth;
     private bool _finishedLoading = false;
+    private bool _startedGame = false;
 
 	// Use this for initialization
 	void Start () {
         DontDestroyOnLoad(this.gameObject);
-        StartCoroutine(this.LoadMainScene());
         // this.LoadMainScene();
 
         this._loadingBarWidth = this._loadingBar.rect.width;
+
+        StartCoroutine(this.LoadMainScene());
     }
 
     // Update is called once per frame
@@ -29,6 +31,16 @@ public class SceneLoader : MonoBehaviour {
         {
             this._loadingBar.sizeDelta = new Vector2(this._currentProgress * this._loadingBarWidth, this._loadingBar.sizeDelta.y);
             this._loadingText.text = String.Format("{0}%", Mathf.Floor(this._currentProgress * 100.0f));
+        }
+        else
+        {
+            if (!this._startedGame)
+            {
+                this._startedGame = true;
+                var uiController = GameObject.FindObjectOfType<UIController>();
+                // uiController.StartCoroutine(uiController.StartGameEndOfFrame());
+                uiController.EnterGame();
+            }
         }
     }
 
@@ -42,10 +54,11 @@ public class SceneLoader : MonoBehaviour {
             this._currentProgress = loadAsync.progress;
             yield return null;
         }
-        this._finishedLoading = true;
 
         AsyncOperation unloadAsync = SceneManager.UnloadSceneAsync("loading");
         yield return unloadAsync;
+
+        this._finishedLoading = true;
 
         // var uiController = GameObject.FindObjectOfType<UIController>();
         // if (uiController)

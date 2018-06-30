@@ -143,10 +143,10 @@ public class UIController : MonoBehaviour {
             this._nextPostText.SetActive(true);
         }
 
-        StartCoroutine(this.StartGameEndOfFrame());
+        // StartCoroutine(this.StartGameEndOfFrame());
     }
 
-    private IEnumerator StartGameEndOfFrame()
+    public IEnumerator StartGameEndOfFrame()
     {
         yield return new WaitForEndOfFrame();
 
@@ -369,8 +369,7 @@ public class UIController : MonoBehaviour {
         }
         else
         {
-            this._notificationText.color = new Color(131f / 255f, 126f / 255f, 48f / 255f);
-            this._notificationHeartIcon.color = new Color(131f / 255f, 126f / 255f, 48f / 255f);
+            this._notificationButton.GetComponent<Animator>().Play("Idle");
             this._notificationText.text = newCount.ToString();
         }
     }
@@ -378,8 +377,7 @@ public class UIController : MonoBehaviour {
     IEnumerator UpdateNotificationColorAfterAnimation(int newCount)
     {
         yield return new WaitForSeconds(1.4f); // animation["throw"].length);
-        this._notificationText.color = new Color(237f / 255f, 30f / 255f, 121f / 255f);
-        this._notificationHeartIcon.color = new Color(237f / 255f, 30f / 255f, 121f / 255f);
+        this._notificationButton.GetComponent<Animator>().Play("Wiggling");
         this._notificationText.text = newCount.ToString();
     }
 
@@ -450,6 +448,8 @@ public class UIController : MonoBehaviour {
         background1.gameObject.SetActive(upgradeText.Count == 1);
         var background2 = upgradesPanel.Find("Background2");
         background2.gameObject.SetActive(upgradeText.Count == 2);
+        var background3 = upgradesPanel.Find("Background2");
+        background3.gameObject.SetActive(upgradeText.Count == 3);
         var upgradeText1 = upgradesPanel.Find("UpgradeText1");
         upgradeText1.GetComponent<TextMeshPro>().text = upgradeText[0];
         var upgradeText2 = upgradesPanel.Find("UpgradeText2");
@@ -457,6 +457,12 @@ public class UIController : MonoBehaviour {
         if (upgradeText.Count >= 2)
         {
             upgradeText2.GetComponent<TextMeshPro>().text = upgradeText[1];
+        }
+        var upgradeText3 = upgradesPanel.Find("UpgradeText3");
+        upgradeText3.gameObject.SetActive(upgradeText.Count >= 3);
+        if (upgradeText.Count >= 3)
+        {
+            upgradeText3.GetComponent<TextMeshPro>().text = upgradeText[2];
         }
     }
 
@@ -672,6 +678,7 @@ public class UIController : MonoBehaviour {
 
     public void GoToTutorialPage()
     {
+        DestroyPage(this._currentPage);
         this._tutorialController.EnterScreen();
         this._currentPage = Page.Tutorial;
     }
